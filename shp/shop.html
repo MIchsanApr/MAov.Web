@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashes of Vengeance - Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    
+  body {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #161a1f 0%, #12151a 100%);
+  color: #e8e8e8;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.tab-indicator {
+  background: linear-gradient(90deg, #e5e7eb, #9ca3af);
+  height: 2px;
+}
+
+/* ================= ITEM CARD ================= */
+
+.item-card {
+  background: linear-gradient(180deg, #1c2128 0%, #171b22 100%);
+  border: 1px solid #2b3340;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  transition: left 0.6s ease;
+}
+
+.item-card:hover::before {
+  left: 100%;
+}
+
+.item-card:hover {
+  border-color: #626770;
+  background: linear-gradient(180deg, #202634 0%, #1a1f2a 100%);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= ITEM IMAGE ================= */
+
+.item-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  width: 100%;
+  height: 180px;
+  background: radial-gradient(circle at top, #1a202b, #10141b);
+}
+
+.item-image-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.item-card:hover .item-image-glow {
+  opacity: 1;
+}
+
+.item-image-glow.legendary {
+  background: radial-gradient(circle at 35% 35%, rgba(251, 191, 36, 0.45), rgba(217, 119, 6, 0.2) 45%, transparent 70%);
+  box-shadow: inset 0 0 40px rgba(251, 191, 36, 0.25), inset 20px 20px 40px rgba(251, 191, 36, 0.15);
+}
+
+.item-image-glow.epic {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(139, 92, 246, 0.15) 40%, transparent 70%);
+  box-shadow: inset 0 0 30px rgba(168, 85, 247, 0.25), inset -12px -12px 25px rgba(168, 85, 247, 0.15);
+}
+
+.item-image-glow.rare {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(96, 165, 250, 0.12) 50%, transparent 75%);
+  box-shadow: inset 0 0 35px rgba(59, 130, 246, 0.2), inset 15px 0px 30px rgba(59, 130, 246, 0.1);
+}
+
+.item-card img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover img {
+  transform: scale(1.05);
+}
+
+/* ================= CURRENCY ================= */
+
+.currency-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.currency-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.currency-separator {
+  color: #6b7280;
+  font-weight: 300;
+}
+
+.currency-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.currency-value {
+  color: #e5e7eb;
+}
+
+.currency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.currency-badge .currency-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 1px;
+}
+
+.currency-display-modern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #1c2128 0%, #171b22 100%);
+  border: 1px solid #2b3340;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ================= BUTTONS ================= */
+
+.btn-minimal {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #1f2530, #181d26);
+  border: 1px solid #2b3340;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #e5e7eb;
+}
+
+.btn-minimal:hover {
+  border-color: #b1cfff;
+  background: linear-gradient(180deg, #242b3a, #1d2330);
+}
+
+.btn-minimal:active {
+  background: #2b3340;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #f3f4f6, #e5e7eb);
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #ffffff, #f3f4f6);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+}
+
+.btn-primary:active {
+  background: linear-gradient(180deg, #e5e7eb, #d1d5db);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, #1f2530, #181d26);
+  color: #ffffff;
+  border: 1px solid #2b3340;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, #2a3242, #20273a);
+  border-color: #b1cfff;
+}
+
+/* ================= PANELS & MODAL ================= */
+
+.glass-panel {
+  background: linear-gradient(180deg, #1c2128, #171b22);
+  border: 1px solid #2b3340;
+  border-radius: 6px;
+}
+
+.modal-backdrop {
+  background: rgba(5, 10, 20, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.progress-bar {
+  height: 3px;
+  background: #2b3340;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e5e7eb, #9ca3af);
+  transition: width 0.3s ease;
+}
+
+/* ================= FORGE PROGRESS (white bar) ================= */
+.forge-progress {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.forge-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #ffffff;
+  transition: width 0s linear;
+}
+
+/* ================= TABS ================= */
+
+.tab-btn {
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: #ffffff;
+}
+
+.tab-btn:not(.active) {
+  color: #9ca3af;
+}
+
+/* ================= FX ================= */
+
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty)) scale(0);
+  }
+}
+
+@keyframes upgradeGlow {
+  0% {
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0), 0 0 0 2px rgba(59, 130, 246, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.35), 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+  100% {
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.8), 0 0 0 2px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.upgrade-particle {
+  position: fixed;
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* ================= STATS ================= */
+
+.stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 600;
+  width: 80px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  color: #f3f4f6;
+  font-weight: 600;
+  font-size: 13px;
+  min-width: 30px;
+}
+
+.stat-value-increase {
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* ================= TOPUP MODAL ================= */
+
+.topup-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.8);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.topup-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.topup-modal-content {
+  background: linear-gradient(180deg, #1c2128, #171b22);
+  border: 1px solid #2b3340;
+  border-radius: 10px;
+  padding: 32px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  z-index: 1000;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95);
+  position: relative;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+.topup-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(180deg, #2b3340, #1f2530);
+  border: 1px solid #b1cfff;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.topup-close-btn:hover {
+  background: linear-gradient(180deg, #303030, #2563eb);
+  color: #ffffff;
+  border-color: #60a5fa;
+}
+
+.payment-method {
+  padding: 10px 12px;
+  border: 1px solid #2b3340;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #1f2530, #181d26);
+}
+
+.payment-method:hover {
+  border-color: #b1cfff;
+  background: linear-gradient(180deg, #2a3242, #20273a);
+}
+
+.payment-method.selected {
+  border-color: #b1cfff;
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.payment-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exchange-card-image {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-bottom: 1px solid #2b3340;
+}
+
+/* ================= IMAGE INSPECT MODAL ================= */
+
+.inspect-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.inspect-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.inspect-modal-content {
+  position: relative;
+  z-index: 1000;
+  max-width: 80vw;
+  max-height: 80vh;
+  animation: slideIn 0.3s ease-out;
+}
+
+.inspect-modal-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95);
+}
+
+.inspect-close-btn {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(180deg, #2b3340, #1f2530);
+  border: 1px solid #b1cfff;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.inspect-close-btn:hover {
+  background: linear-gradient(180deg, #303030, #2563eb);
+  color: #ffffff;
+  border-color: #60a5fa;
+  transform: scale(1.1);
+}
+
+.inspect-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #1f2530, #181d26);
+  border: 1px solid #2b3340;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #e5e7eb;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.inspect-btn:hover {
+  border-color: #b1cfff;
+  background: linear-gradient(180deg, #242b3a, #1d2330);
+}
+
+
+  </style>
+</head>
+<body class="h-full overflow-hidden bg-gray-900">
+  <div id="app" class="h-full flex flex-col">
+    <!-- Header -->
+    <header class="glass-panel m-3 px-6 py-4 flex items-center justify-between flex-shrink-0 animate-slide-in">
+      <div class="flex items-center gap-4">
+        
+          <IMG src="aov.png" style="width: 120px;" ></IMG>
+        
+        <div>
+          <h1 id="game-title" class="text-lg font-bold text-white tracking-tight">Armory</h1>
+          <p id="welcome-message" class="text-xs text-gray-400 uppercase tracking-widest font-medium">Preparation</p>
+        </div>
+      </div>
+
+      <!-- Currency Display -->
+      <div class="flex items-center gap-6">
+        <div class="currency-display-modern">
+          <div class="currency-item">
+            <img src="./currency-gold.png" alt="Gold" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#c17817'; this.alt='Gold';"/>
+            <span id="gold-display" class="currency-value">125K</span>
+          </div>
+          <div class="currency-separator">/</div>
+          
+          <div class="currency-item">
+            <img src="./currency-shards.png" alt="Shards" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#2563eb'; this.alt='Shards';"/>
+            <span id="shards-display" class="currency-value">2.8K</span>
+          </div>
+          <div class="currency-separator">/</div>
+          
+          <div class="currency-item">
+            <img src="./currency-crystals.png" alt="Crystals" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#a855f7'; this.alt='Crystals';"/>
+            <span id="crystals-display" class="currency-value">580</span>
+          </div>
+          <div class="currency-separator">/</div>
+          
+          <div class="currency-item">
+            <img src="./currency-vox.png" alt="Vox Core" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#16a34a'; this.alt='Vox Core';"/>
+            <span id="vox-display" class="currency-value">950</span>
+          </div>
+          <div class="currency-separator">/</div>
+          
+          <div class="currency-item">
+            <img src="./currency-nexus.png" alt="Nexus Shard" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#b45309'; this.alt='Nexus Shard';"/>
+            <span id="nexus-display" class="currency-value">12</span><button onclick="openTopupModal()" class="btn-minimal" title="Top Up">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+        </button>
+          </div>
+
+
+        </div>
+        <button onclick="window.history.back()" class="btn-minimal" title="ESC">
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+  </svg>
+</button>
+      </div>
+    </header>
+
+    <!-- BGM Background Music -->
+    <audio id="bgm-player" loop>
+      <source src="./sounds/bgm.ogg" type="audio/ogg">
+      <source src="./sounds/bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- TOP UP Modal -->
+    <div id="topup-modal-overlay" class="topup-modal-overlay">
+      <div class="topup-modal-content">
+        <button onclick="closeTopupModal()" class="topup-close-btn">
+          <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <div id="topup-panel">
+          <!-- Topup content -->
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGE INSPECT Modal -->
+    <div id="inspect-modal-overlay" class="inspect-modal-overlay" onclick="closeInspectModal(event)">
+      <div class="inspect-modal-content">
+        <button onclick="closeInspectModal()" class="inspect-close-btn" title="Close">−</button>
+        <img id="inspect-image" src="" alt="Inspect Image" />
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="glass-panel m-3 mt-0 px-2 py-2 flex-shrink-0 animate-slide-in" style="animation-delay: 30ms;">
+      <div class="flex items-center gap-4 overflow-x-auto">
+        <button onclick="switchTab('weapons')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative active" data-tab="weapons">
+          Weapons
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('armor')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="armor">
+          Armor
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('abilities')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="abilities">
+          Abilities
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('skins')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="skins">
+          Relics
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('crafting')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="crafting">
+          Forge
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('upgrades')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="upgrades">
+          Upgrades
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+        <button onclick="switchTab('exchange')" class="tab-btn px-4 py-2 text-sm font-semibold uppercase tracking-wider relative" data-tab="exchange">
+          Exchange
+          <span class="tab-indicator absolute bottom-0 left-0 right-0 scale-x-0 transition-transform origin-left"></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-hidden flex gap-3 px-3 pb-3">
+      <!-- Content Panel -->
+      <div class="flex-1 glass-panel p-6 overflow-auto">
+        <!-- Search and Filters -->
+        <div class="flex items-center gap-3 mb-6">
+          <div class="relative flex-1 max-w-xs">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search..." class="w-full glass-panel pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-gray-400 border-gray-500 border" oninput="filterItems()">
+          </div>
+
+          <select id="rarity-filter" class="glass-panel px-3 py-2 text-sm border border-gray-500 focus:outline-none focus:border-gray-400 bg-gray-900 text-white" onchange="filterItems()">
+            <option value="all" style="background-color: #111827; color: white;">All Rarities</option>
+            <option value="legendary" style="background-color: #111827; color: white;">Legendary</option>
+            <option value="epic" style="background-color: #111827; color: white;">Epic</option>
+            <option value="rare" style="background-color: #111827; color: white;">Rare</option>
+            <option value="common" style="background-color: #111827; color: white;">Common</option>
+          </select>
+
+          <select id="sort-filter" class="glass-panel px-3 py-2 text-sm border border-gray-500 focus:outline-none focus:border-gray-400 bg-gray-900 text-white" onchange="sortItems()">
+            <option value="name" style="background-color: #111827; color: white;">Sort by Name</option>
+            <option value="price-low" style="background-color: #111827; color: white;">Price: Low to High</option>
+            <option value="price-high" style="background-color: #111827; color: white;">Price: High to Low</option>
+            <option value="rarity" style="background-color: #111827; color: white;">Rarity</option>
+          </select>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content" class="tab-content">
+          <!-- Content will be dynamically loaded -->
+        </div>
+      </div>
+<script>const container = document.getElementById("tab-content");
+
+Object.values(items).flat().forEach(item => {
+  const card = document.createElement("div");
+  card.className = `item-card ${item.rarity}`;
+
+  card.innerHTML = `
+    <div class="rarity-overlay"></div>
+    <img src="${item.image}" alt="${item.name}">
+  `;
+
+  container.appendChild(card);
+});
+</script><style>
+
+/* Rarity styles */
+.item-card.epic .rarity-overlay {
+  background: linear-gradient(135deg, #7b3fe4, #a938c3);
+}
+
+.item-card.mythic .rarity-overlay {
+  background: linear-gradient(135deg, #eb1414, #d42c56);
+}
+
+.item-card.legendary .rarity-overlay {
+  background: radial-gradient(circle at center, #ffd700, #ff9f1c);
+}
+
+.item-card.rare .rarity-overlay {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.item-card.common .rarity-overlay {
+  background: none;
+}
+</style>
+      <!-- Preview Panel -->
+      <div id="preview-panel" class="w-80 glass-panel p-6 flex-shrink-0 overflow-auto hidden animate-slide-in" style="animation-delay: 60ms;">
+        <div id="preview-content">
+          <!-- Preview content will be dynamically loaded -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Forge Modal -->
+  <div id="forge-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden">
+    <div class="glass-panel p-8 max-w-2xl w-full mx-4 animate-slide-in">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">FORGE VOX CORE</h2>
+        <button onclick="closeForgeModal()" class="text-gray-400 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="forge-content" class="grid grid-cols-2 gap-4">
+        <!-- Forge options will be dynamically loaded -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 hidden">
+    <div class="glass-panel p-6 max-w-md w-full mx-4 animate-slide-in">
+      <div id="confirm-content">
+        <!-- Confirmation content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 glass-panel px-6 py-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
+    <div class="flex items-center gap-3">
+      <div id="toast-icon" class="w-5 h-5 text-green-400">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <div>
+        <p id="toast-title" class="text-sm font-semibold text-white">Success!</p>
+        <p id="toast-message" class="text-xs text-gray-400">Operation completed</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultConfig = {
+      game_title: 'ASHES OF VENGEANCE',
+      welcome_message: 'Armory'
+    };
+
+    let config = { ...defaultConfig };
+
+    let gameState = {
+      gold: 125430,
+      shards: 2845,
+      crystals: 580,
+      voxCore: 950,
+      nexusShard: 12,
+      inventory: [],
+      activeTab: 'weapons',
+      selectedItem: null,
+      selectedPaymentMethod: 'qris'
+    };
+
+    let bgmStarted = false;
+
+    const topupPackages = [
+      { id: 'p1', nexusShards: 50, price: 9.99, image: './currency-nexus.png' },
+      { id: 'p2', nexusShards: 150, price: 24.99, image: './topup-150-nexus.png' },
+      { id: 'p3', nexusShards: 350, price: 49.99, image: './topup-350-nexus.png' },
+      { id: 'p4', nexusShards: 500, price: 59.99, image: './topup-500-nexus.png' },
+      { id: 'p5', nexusShards: 1000, price: 100.99, image: './topup-1000-nexus.png' },
+      { id: 'p6', nexusShards: 2000, price: 199.99, image: './topup-2000-nexus.png' },
+    ];
+
+    const items = {
+  weapons: [
+    { 
+  id: 'w1', 
+  name: 'Phantom Blade', 
+  type: 'Sword', 
+  rarity: 'epic', 
+  price: { gold: 15000, voxCore: 200, crystals: 40 }, 
+  damage: 450, 
+  magic: 120, 
+  rateOfFire: 75, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'Forged within ethereal flames that exist between life and death, the Phantom Blade was once wielded by a forgotten guardian who swore to protect a dying world. Its edge hums with restless souls, whispering echoes of battles long lost. Every swing leaves behind a ghostly trail, as if reality itself is struggling to keep up with its power.', 
+  icon: '⚔️', 
+  image: 'items/Phantom Blade.png' 
+},
+{ 
+  id: 'w2', 
+  name: 'Void Rifle', 
+  type: 'Rifle', 
+  rarity: 'rare', 
+  price: { gold: 8500, voxCore: 120 }, 
+  damage: 320, 
+  magic: 180, 
+  rateOfFire: 60, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'Designed during the Collapse of the Void Front, this rifle channels condensed abyssal energy into devastating pulses. Each shot tears open micro-rifts in reality, dragging fragments of the void into the battlefield. Soldiers who carried it often vanished, leaving only scorched ground and whispers of something watching from the dark.', 
+  icon: '🔫', 
+  image: 'items/Void Rifle.png' 
+},
+{ 
+  id: 'w3', 
+  name: 'Storm Gauntlets', 
+  type: 'Melee', 
+  rarity: 'rare', 
+  price: { gold: 4200, shards: 60 }, 
+  damage: 180, 
+  magic: 280, 
+  rateOfFire: 90, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'Forged atop the Sky Spire during an endless thunderstorm, these gauntlets bind raw lightning to the wearer’s will. Ancient storm spirits are sealed within the metal, raging for release. With every punch, thunder answers, and enemies fall as if struck by the wrath of the heavens themselves.', 
+  icon: '⚡', 
+  image: 'items/Storm Gauntlets.png' 
+},
+{ 
+  id: 'w4', 
+  name: 'Shadow Dagger', 
+  type: 'Dagger', 
+  rarity: 'epic', 
+  price: { gold: 6800, voxCore: 90, crystals: 20 }, 
+  damage: 220, 
+  magic: 150, 
+  rateOfFire: 100, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'Crafted by assassins who no longer exist, the Shadow Dagger is said to be carved from solid darkness. It bends light around its blade, making its strikes nearly invisible until it is too late. Victims often report feeling cold long before they realize they have already been struck.', 
+  icon: '🗡️', 
+  image: 'items/Shadow Dagger.png' 
+},
+{ 
+  id: 'w5', 
+  name: 'Plasma Cannon', 
+  type: 'Heavy', 
+  rarity: 'epic', 
+  price: { gold: 22000, voxCore: 350, crystals: 40 }, 
+  damage: 680, 
+  magic: 100, 
+  rateOfFire: 35, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'Built during the final days of the War of Ashes, the Plasma Cannon was designed to end battles before they began. Its core houses a miniature star reactor, barely contained by ancient alloys. Each blast unleashes a wave of searing energy capable of erasing entire battalions and leaving only molten ruins behind.', 
+  icon: '💥', 
+  image: 'items/Plasma Cannon.png' 
+},
+{ 
+  id: 'w6', 
+  name: 'Steel Shortsword', 
+  type: 'Sword', 
+  rarity: 'common', 
+  price: { gold: 1200 }, 
+  damage: 95, 
+  magic: 30, 
+  rateOfFire: 85, 
+  level: 1, 
+  maxLevel: 10, 
+  description: 'A simple blade forged by war-hardened smiths in forgotten villages, the Steel Shortsword has survived countless battles. Though lacking arcane power, it carries the spirit of those who fought with nothing but steel and will. In the right hands, even an ordinary blade can carve a legend.', 
+  icon: '🗡️', 
+  image: 'items/Steel Shortsword.png' 
+},
+{ 
+  id: 'w7', 
+  name: 'Inferno Excalibur', 
+  type: 'Sword', 
+  rarity: 'legendary', 
+  price: { gold: 28000, voxCore: 420, crystals: 100 }, 
+  damage: 720, 
+  magic: 260, 
+  rateOfFire: 70, 
+  level: 1, 
+  maxLevel: 15, 
+  description: 'Forged in the heart of a dying star, Inferno Excalibur burns with eternal fury. It was once wielded by a fallen champion who defied the gods themselves. The blade radiates an endless blaze, growing hotter with every act of vengeance. Legends say it chooses its wielder only when the world stands on the edge of annihilation.', 
+  icon: '🔥', 
+  image: 'items/Inferno Excalibur.png' 
+},
+{ 
+  id: 'w8', 
+  name: 'Void Reaver', 
+  type: 'Axe', 
+  rarity: 'epic', 
+  price: { gold: 19500, voxCore: 260, crystals: 60 }, 
+  damage: 640, 
+  magic: 180, 
+  rateOfFire: 55, 
+  level: 1, 
+  maxLevel: 12, 
+  description: 'An abyssal war axe forged from void-forged ore, Void Reaver devours light and tears through dimensions. It was carried by an interstellar executioner tasked with erasing entire civilizations. Each swing distorts space itself, leaving cracks in reality that bleed darkness.', 
+  icon: '🪓', 
+  image: 'items/Void Reaver.png' 
+},
+{ 
+  id: 'w9', 
+  name: 'Celestial Ruin', 
+  type: 'Spear', 
+  rarity: 'epic', 
+  price: { gold: 30000, voxCore: 460, crystals: 80 }, 
+  damage: 690, 
+  magic: 320, 
+  rateOfFire: 65, 
+  level: 1, 
+  maxLevel: 15, 
+  description: 'Blessed by fallen stars and tempered in cosmic storms, Celestial Ruin was created to pierce divine armor and bring gods to their knees. Its shaft glows with starlight, and its tip hums with celestial energy. Wherever it strikes, even immortality is no longer guaranteed.', 
+  icon: '🌌', 
+  image: 'items/Celestial Ruin.png' 
+},
+{ 
+  id: 'w10', 
+  name: 'Oblivion Fang', 
+  type: 'Dagger', 
+  rarity: 'rare', 
+  price: { gold: 38000, voxCore: 600, crystals: 120 }, 
+  damage: 560, 
+  magic: 420, 
+  rateOfFire: 110, 
+  level: 1, 
+  maxLevel: 20, 
+  description: 'Forged from the remains of an ancient void beast that once devoured entire worlds, Oblivion Fang does not merely kill—it erases. Those struck by its blade are removed from existence, leaving behind nothing but fractured memories and corrupted reality. Even time itself seems afraid to remember its victims.', 
+  icon: '🐉', 
+  image: 'items/Oblivion Fang.png' 
+},
+{ 
+  id: 'w11', 
+  name: 'Crimson Verdict', 
+  type: 'Sword', 
+  rarity: 'legendary', 
+  price: { gold: 42000, voxCore: 750, crystals: 180 }, 
+  damage: 820, 
+  magic: 380, 
+  rateOfFire: 65, 
+  level: 1, 
+  maxLevel: 20, 
+  description: 'Crimson Verdict was forged from the shattered core of a fallen war god, sealed within a blade bathed in eternal bloodlight. Every strike echoes the final judgment of countless worlds it has erased. The runes etched across its edge pulse like a living heart, feeding on vengeance, rage, and unresolved sorrow. Legends say the blade does not serve heroes nor villains—it serves only those who carry a grudge powerful enough to reshape fate itself.', 
+  icon: '🩸', 
+  image: 'items/Crimson Verdict.png' 
+},
+{ 
+  id: 'w12', 
+  name: 'Solar Dominion', 
+  type: 'Sword', 
+  rarity: 'legendary', 
+  price: { gold: 46000, voxCore: 820, crystals: 220 }, 
+  damage: 880, 
+  magic: 420, 
+  rateOfFire: 70, 
+  level: 1, 
+  maxLevel: 20, 
+  description: 'Solar Dominion was forged at the peak of the First Dawn, when the sun itself was bound into mortal steel. Its core holds a fragment of stellar consciousness, radiating authority, judgment, and divine will. The blade does not burn—it commands fire. Those who wield it are said to stand as living beacons of fate, capable of rewriting the course of wars, kingdoms, and even the heavens themselves.', 
+  icon: '☀️', 
+  image: 'items/Solar Dominion.png' 
+},
+{ 
+  id: 'w13', 
+  name: 'Azure Ascension', 
+  type: 'Staff', 
+  rarity: 'epic', 
+  price: { gold: 18500, voxCore: 240, crystals: 50 }, 
+  damage: 280, 
+  magic: 520, 
+  rateOfFire: 50, 
+  level: 1, 
+  maxLevel: 15, 
+  description: 'Azure Ascension was crafted by skyward monks who devoted their lives to guarding the upper realms. The winged crest atop the staff symbolizes freedom, vigilance, and transcendence. Though it lacks brute destruction, its true power lies in control—bending winds, shaping energy, and elevating its wielder above the chaos of war. It is said those who master it no longer walk the battlefield… they rise above it.', 
+  icon: '🦅', 
+  image: 'items/Azure Ascension.png' 
+},
+{ 
+  id: 'w14', 
+  name: 'Tidebreaker Edge', 
+  type: 'Sword', 
+  rarity: 'epic', 
+  price: { gold: 21000, voxCore: 260, crystals: 140 }, 
+  damage: 540, 
+  magic: 240, 
+  rateOfFire: 85, 
+  level: 1, 
+  maxLevel: 15, 
+  description: 'Tidebreaker Edge was forged from abyss-steel cooled in the deepest ocean trench. Its curved blade moves like flowing water—silent, precise, and unstoppable. Legends say it was once wielded by a phantom assassin who could strike without leaving ripples, only bodies. Each swing carries the weight of the tides, dragging enemies into a slow, inevitable fall.', 
+  icon: '🌊', 
+  image: 'items/Tidebreaker Edge.png' 
+},
+{ 
+  id: 'w15', 
+  name: 'Emberfall', 
+  type: 'Sword', 
+  rarity: 'legendary', 
+  price: { gold: 27000, voxCore: 380, crystals: 120}, 
+  damage: 700, 
+  magic: 180, 
+  rateOfFire: 70, 
+  level: 1, 
+  maxLevel: 15, 
+  description: 'Emberfall was born from a volcanic core that never stopped burning. The blade is not merely heated—it is alive with rage. Every strike ignites the air itself, leaving burning scars across the battlefield. It is said Emberfall grows hotter with every enemy defeated, feeding on chaos and turning war into wildfire.', 
+  icon: '🔥', 
+  image: 'items/Emberfall.png' 
+},
+{ 
+  id: 'w16', 
+  name: 'Rose of Ruin', 
+  type: 'Scythe', 
+  rarity: 'legendary', 
+  price: { gold: 39000, voxCore: 680, crystals: 260 }, 
+  damage: 760, 
+  magic: 420, 
+  rateOfFire: 55, 
+  level: 1, 
+  maxLevel: 20, 
+  description: 'Rose of Ruin was forged from cursed steel grown through a blood-soaked garden where countless warriors fell. Its blade blooms with crimson energy, beautiful yet lethal. Those cut by it feel both pain and sorrow, as if the scythe harvests not only flesh, but memories, dreams, and unfinished hopes. It is the weapon of fallen angels and broken kings.', 
+  icon: '🌹', 
+  image: 'items/Rose of Ruin.png' 
+}
+
+
+
+
+
+
+  ],
+  armor: [
+    { id: 'a1', name: 'Titan Plate', type: 'Heavy', rarity: 'legendary', price: { gold: 18000, voxCore: 280 }, defense: 420, mobility: 60, description: 'Impenetrable defense.', image: 'items/Titan Plate.png' },
+    { id: 'a2', name: 'Shadow Weave', type: 'Light', rarity: 'epic', price: { gold: 9500, voxCore: 150 }, defense: 180, mobility: 95, description: 'Move unseen.', image: 'items/Shadow Weave.png' },
+    { id: 'a3', name: 'Tactical Vest', type: 'Medium', rarity: 'rare', price: { gold: 5200, shards: 80 }, defense: 240, mobility: 80, description: 'Balanced protection.', image: 'items/Tactical Vest.png' }
+  ],
+  abilities: [
+    { id: 'ab1', name: 'Time Warp', type: 'Ultimate', rarity: 'legendary', price: { voxCore: 500 }, cooldown: 120, description: 'Slow time around you.', image: 'items/Time Warp.png' },
+    { id: 'ab2', name: 'Phantom Dash', type: 'Movement', rarity: 'epic', price: { voxCore: 280 }, cooldown: 15, description: 'Phase through obstacles.', image: 'items/Phantom Dash.png' },
+    { id: 'ab3', name: 'Energy Shield', type: 'Defensive', rarity: 'rare', price: { shards: 180 }, cooldown: 30, description: 'Deploy a barrier.', image: 'items/Energy Shield.png' },
+    { id: 'ab4', name: 'Shared Pain', type: 'Attack', rarity: 'epic', price: { shards: 260, voxCore: 90 }, cooldown: 40, description: 'Marks enemies so that 45% of the damage dealt to one target is shared across all marked enemies.', image: 'items/Shared Pain.png' },
+{ id: 'ab5', name: 'Blood Oath', type: 'Buff', rarity: 'legendary', price: { shards: 340, voxCore: 160 }, cooldown: 60, description: 'Sacrifices 15% of current HP to gain massive attack speed and damage for 12 seconds.', image: 'items/Blood Oath.png' },
+{ id: 'ab6', name: 'Void Collapse', type: 'Attack', rarity: 'legendary', price: { shards: 400, voxCore: 220 }, cooldown: 90, description: 'Creates a collapsing void zone that pulls enemies inward and deals massive damage over time.', image: 'items/Void Collapse.png' },
+{ id: 'ab7', name: 'Ashen Wrath', type: 'Attack', rarity: 'epic', price: { shards: 520, voxCore: 320, crystals: 100 }, cooldown: 120, description: 'Unleashes the wrath of fallen flames, massively boosting attack and converting damage into burning devastation.', image: 'items/Ashen Wrath.png' }
+
+  ],
+  skins: [
+    { id: 's1', name: 'Obsidian Blood', weapon: 'Phantom Blade', rarity: 'legendary', price: { crystals: 250 }, description: 'The nemesis blood has been captured ofr Eternity.', image: 'items/Obsidian blood.png' },
+    { id: 's2', name: 'Crimson Dawn', weapon: 'Void Rifle', rarity: 'epic', price: { crystals: 180 }, description: 'Crimson valley heart.', image: 'items/Crimson Dawn.png' },
+    { id: 's3', name: 'Frost Touched', weapon: 'Storm Gauntlets', rarity: 'rare', price: { crystals: 120 }, description: 'Frozen time, infity frost mana.', image: 'items/Frost Touched.png' },
+    { id: 's4', name: 'Volt Surge', weapon: 'Plasma Cannon', rarity: 'epic', price: { crystals: 180 }, description: 'Pure lightning energy surges through the weapon core.', image: 'items/Volt Surge.png' },
+{ id: 's5', name: 'Golden Ascendant', weapon: 'Inferno Excalibur', rarity: 'legendary', price: { crystals: 260 }, description: 'Forged in divine gold, radiating unmatched supremacy.', image: 'items/Golden Ascendant.png' },
+{ id: 's6', name: 'Molten Ruin', weapon: 'Void Reaver', rarity: 'legendary', price: { crystals: 240 }, description: 'Lava veins pulse within a shattered obsidian shell.', image: 'items/Molten Ruin.png' },
+{ id: 's7', name: 'Verdant Wrath', weapon: 'Celestial Ruin', rarity: 'epic', price: { crystals: 170 }, description: 'Nature’s fury blooms through ancient roots and living stone.', image: 'items/Verdant Wrath.png' },
+{ id: 's8', name: 'Zephyr Veil', weapon: 'Shadow Dagger', rarity: 'epic', price: { crystals: 160 }, description: 'Blades of wind wrap the weapon, striking faster than sight.', image: 'items/Zephyr Veil.png' }
+
+
+  ]
+};
+
+
+    const craftingRecipes = [
+      { id: 'c1', name: 'Basic Vox', produces: 100, ingredients: { gold: 500 }, description: 'Entry-level forge', image: './currency-vox.png' },
+      { id: 'c2', name: 'Refined Vox', produces: 250, ingredients: { gold: 1500, shards: 50 }, description: 'Improved quality', image: 'refined vox.png' },
+      { id: 'c3', name: 'Perfected Vox', produces: 500, ingredients: { gold: 3500, shards: 150, crystals: 25 }, description: 'High quality', image: './vox-perfected.png' },
+      { id: 'c4', name: 'Legendary Vox', produces: 1000, ingredients: { gold: 8000, shards: 400, crystals: 100 }, description: 'Maximum power', image: './vox-legendary.png' },
+      { id: 'c5', name: 'Nexus Shard', produces: 5, ingredients: { gold: 2000, shards: 200, voxCore: 100 }, description: 'Weapon upgrade essence', image: 'currency-nexus.png' }
+    ];
+
+    function init() {
+      renderTabContent();
+      updateCurrencyDisplay();
+      updateTabStyles();
+      renderTopupPanel();
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (newConfig) => {
+            config = { ...defaultConfig, ...newConfig };
+            applyConfig();
+          },
+          mapToCapabilities: () => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ['game_title', cfg.game_title || defaultConfig.game_title],
+            ['welcome_message', cfg.welcome_message || defaultConfig.welcome_message]
+          ])
+        });
+      }
+    }
+
+    function applyConfig() {
+      document.getElementById('game-title').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('welcome-message').textContent = config.welcome_message || defaultConfig.welcome_message;
+    }
+
+    // ================= SOUND EFFECTS =================
+    function playSound(soundName) {
+      try {
+        // Prefer .ogg if available, fallback to .mp3
+        const tryOgg = new Audio();
+        tryOgg.src = `./sounds/${soundName}.ogg`;
+        tryOgg.volume = 0.6;
+        tryOgg.play().catch(() => {
+          const audio = new Audio(`./sounds/${soundName}.mp3`);
+          audio.volume = 0.6;
+          audio.play().catch(err => console.warn('Sound play failed (mp3):', soundName));
+        });
+      } catch (e) {
+        console.warn('Audio support not available');
+      }
+    }
+
+    function renderTopupPanel() {
+      const panel = document.getElementById('topup-panel');
+      panel.innerHTML = `
+        <div>
+          <h3 class="text-white font-bold text-lg mb-1 uppercase tracking-wide">Top Up Your Arsenal</h3>
+          <p class="text-sm text-gray-400 mb-6">Boost your power with Nexus Shards</p>
+          
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            ${topupPackages.map(pkg => `
+              <div class="glass-panel p-6 border border-gray-800 cursor-pointer hover:border-blue-200 transition-all overflow-hidden text-center" onclick="selectTopupPackage('${pkg.id}')">
+                <div style="width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                  <img src="${pkg.image}" 
+     alt="${pkg.nexusShards} Nexus" 
+     loading="lazy" 
+     onerror="console.error('Image failed to load:', this.src); this.style.background='#3a3a3a'; this.alt='Image unavailable';" 
+     style="width: 150px; height: 150px; object-fit: contain;">
+                </div>
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold text-white">◈ ${pkg.nexusShards}</p>
+                  <p class="text-yellow-500 font-bold text-base">$${pkg.price.toFixed(2)}</p>
+                  <p class="text-xs text-gray-500">Nexus Shards</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="border-t border-gray-700 pt-6 mb-6">
+            <p class="text-sm text-gray-400 mb-3 uppercase tracking-wide font-semibold">Promo Code</p>
+            <div class="flex gap-2 mb-2">
+              <input type="text" id="promo-input" placeholder="Enter promo code" class="flex-1 glass-panel px-4 py-2 text-sm border border-gray-600 focus:border-yellow-500 focus:outline-none">
+              <button onclick="applyPromoCode()" class="btn-primary px-4">APPLY</button>
+            </div>
+            <p id="promo-msg" class="text-sm text-gray-500"></p>
+          </div>
+
+          <div class="border-t border-gray-700 pt-6 mb-6">
+            <p class="text-sm text-gray-400 mb-3 uppercase tracking-wide font-semibold">Payment Method</p>
+            <div class="space-y-2">
+              <div class="payment-method selected" onclick="selectPayment('qris', this)">
+                <span class="payment-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upc-scan" viewBox="0 0 16 16">
+  <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5M3 4.5a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0zm2 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0z"/>
+</svg></span>
+                <span>QRIS</span>
+              </div>
+              <div class="payment-method" onclick="selectPayment('bank', this)">
+                <span class="payment-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bank2" viewBox="0 0 16 16">
+  <path d="M8.277.084a.5.5 0 0 0-.554 0l-7.5 5A.5.5 0 0 0 .5 6h1.875v7H1.5a.5.5 0 0 0 0 1h13a.5.5 0 1 0 0-1h-.875V6H15.5a.5.5 0 0 0 .277-.916zM12.375 6v7h-1.25V6zm-2.5 0v7h-1.25V6zm-2.5 0v7h-1.25V6zm-2.5 0v7h-1.25V6zM8 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2M.5 15a.5.5 0 0 0 0 1h15a.5.5 0 1 0 0-1z"/>
+</svg></span>
+                <span>Bank Transfer</span>
+              </div>
+              <div class="payment-method" onclick="selectPayment('wallet', this)">
+                <span class="payment-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wallet" viewBox="0 0 16 16">
+  <path d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"/>
+</svg></span>
+                <span>Digital Wallet</span>
+              </div>
+              <div class="payment-method" onclick="selectPayment('card', this)">
+                <span class="payment-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card" viewBox="0 0 16 16">
+  <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
+  <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+</svg></span>
+                <span>Credit Card</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="card-input" style="display: none;">
+            <input type="text" id="card-number" placeholder="Card Number" class="w-full glass-panel px-4 py-2 text-sm border border-gray-600 focus:border-yellow-500 focus:outline-none mb-2" maxlength="16">
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="card-exp" placeholder="MM/YY" class="flex-1 glass-panel px-4 py-2 text-sm border border-gray-600 focus:border-yellow-500 focus:outline-none" maxlength="5">
+              <input type="text" id="card-cvv" placeholder="CVV" class="w-20 glass-panel px-4 py-2 text-sm border border-gray-600 focus:border-yellow-500 focus:outline-none" maxlength="3">
+            </div>
+          </div>
+
+          <button onclick="confirmTopup()" id="topup-btn" class="w-full btn-primary py-3 text-base font-bold" disabled>
+            SELECT A PACKAGE
+          </button>
+        </div>
+      `;
+    }
+
+    function openTopupModal() {
+      const overlay = document.getElementById('topup-modal-overlay');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTopupModal() {
+      const overlay = document.getElementById('topup-modal-overlay');
+      overlay.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    function openInspectModal(imageSrc, itemName) {
+      const overlay = document.getElementById('inspect-modal-overlay');
+      const image = document.getElementById('inspect-image');
+      image.src = imageSrc;
+      image.alt = itemName;
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      playSound('inspect');
+    }
+
+    function closeInspectModal(event) {
+      // If event exists and target is not the overlay itself, don't close
+      if (event && event.target !== this && event.target.id !== 'inspect-modal-overlay') {
+        return;
+      }
+      const overlay = document.getElementById('inspect-modal-overlay');
+      overlay.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Try autoplay BGM (might be blocked by browser)
+      const bgm = document.getElementById('bgm-player');
+      if (bgm) {
+        bgm.volume = 0.3;
+        bgm.play().catch(err => console.warn('BGM autoplay blocked or failed:', err));
+      }
+
+      // Play BGM on first B keypress if autoplay was blocked
+      document.addEventListener('keydown', function(e) {
+        if (!bgmStarted && (e.key === 'b' || e.key === 'B')) {
+          const bgm = document.getElementById('bgm-player');
+          if (bgm && bgm.paused) {
+            bgm.play().catch(err => console.warn('BGM play failed on B keypress:', err));
+            bgmStarted = true;
+          }
+        }
+      });
+
+      const overlay = document.getElementById('topup-modal-overlay');
+      if (overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeTopupModal();
+          }
+        });
+      }
+
+      // Add hover sound to item cards and panels (play once per element while hovered)
+      document.addEventListener('pointerover', function(e) {
+        const el = e.target.closest('.item-card, .glass-panel');
+        if (!el) return;
+        // ignore topup overlay panel
+        if (el.id === 'topup-modal-overlay' || el.id === 'inspect-modal-overlay') return;
+        const from = e.relatedTarget;
+        if (from && el.contains(from)) return; // still inside
+        if (!el.dataset.hovered) {
+          el.dataset.hovered = 'true';
+          playSound('hover');
+        }
+      }, true);
+
+      document.addEventListener('pointerout', function(e) {
+        const el = e.target.closest('.item-card, .glass-panel');
+        if (!el) return;
+        const to = e.relatedTarget;
+        if (to && el.contains(to)) return; // still inside
+        delete el.dataset.hovered;
+      }, true);
+    });
+
+    function selectTopupPackage(packageId) {
+      const pkg = topupPackages.find(p => p.id === packageId);
+      gameState.selectedTopupPackage = pkg;
+      document.getElementById('topup-btn').disabled = false;
+      document.getElementById('topup-btn').textContent = `CONFIRM - $${pkg.price.toFixed(2)}`;
+    }
+
+    function selectPayment(method, element) {
+      gameState.selectedPaymentMethod = method;
+      document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      const cardInput = document.getElementById('card-input');
+      if (method === 'card') {
+        cardInput.style.display = 'block';
+      } else {
+        cardInput.style.display = 'none';
+      }
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('promo-input').value.trim().toUpperCase();
+      const msg = document.getElementById('promo-msg');
+      
+      if (code === 'FREE') {
+        msg.textContent = '✓ Promo code applied! 100% discount';
+        msg.className = 'text-xs text-green-400 mt-1';
+        gameState.promoDiscount = 1;
+        if (gameState.selectedTopupPackage) {
+          document.getElementById('topup-btn').textContent = 'CONFIRM - $0.00';
+        }
+      } else if (code === '') {
+        msg.textContent = '';
+        gameState.promoDiscount = 0;
+      } else {
+        msg.textContent = '✗ Invalid promo code';
+        msg.className = 'text-xs text-red-400 mt-1';
+        gameState.promoDiscount = 0;
+      }
+    }
+
+    function confirmTopup() {
+      if (!gameState.selectedTopupPackage) return;
+      
+      const finalPrice = gameState.selectedTopupPackage.price * (1 - (gameState.promoDiscount || 0));
+      
+      gameState.nexusShard += gameState.selectedTopupPackage.nexusShards;
+      gameState.promoDiscount = 0;
+      
+      updateCurrencyDisplay();
+      showToast('Top Up Successful', `+${gameState.selectedTopupPackage.nexusShards} Nexus Shards ($${finalPrice.toFixed(2)})`, 'success');
+      
+      renderTopupPanel();
+    }
+
+    function switchTab(tab) {
+      gameState.activeTab = tab;
+      gameState.selectedItem = null;
+      updateTabStyles();
+      renderTabContent();
+      document.getElementById('preview-panel').classList.add('hidden');
+      playSound('enter');
+    }
+
+    function updateTabStyles() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.tab === gameState.activeTab;
+        btn.classList.remove('active');
+        if (isActive) btn.classList.add('active');
+        const indicator = btn.querySelector('.tab-indicator');
+        indicator.style.transform = isActive ? 'scaleX(1)' : 'scaleX(0)';
+      });
+    }
+
+    function renderTabContent() {
+      const content = document.getElementById('tab-content');
+
+      switch(gameState.activeTab) {
+        case 'weapons':
+          content.innerHTML = renderItemGrid(items.weapons, 'weapon');
+          break;
+        case 'armor':
+          content.innerHTML = renderItemGrid(items.armor, 'armor');
+          break;
+        case 'abilities':
+          content.innerHTML = renderItemGrid(items.abilities, 'ability');
+          break;
+        case 'skins':
+          content.innerHTML = renderItemGrid(items.skins, 'skin');
+          break;
+        case 'crafting':
+          content.innerHTML = renderCraftingTab();
+          break;
+        case 'upgrades':
+          content.innerHTML = renderUpgradesTab();
+          break;
+        case 'exchange':
+          content.innerHTML = renderExchangeTab();
+          break;
+      }
+    }
+
+    function renderItemGrid(itemList, type) {
+      const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+      const rarityFilter = document.getElementById('rarity-filter')?.value || 'all';
+
+      let filtered = itemList.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+        const matchesRarity = rarityFilter === 'all' || item.rarity === rarityFilter;
+        return matchesSearch && matchesRarity;
+      });
+
+      const sortBy = document.getElementById('sort-filter')?.value || 'name';
+      filtered = sortItemList(filtered, sortBy);
+
+      if (filtered.length === 0) {
+        return `<div class="text-center py-12 text-gray-400">No items found</div>`;
+      }
+
+      return `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          ${filtered.map((item, i) => renderItemCard(item, type, i)).join('')}
+        </div>
+      `;
+    }
+
+    function renderItemCard(item, type, index) {
+      const rarityColor = {
+        legendary: 'border-yellow-600 text-yellow-600',
+        epic: 'border-purple-500 text-purple-400',
+        rare: 'border-blue-500 text-blue-400',
+        common: 'border-gray-600 text-gray-400'
+      }[item.rarity];
+
+      const glowClass = item.rarity === 'common' ? '' : item.rarity;
+
+      return `
+        <div class="item-card p-4 animate-slide-in" 
+             style="animation-delay: ${index * 20}ms"
+             onclick="selectItem(event, '${item.id}', '${type}')">
+          <div class="item-image-wrapper">
+            <div class="item-image-glow ${glowClass}"></div>
+            <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#3a3a3a'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center';">
+          </div>
+          <div class="flex items-start justify-between mb-2">
+            <h3 class="font-semibold text-white text-sm">${item.name}</h3>
+            <span class="text-xs font-bold uppercase ${rarityColor} border px-2 py-1">${item.rarity}</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-3">${item.type || item.weapon || 'Item'}</p>
+          <div class="flex items-center gap-2 flex-wrap">
+            ${renderPrice(item.price)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPrice(price) {
+      const items = [];
+      if (price.gold) items.push(`<span class="currency-badge"><img src="./currency-gold.png" alt="Gold" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#c17817'; this.alt='Gold';"/><span>${(price.gold / 1000).toFixed(1)}K</span></span>`);
+      if (price.shards) items.push(`<span class="currency-badge"><img src="./currency-shards.png" alt="Shards" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#2563eb'; this.alt='Shards';"/><span>${price.shards}</span></span>`);
+      if (price.crystals) items.push(`<span class="currency-badge"><img src="./currency-crystals.png" alt="Crystals" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#a855f7'; this.alt='Crystals';"/><span>${price.crystals}</span></span>`);
+      if (price.voxCore) items.push(`<span class="currency-badge"><img src="./currency-vox.png" alt="Vox Core" class="currency-icon" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#16a34a'; this.alt='Vox Core';"/><span>${price.voxCore}</span></span>`);
+      
+      return items.join('<span class="currency-separator">/</span>');
+    }
+
+    function renderCraftingTab() {
+      return `
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${craftingRecipes.map((recipe, i) => renderCraftingCard(recipe, i)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCraftingCard(recipe, index) {
+      return `
+        <div data-recipe="${recipe.id}" class="glass-panel p-4 border-dashed border-2 border-gray-600 rounded-sm animate-slide-in hover:border-gray-400 transition-all" style="animation-delay: ${index * 30}ms">
+          <div class="flex items-center justify-between mb-3">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+              <img src="${recipe.image}" alt="${recipe.name}" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#3a3a3a'; this.alt='Image unavailable';" style="width: 72px; height: 72px; border-radius: 4px; object-fit: contain; flex-shrink: 0;">
+              <h4 class="font-semibold text-white text-sm">${recipe.name}</h4>
+            </div>
+            <span class="text-xs font-bold text-green-400 bg-green-950 px-2 py-1">+${recipe.produces}</span>
+          </div>
+          
+          <p class="text-xs text-gray-400 mb-4">${recipe.description}</p>
+
+          <div class="space-y-2 mb-4">
+            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Requires:</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              ${renderPrice(recipe.ingredients)}
+            </div>
+          </div>
+
+          <button onclick="craftVoxCore(event, '${recipe.id}')" class="w-full btn-primary">
+            FORGE NOW
+          </button>
+        </div>
+      `;
+    }
+
+    function renderUpgradesTab() {
+      const ownedWeapons = items.weapons.filter(w => gameState.inventory.some(i => i.id === w.id));
+
+      if (ownedWeapons.length === 0) {
+        return `<div class="text-center py-12 text-gray-400">No weapons owned. Purchase weapons to upgrade them.</div>`;
+      }
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-1">
+            <h3 class="font-semibold text-white text-sm mb-3 uppercase">Your Weapons</h3>
+            <div class="space-y-2">
+              ${ownedWeapons.map(weapon => `
+                <div class="item-card p-3 cursor-pointer" onclick="selectWeaponForUpgrade('${weapon.id}')">
+                  <p class="font-semibold text-white text-sm">${weapon.name}</p>
+                  <p class="text-xs text-gray-500">Click to upgrade</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div id="upgrade-preview" class="lg:col-span-2 glass-panel p-6 rounded-sm">
+            <p class="text-gray-400 text-center">Select a weapon to upgrade</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExchangeTab() {
+      const exchangeRates = [
+        { id: 'ex1', from: 'nexusShard', to: 'shards', fromAmount: 10, toAmount: 100, image: './exchange-nexus-to-shards.png' },
+        { id: 'ex2', from: 'nexusShard', to: 'crystals', fromAmount: 5, toAmount: 25, image: './exchange-nexus-to-crystals.png' },
+        { id: 'ex3', from: 'shards', to: 'nexusShard', fromAmount: 100, toAmount: 10, image: './exchange-shards-to-nexus.png' },
+        { id: 'ex4', from: 'crystals', to: 'nexusShard', fromAmount: 25, toAmount: 5, image: './exchange-crystals-to-nexus.png' }
+      ];
+
+      return `
+        <div class="max-w-4xl">
+          <h3 class="text-white font-bold text-lg mb-1 uppercase tracking-wide">Currency Exchange</h3>
+          <p class="text-sm text-gray-400 mb-6">Convert your currencies at fixed rates</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${exchangeRates.map((rate, i) => renderExchangeCard(rate, i)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExchangeCard(rate, index) {
+      const getCurrencyAmount = (type) => {
+        switch(type) {
+          case 'nexusShard': return gameState.nexusShard;
+          case 'shards': return gameState.shards;
+          case 'crystals': return gameState.crystals;
+          default: return 0;
+        }
+      };
+
+      const canExchange = getCurrencyAmount(rate.from) >= rate.fromAmount;
+
+      return `
+        <div class="glass-panel p-0 cursor-pointer hover:border-gray-400 transition-all overflow-hidden animate-slide-in" style="animation-delay: ${index * 50}ms" onclick="performExchange('${rate.from}', '${rate.to}', ${rate.fromAmount}, ${rate.toAmount})">
+          <div style="height: 100px; background: linear-gradient(180deg, #202634 0%, #1a1f2a 100%); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #2b3340;">
+            <img src="${rate.image}" alt="Exchange rate" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#3a3a3a'; this.alt='Image unavailable';" style="width: 200px; height: 100%; object-fit: cover;">
+          </div>
+          <div class="p-4">
+            <button class="w-full btn-primary text-sm ${!canExchange ? 'opacity-50 cursor-not-allowed' : ''}" ${!canExchange ? 'disabled' : ''}>
+              ${canExchange ? 'EXCHANGE' : 'INSUFFICIENT'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function performExchange(fromType, toType, fromAmount, toAmount) {
+      const getCurrencyProperty = (type) => {
+        switch(type) {
+          case 'nexusShard': return 'nexusShard';
+          case 'shards': return 'shards';
+          case 'crystals': return 'crystals';
+        }
+      };
+
+      const fromProp = getCurrencyProperty(fromType);
+      const toProp = getCurrencyProperty(toType);
+
+      if (gameState[fromProp] < fromAmount) {
+        showToast('Insufficient Currency', `You need ${fromAmount} ${fromType}`, 'error');
+        playSound('failure');
+        return;
+      }
+
+      gameState[fromProp] -= fromAmount;
+      gameState[toProp] += toAmount;
+
+      updateCurrencyDisplay();
+      renderTabContent();
+      showToast('Exchange Complete', `+${toAmount} ${toType}`, 'success');
+    }
+
+    function selectItem(event, id, type) {
+      const itemLists = { weapon: items.weapons, armor: items.armor, ability: items.abilities, skin: items.skins };
+      const item = itemLists[type]?.find(i => i.id === id);
+      if (!item) return;
+
+      gameState.selectedItem = { ...item, itemType: type };
+      // Only play click sound on left mouse button (button === 0)
+      if (!event || event.button === 0) {
+        playSound('click');
+      }
+      showPreviewPanel(item, type);
+    }
+
+    function showPreviewPanel(item, type) {
+      const panel = document.getElementById('preview-panel');
+      const content = document.getElementById('preview-content');
+      const isOwned = gameState.inventory.some(i => i.id === item.id);
+
+      let statsHtml = '';
+      if (type === 'weapon') {
+        statsHtml = `
+          <div class="space-y-3 mb-4">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">DAMAGE</span>
+                <span class="text-white font-semibold">${item.damage}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${(item.damage / 700) * 100}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">MAGIC</span>
+                <span class="text-white font-semibold">${item.magic}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${(item.magic / 300) * 100}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">FIRE RATE</span>
+                <span class="text-white font-semibold">${item.rateOfFire}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${item.rateOfFire}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'armor') {
+        statsHtml = `
+          <div class="space-y-3 mb-4">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">DEFENSE</span>
+                <span class="text-white font-semibold">${item.defense}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${(item.defense / 450) * 100}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">MOBILITY</span>
+                <span class="text-white font-semibold">${item.mobility}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${item.mobility}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const glowClass = item.rarity === 'common' ? '' : item.rarity;
+
+      content.innerHTML = `
+        <div>
+          <div class="item-image-wrapper mb-4" style="height: 200px;">
+            <div class="item-image-glow ${glowClass}"></div>
+            <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.style.background='#3a3a3a';" style="width: 100%; height: 100%; border-radius: 4px; object-fit: cover; border: 1px solid #3a3a3a;">
+          </div>
+
+          <h2 class="font-semibold text-white text-base mb-2">${item.name}</h2>
+          <span class="inline-block text-xs font-bold uppercase border px-2 py-1 mb-4 ${
+            item.rarity === 'legendary' ? 'border-yellow-600 text-yellow-600' :
+            item.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
+            item.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
+            'border-gray-600 text-gray-400'
+          }">
+            ${item.rarity}
+          </span>
+
+          <p class="text-xs text-gray-400 mb-4">${item.description}</p>
+
+          ${statsHtml}
+
+          <div class="border-t border-gray-700 pt-4 space-y-3">
+            <div>
+              <p class="text-xs text-gray-500 uppercase font-semibold mb-2">PRICE</p>
+              <div class="currency-display" style="gap: 4px;">
+                ${renderPrice(item.price)}
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button onclick="buyItem('${item.id}', '${type}')" class="flex-1 btn-primary">
+                ${isOwned ? 'OWNED' : 'PURCHASE'}
+              </button>
+              <button onclick="event.stopPropagation(); openInspectModal('${item.image}', '${item.name}')" class="btn-secondary px-3" title="Inspect Image">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      panel.classList.remove('hidden');
+    }
+
+    function buyItem(id, type) {
+      const itemLists = { weapon: items.weapons, armor: items.armor, ability: items.abilities, skin: items.skins };
+      const item = itemLists[type]?.find(i => i.id === id);
+      if (!item) return;
+
+      const price = item.price;
+
+      if ((price.gold && gameState.gold < price.gold) ||
+          (price.shards && gameState.shards < price.shards) ||
+          (price.crystals && gameState.crystals < price.crystals) ||
+          (price.voxCore && gameState.voxCore < price.voxCore)) {
+        showToast('Insufficient Funds', 'Not enough currency', 'error');
+        playSound('failure');
+        return;
+      }
+
+      if (price.gold) gameState.gold -= price.gold;
+      if (price.shards) gameState.shards -= price.shards;
+      if (price.crystals) gameState.crystals -= price.crystals;
+      if (price.voxCore) gameState.voxCore -= price.voxCore;
+
+      gameState.inventory.push({ id: item.id, type, level: 1 });
+
+      updateCurrencyDisplay();
+      playSound('buy');
+      showToast('Purchased', `${item.name} added to inventory`, 'success');
+      showPreviewPanel(item, type);
+    }
+
+    function craftVoxCore(event, recipeId) {
+      try { event.stopPropagation(); } catch (e) {}
+      const recipe = craftingRecipes.find(r => r.id === recipeId);
+      if (!recipe) return;
+
+      const ingredients = recipe.ingredients;
+
+      if ((ingredients.gold && gameState.gold < ingredients.gold) ||
+          (ingredients.shards && gameState.shards < ingredients.shards) ||
+          (ingredients.crystals && gameState.crystals < ingredients.crystals) ||
+          (ingredients.voxCore && gameState.voxCore < ingredients.voxCore)) {
+        showToast('Insufficient Resources', 'Not enough materials to forge', 'error');
+        playSound('failure');
+        return;
+      }
+
+      // Deduct ingredients immediately
+      if (ingredients.gold) gameState.gold -= ingredients.gold;
+      if (ingredients.shards) gameState.shards -= ingredients.shards;
+      if (ingredients.crystals) gameState.crystals -= ingredients.crystals;
+      if (ingredients.voxCore) gameState.voxCore -= ingredients.voxCore;
+
+      updateCurrencyDisplay();
+
+      // Find the card element to show progress inside
+      const card = event && event.target ? event.target.closest('[data-recipe]') : null;
+      let progressEl = null;
+      if (card) {
+        // Disable button
+        const btn = card.querySelector('button');
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Create progress bar
+        progressEl = card.querySelector('.forge-progress');
+        if (!progressEl) {
+          progressEl = document.createElement('div');
+          progressEl.className = 'forge-progress';
+          progressEl.innerHTML = '<div class="forge-progress-fill"></div>';
+          card.appendChild(progressEl);
+        }
+      }
+
+      const fill = progressEl ? progressEl.querySelector('.forge-progress-fill') : null;
+
+      // Duration scales with amount produced, min 300ms, max 10000ms
+      const duration = Math.min(10000, Math.max(300, Math.floor(recipe.produces * 10)));
+
+      // start progress (sound will play on completion)
+
+      const start = Date.now();
+      const tick = 40;
+      const timer = setInterval(() => {
+        const elapsed = Date.now() - start;
+        const t = Math.min(1, elapsed / duration);
+        if (fill) fill.style.width = (t * 100) + '%';
+        if (t >= 1) {
+          clearInterval(timer);
+
+          // Give produced resources after progress completes
+          if (recipe.id === 'c5') {
+            gameState.nexusShard += recipe.produces;
+          } else {
+            gameState.voxCore += recipe.produces;
+          }
+
+          updateCurrencyDisplay();
+          // Play completion sound
+          playSound('forged');
+          showToast('Forged', `+${recipe.produces} ${recipe.id === 'c5' ? 'Nexus Shard' : 'Vox Core'}`, 'success');
+
+          // cleanup progress and re-enable button
+          if (card) {
+            setTimeout(() => {
+              if (progressEl && progressEl.parentNode) progressEl.parentNode.removeChild(progressEl);
+              const btn2 = card.querySelector('button');
+              if (btn2) {
+                btn2.disabled = false;
+                btn2.classList.remove('opacity-50', 'cursor-not-allowed');
+              }
+            }, 350);
+          }
+        }
+      }, tick);
+    }
+
+    function selectWeaponForUpgrade(id) {
+      const weapon = items.weapons.find(w => w.id === id);
+      const invItem = gameState.inventory.find(i => i.id === id);
+      if (!weapon || !invItem) return;
+
+      const level = invItem.level || 1;
+      const preview = document.getElementById('upgrade-preview');
+      const shardCost = level;
+      const nextDamage = Math.floor(weapon.damage * (1 + (level * 0.08)));
+      const nextMagic = Math.floor(weapon.magic * (1 + (level * 0.08)));
+      const nextRateOfFire = Math.floor(weapon.rateOfFire * (1 + (level * 0.06)));
+      const canUpgrade = level < weapon.maxLevel && gameState.nexusShard >= shardCost;
+
+      preview.innerHTML = `
+        <div class="h-full flex flex-col">
+          <div class="flex items-start justify-between mb-8">
+            <div>
+              <h2 class="font-semibold text-white text-2xl mb-2">${weapon.name}</h2>
+              
+              <div class="flex items-center gap-3">
+                
+                <span class="text-xs font-bold uppercase border ${
+                  weapon.rarity === 'legendary' ? 'border-yellow-600 text-yellow-600' :
+                  weapon.rarity === 'epic' ? 'border-purple-500 text-purple-400' :
+                  weapon.rarity === 'rare' ? 'border-blue-500 text-blue-400' :
+                  'border-gray-600 text-gray-400'
+                } px-2 py-1">
+                  ${weapon.rarity}
+                </span>
+                <span class="text-sm font-mono text-gray-400">LEVEL <span class="text-white font-bold">${level}</span> / ${weapon.maxLevel}</span>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">${weapon.description}</p>
+            </div>
+            
+            <div class="text-center">
+              <div class="item-image-wrapper" style="width: 600px; height: 250px;">
+                <img src="${weapon.image}" alt="${weapon.name}" loading="lazy" style="width: 100%; height: 100%; border-radius: 4px; object-fit: cover; border: 1px solid #3a3a3a;">
+              </div>
+              <p class="text-xs text-gray-500 mt-2">${weapon.type}</p>
+              
+            </div>
+          </div>
+
+          <div class="progress-bar mb-4">
+            <div class="progress-fill" style="width: ${(level / weapon.maxLevel) * 100}%"></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-6 mb-8 flex-1">
+            <div class="space-y-4">
+              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Original Stats</h4>
+              <div class="stat-bar">
+                <span class="stat-label">Damage</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${(weapon.damage / 700) * 100}%"></div>
+                </div>
+                <span class="stat-value">${weapon.damage}</span>
+              </div>
+              <div class="stat-bar">
+                <span class="stat-label">Magic</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${(weapon.magic / 300) * 100}%"></div>
+                </div>
+                <span class="stat-value">${weapon.magic}</span>
+              </div>
+              <div class="stat-bar">
+                <span class="stat-label">Fire Rate</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${weapon.rateOfFire}%"></div>
+                </div>
+                <span class="stat-value">${weapon.rateOfFire}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+              <div class="text-center">
+                <div class="text-2xl text-gray-600 font-bold">→</div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Latest Stats</h4>
+              <div class="stat-bar">
+                <span class="stat-label">Damage</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${(nextDamage / 700) * 100}%"></div>
+                </div>
+                <span class="stat-value">${nextDamage}<span class="stat-value-increase">+${nextDamage - weapon.damage}</span></span>
+              </div>
+              <div class="stat-bar">
+                <span class="stat-label">Magic</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${(nextMagic / 300) * 100}%"></div>
+                </div>
+                <span class="stat-value">${nextMagic}<span class="stat-value-increase">+${nextMagic - weapon.magic}</span></span>
+              </div>
+              <div class="stat-bar">
+                <span class="stat-label">Fire Rate</span>
+                <div class="progress-bar flex-1">
+                  <div class="progress-fill" style="width: ${nextRateOfFire}%"></div>
+                </div>
+                <span class="stat-value">${nextRateOfFire}<span class="stat-value-increase">+${nextRateOfFire - weapon.rateOfFire}</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-700 pt-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-400">Upgrade Cost:</span>
+                <div class="currency-badge">
+                  <img src="https://wiki.hoyolab.com/_ipx/f_webp/https://bbs.hoyolab.com/hoyowiki/picture/object/Archaic%20Stone_icon.png" alt="Nexus" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#b45309'; this.alt='Nexus';" class="currency-icon">
+                  <span>${shardCost}</span>
+                </div>
+              </div>
+              <button onclick="upgradeWeapon('${id}', ${level}, ${shardCost})" class="btn-primary ${!canUpgrade ? 'opacity-50 cursor-not-allowed' : ''}" ${!canUpgrade ? 'disabled' : ''}>
+                ${level < weapon.maxLevel ? 'UPGRADE' : 'MAX LEVEL'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function upgradeWeapon(id, currentLevel, shardCost) {
+      const weapon = items.weapons.find(w => w.id === id);
+      const invItem = gameState.inventory.find(i => i.id === id);
+      
+      if (!weapon || !invItem || currentLevel >= weapon.maxLevel || gameState.nexusShard < shardCost) {
+        showToast('Cannot Upgrade', 'Insufficient resources or max level reached', 'error');
+        playSound('failure');
+        return;
+      }
+
+      gameState.nexusShard -= shardCost;
+      invItem.level = currentLevel + 1;
+
+      const upgradeBtn = event.target.closest('.btn-primary');
+      if (upgradeBtn) {
+        upgradeBtn.style.animation = 'upgradeGlow 0.6s ease-out';
+        createUpgradeParticles(upgradeBtn.getBoundingClientRect());
+      }
+
+      updateCurrencyDisplay();
+      playSound('upgrade');
+      selectWeaponForUpgrade(id);
+      showToast('Upgraded!', `${weapon.name} → Level ${currentLevel + 1}`, 'success');
+    }
+
+    function createUpgradeParticles(btnRect) {
+      const particleCount = 12;
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (i / particleCount) * Math.PI * 2;
+        const distance = 80 + Math.random() * 40;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        const particle = document.createElement('div');
+        particle.className = 'upgrade-particle';
+        particle.textContent = '+';
+        particle.style.left = btnRect.left + btnRect.width / 2 + 'px';
+        particle.style.top = btnRect.top + btnRect.height / 2 + 'px';
+        particle.style.color = '#fbbf24';
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        particle.style.animation = `particleFloat 0.8s ease-out forwards`;
+        particle.style.fontSize = '20px';
+        particle.style.fontWeight = '700';
+        
+        document.body.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 800);
+      }
+    }
+
+    function openForgeModal() {
+      const modal = document.getElementById('forge-modal');
+      const content = document.getElementById('forge-content');
+
+      content.innerHTML = `<div class="grid grid-cols-2 gap-4">
+        ${craftingRecipes.map(recipe => `
+        <div class="glass-panel p-3 border border-gray-700 cursor-pointer hover:border-gray-400 transition-all overflow-hidden text-center" onclick="craftVoxCore('${recipe.id}')">
+          <div style="width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; border: 1px solid #3a3a3a; border-radius: 3px; background: #1a1a1a;">
+            <img src="${recipe.image}" alt="${recipe.name}" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.background='#3a3a3a'; this.alt='Image unavailable';" style="width: 40px; height: 40px; object-fit: contain;">
+          </div>
+          <p class="font-semibold text-white text-sm mb-1">${recipe.name}</p>
+          <p class="text-xs ${recipe.id === 'c5' ? 'text-amber-400' : 'text-green-400'} font-bold mb-2">+${recipe.produces}</p>
+          <p class="text-xs text-gray-400 mb-2">${recipe.description}</p>
+          <div class="flex gap-1 flex-wrap justify-center mb-3">
+            ${renderPrice(recipe.ingredients)}
+          </div>
+          <button class="w-full btn-primary text-xs">FORGE</button>
+        </div>
+      `).join('')}
+      </div>`;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeForgeModal() {
+      document.getElementById('forge-modal').classList.add('hidden');
+    }
+
+    function updateCurrencyDisplay() {
+      document.getElementById('gold-display').textContent = (gameState.gold / 1000).toFixed(0) + 'K';
+      document.getElementById('shards-display').textContent = (gameState.shards / 1000).toFixed(1) + 'K';
+      document.getElementById('crystals-display').textContent = gameState.crystals;
+      document.getElementById('vox-display').textContent = gameState.voxCore;
+      document.getElementById('nexus-display').textContent = gameState.nexusShard;
+    }
+
+    function filterItems() {
+      renderTabContent();
+    }
+
+    function sortItems() {
+      renderTabContent();
+    }
+
+    function sortItemList(list, sortBy) {
+      const sorted = [...list];
+      const rarityOrder = { legendary: 4, epic: 3, rare: 2, common: 1 };
+
+      switch(sortBy) {
+        case 'name':
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'price-low':
+          sorted.sort((a, b) => (a.price.gold || 0) - (b.price.gold || 0));
+          break;
+        case 'price-high':
+          sorted.sort((a, b) => (b.price.gold || 0) - (a.price.gold || 0));
+          break;
+        case 'rarity':
+          sorted.sort((a, b) => rarityOrder[b.rarity] - rarityOrder[a.rarity]);
+          break;
+      }
+
+      return sorted;
+    }
+
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      const titleEl = document.getElementById('toast-title');
+      const messageEl = document.getElementById('toast-message');
+
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+
+      if (type === 'error') {
+        icon.className = 'w-5 h-5 text-red-400';
+        titleEl.className = 'text-sm font-semibold text-red-400';
+      } else {
+        icon.className = 'w-5 h-5 text-green-400';
+        titleEl.className = 'text-sm font-semibold text-green-400';
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    document.getElementById('forge-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeForgeModal();
+    });
+
+    init();
+  </script>
+</body>
+</html>
