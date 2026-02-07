@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashes of Vengeance - Arcade Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="main-menu" class="screen active">
+            <h1 class="title">ASHES OF<br><span class="highlight">VENGEANCE</span></h1>
+            <div class="menu-options">
+    <div class="option active" data-action="vs-ai">ARCADE (VS CPU)</div>
+    
+    <div class="option" data-action="vs-pvp">VERSUS (2 PLAYER)</div>
+    
+    <div class="option locked" data-action="story">STORY MODE (LOCKED)</div>
+    <div class="option" data-action="settings">SETTINGS</div>
+    <div class="option" data-action="exit">EXIT</div>
+
+            </div>
+            <p class="credits">INSERT COIN | PRESS ENTER</p>
+        </div>
+
+        <div id="char-select" class="screen hidden">
+            <h2>SELECT FIGHTER</h2>
+            <div class="select-layout">
+                <div class="roster-column left" id="roster-left"></div>
+                
+                <div class="preview-center">
+                    <div id="p1-preview" class="char-preview">
+                        <div class="portrait placeholder-p1">P1</div>
+                        <span id="p1-name">WAITING...</span>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div id="p2-preview" class="char-preview">
+                        <div class="portrait placeholder-p2">P2</div>
+                        <span id="p2-name">WAITING...</span>
+                    </div>
+                </div>
+
+                <div class="roster-column right" id="roster-right"></div>
+            </div>
+            <div class="instructions">P1: W/S + Enter | P2: Arrows + NumEnter</div>
+        </div>
+
+        <div id="hud" class="hidden">
+            <div class="health-container">
+                <div class="health-bar-wrapper p1">
+                    <div class="name" id="hud-p1-name">MORTYX</div>
+                    <div class="bar-fill" id="hud-p1-health" style="width: 100%;"></div>
+                </div>
+                <div class="timer" id="game-timer">99</div>
+                <div class="health-bar-wrapper p2">
+                    <div class="name" id="hud-p2-name">EVINCE</div>
+                    <div class="bar-fill" id="hud-p2-health" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="ult-container">
+                <div class="ult-bar p1"><div class="ult-fill" id="hud-p1-ult"></div></div>
+                <div class="ult-bar p2"><div class="ult-fill" id="hud-p2-ult"></div></div>
+            </div>
+            <div id="win-message" class="hidden">KO!</div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+        
+        <div class="scanlines"></div>
+    </div>
+
+    <script src="characters.js"></script>
+    <script src="ai.js"></script>
+    <script src="game.js"></script>
+    <script src="menu.js"></script>
+</body>
+</html>

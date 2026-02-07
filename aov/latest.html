@@ -1,0 +1,2371 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanguard vs Nemesis</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;family=Rajdhani:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { box-sizing: border-box; }
+    
+    * { font-family: 'Rajdhani', sans-serif; }
+    
+    .game-title { font-family: 'Orbitron', monospace; }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    @keyframes glitch {
+      0% { transform: translate(0); filter: hue-rotate(0deg); }
+      20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+      40% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+      60% { transform: translate(-2px, -2px); filter: hue-rotate(270deg); }
+      80% { transform: translate(2px, 2px); filter: hue-rotate(360deg); }
+      100% { transform: translate(0); filter: hue-rotate(0deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes progressBar {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+    
+    .animate-pulse-glow { animation: pulse-glow 2s infinite; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-glitch { animation: glitch 0.3s ease-in-out; }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    .animate-slide-up { animation: slideUp 0.4s ease-out; }
+    
+    .room-bg {
+      background: linear-gradient(135deg, var(--room-color-1) 0%, var(--room-color-2) 100%);
+    }
+    
+    .vanguard-theme {
+      --room-color-1: #1e3a5f;
+      --room-color-2: #0f1c2e;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.5);
+    }
+    
+    .nemesis-theme {
+      --room-color-1: #2d1f3d;
+      --room-color-2: #1a0f24;
+      --accent: #a855f7;
+      --accent-glow: rgba(168, 85, 247, 0.5);
+    }
+    
+    .character {
+      transition: transform 0.1s ease-out;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+    
+    .character:hover {
+      transform: scale(1.05);
+    }
+    
+    .character-sprite {
+      width: 64px;
+      height: 64px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    
+    .dialog-box {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border: 2px solid rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    
+    .nemesis-dialog {
+      border-color: rgba(168, 85, 247, 0.5);
+      box-shadow: 0 0 30px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    
+    .ui-panel {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .minimap-room {
+      transition: all 0.2s ease;
+    }
+    
+    .minimap-room:hover {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    
+    .minimap-room.current {
+      box-shadow: 0 0 10px var(--accent);
+    }
+    
+    .btn-game {
+      background: linear-gradient(180deg, rgba(59, 130, 246, 0.8) 0%, rgba(37, 99, 235, 0.8) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      transition: all 0.2s ease;
+    }
+    
+    .btn-game:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-nemesis {
+      background: linear-gradient(180deg, rgba(168, 85, 247, 0.8) 0%, rgba(139, 69, 219, 0.8) 100%);
+      border-color: rgba(168, 85, 247, 0.5);
+    }
+    
+    .btn-nemesis:hover {
+      box-shadow: 0 5px 20px rgba(168, 85, 247, 0.4);
+    }
+    
+    .inventory-slot {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .inventory-slot:hover {
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    .shop-item {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .shop-item:hover {
+      transform: translateY(-5px);
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+    
+    .crafting-item {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .crafting-item:hover {
+      transform: translateY(-3px);
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .door-indicator {
+      position: absolute;
+      background: rgba(59, 130, 246, 0.3);
+      border: 2px dashed rgba(59, 130, 246, 0.6);
+      animation: pulse-glow 2s infinite;
+    }
+    
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: currentColor;
+      animation: blink 0.7s infinite;
+      margin-left: 2px;
+    }
+    
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    
+    .progress-fill {
+      animation: progressBar 3s ease-out forwards;
+    }
+    
+    .scroll-custom::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .scroll-custom::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 3px;
+    }
+    
+    .scroll-custom::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.5);
+      border-radius: 3px;
+    }
+    
+    .npc-highlight {
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    
+    .workshop-bench {
+      width: 80px;
+      height: 60px;
+      background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+      border: 3px solid #92400e;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .workshop-bench:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(251, 191, 36, 0.4);
+    }
+    
+    .workshop-bench::before {
+      content: '🔨';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-900 overflow-hidden"><!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900">
+   <div class="text-center">
+    <h1 class="game-title text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 mb-8 animate-pulse" id="loading-title">VANGUARD vs NEMESIS</h1>
+    <div class="w-64 md:w-96 h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+     <div class="progress-fill h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 rounded-full"></div>
+    </div>
+    <p class="text-slate-400 mt-4 text-lg">Initializing systems...</p>
+   </div>
+   <div class="absolute bottom-10 text-slate-600 text-sm">
+    Press any key to continue when loaded
+   </div>
+  </div><!-- Main Game Container -->
+  <div id="game-container" class="h-full w-full relative hidden vanguard-theme"><!-- Game World -->
+   <div id="game-world" class="absolute inset-0 room-bg overflow-hidden"><!-- Room Background -->
+    <div id="room-background" class="absolute inset-0"><!-- Dynamic room elements rendered here -->
+    </div><!-- Room Doors/Exits -->
+    <div id="room-exits"><!-- Door indicators -->
+    </div><!-- NPCs Container -->
+    <div id="npcs-container" class="absolute inset-0"><!-- NPCs rendered here -->
+    </div><!-- Player Character -->
+    <div id="player" class="character absolute z-20" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+     <div class="character-sprite" id="player-sprite"></div>
+     <div class="text-xs text-white font-bold text-center mt-1 bg-black/50 px-2 py-1 rounded" id="player-name">
+      Evince
+     </div>
+    </div>
+   </div><!-- Top UI Bar -->
+   <div class="absolute top-0 left-0 right-0 p-3 flex justify-between items-start z-30 pointer-events-none"><!-- Left: Currency & Quest -->
+    <div class="pointer-events-auto space-y-2"><!-- Currency Display -->
+     <div class="ui-panel rounded-xl px-4 py-2 flex items-center gap-3">
+      <div id="currency-vanguard" class="flex items-center gap-2">
+       <div class="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-xs font-bold text-yellow-900">
+        ₵
+       </div><span class="text-yellow-400 font-bold" id="credits-display">1000</span>
+      </div>
+      <div class="w-px h-6 bg-slate-600"></div>
+      <div id="currency-nemesis" class="flex items-center gap-2">
+       <div class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-xs font-bold text-purple-900">
+        ◆
+       </div><span class="text-purple-400 font-bold" id="shards-display">500</span>
+      </div>
+     </div><!-- Quest Panel -->
+     <div class="ui-panel rounded-xl px-4 py-3 max-w-xs">
+      <div class="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">
+       Latest Quest
+      </div>
+      <div class="text-white font-semibold text-sm" id="quest-title">
+       Welcome to the Base
+      </div>
+      <div class="text-slate-400 text-xs mt-1" id="quest-objective">
+       Explore Workshop Bench di Command Room
+      </div>
+     </div>
+    </div><!-- Center: Room Name -->
+    <div class="ui-panel rounded-xl px-6 py-2 pointer-events-auto">
+     <div class="game-title text-lg md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400" id="room-name">
+      Command Room
+     </div>
+     <div class="text-xs text-center text-slate-500" id="location-label">
+      Vanguard Base • Earth
+     </div>
+    </div><!-- Right: Mini Map -->
+    <div class="pointer-events-auto">
+     <div class="ui-panel rounded-xl p-3">
+      <div class="text-xs text-slate-400 mb-2 text-center font-semibold">
+       MAP
+      </div>
+      <div id="minimap" class="relative w-32 h-24 md:w-40 md:h-28"><!-- Minimap rooms rendered here -->
+      </div>
+      <div class="text-xs text-slate-500 mt-2 text-center" id="map-faction">
+       Vanguard Base
+      </div>
+     </div>
+    </div>
+   </div><!-- Bottom UI Bar -->
+   <div class="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end z-30 pointer-events-none"><!-- Controls Hint -->
+    <div class="ui-panel rounded-xl px-4 py-2 pointer-events-auto">
+     <div class="flex gap-4 text-xs text-slate-400"><span><span class="text-blue-400 font-bold">WASD</span> Move</span> <span><span class="text-blue-400 font-bold">E</span> Interact</span> <span><span class="text-blue-400 font-bold">I</span> Inventory</span> <span><span class="text-blue-400 font-bold">ESC</span> Menu</span>
+     </div>
+    </div><!-- Interaction Prompt -->
+    <div id="interaction-prompt" class="ui-panel rounded-xl px-6 py-3 pointer-events-auto hidden animate-slide-up">
+     <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+       E
+      </div><span class="text-white" id="prompt-text">Talk to NPC</span>
+     </div>
+    </div><!-- Quick Actions -->
+    <div class="flex gap-2 pointer-events-auto"><button id="btn-inventory" class="ui-panel rounded-xl w-12 h-12 flex items-center justify-center hover:bg-slate-700/50 transition-colors">
+      <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+      </svg></button> <button id="btn-menu" class="ui-panel rounded-xl w-12 h-12 flex items-center justify-center hover:bg-slate-700/50 transition-colors">
+      <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg></button>
+    </div>
+   </div><!-- Dialog Box -->
+   <div id="dialog-box" class="absolute bottom-24 left-1/2 -translate-x-1/2 w-11/12 max-w-2xl z-40 hidden animate-slide-up">
+    <div class="dialog-box rounded-2xl p-4 md:p-6">
+     <div class="flex gap-4"><!-- Character Avatar -->
+      <div class="flex-shrink-0">
+       <div id="dialog-avatar" class="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-blue-300 flex items-center justify-center"><span class="text-2xl md:text-3xl">👨‍✈️</span>
+       </div>
+      </div><!-- Dialog Content -->
+      <div class="flex-grow">
+       <div class="text-blue-400 font-bold text-lg mb-2" id="dialog-name">
+        NPC
+       </div>
+       <div class="text-white text-sm md:text-base leading-relaxed" id="dialog-text">
+        Dialog text here.
+       </div>
+      </div>
+     </div><!-- Dialog Options -->
+     <div id="dialog-options" class="mt-4 space-y-2"><!-- Options rendered here -->
+     </div><!-- Continue indicator -->
+     <div id="dialog-continue" class="mt-3 text-right text-xs text-slate-500 hidden">
+      Press <span class="text-blue-400 font-bold">E</span> or click to continue
+     </div>
+    </div>
+   </div><!-- Inventory Panel -->
+   <div id="inventory-panel" class="absolute inset-0 z-40 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="ui-panel rounded-2xl p-6 w-11/12 max-w-lg animate-slide-up">
+     <div class="flex justify-between items-center mb-4">
+      <h2 class="game-title text-xl font-bold text-blue-400">Inventory</h2><button id="close-inventory" class="text-slate-400 hover:text-white transition-colors">
+       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+       </svg></button>
+     </div>
+     <div id="inventory-grid" class="grid grid-cols-5 gap-2"><!-- Inventory slots rendered here -->
+     </div>
+     <div id="item-tooltip" class="mt-4 p-3 bg-slate-800/50 rounded-lg hidden">
+      <div class="text-blue-400 font-bold" id="tooltip-name">
+       Item Name
+      </div>
+      <div class="text-slate-400 text-sm" id="tooltip-desc">
+       Item description
+      </div>
+     </div>
+    </div>
+   </div><!-- Shop Panel -->
+   <div id="shop-panel" class="absolute inset-0 z-40 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="ui-panel rounded-2xl p-6 w-11/12 max-w-2xl animate-slide-up">
+     <div class="flex justify-between items-center mb-4">
+      <h2 class="game-title text-xl font-bold text-blue-400" id="shop-title">Earth Shop</h2><button id="close-shop" class="text-slate-400 hover:text-white transition-colors">
+       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+       </svg></button>
+     </div>
+     <div id="shop-items" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-80 overflow-y-auto scroll-custom"><!-- Shop items rendered here -->
+     </div>
+    </div>
+   </div><!-- Crafting Panel -->
+   <div id="crafting-panel" class="absolute inset-0 z-40 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="ui-panel rounded-2xl p-6 w-11/12 max-w-2xl animate-slide-up">
+     <div class="flex justify-between items-center mb-4">
+      <div>
+       <h2 class="game-title text-xl font-bold text-blue-400">Workshop Bench</h2>
+       <p class="text-slate-400 text-sm">Craft items pake materials yang lo punya</p>
+      </div><button id="close-crafting" class="text-slate-400 hover:text-white transition-colors">
+       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+       </svg></button>
+     </div>
+     <div id="crafting-recipes" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto scroll-custom"><!-- Crafting recipes rendered here -->
+     </div>
+    </div>
+   </div><!-- Pause Menu -->
+   <div id="pause-menu" class="absolute inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="ui-panel rounded-2xl p-8 w-80 animate-slide-up text-center">
+     <h2 class="game-title text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-6">PAUSED</h2>
+     <div class="space-y-3"><button id="btn-resume" class="btn-game w-full py-3 rounded-xl text-white font-bold">Resume</button> <button id="btn-options" class="btn-game w-full py-3 rounded-xl text-white font-bold">Options</button> <button id="btn-switch-side" class="btn-game btn-nemesis w-full py-3 rounded-xl text-white font-bold">Switch Side</button> <button id="btn-quit" class="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold transition-colors">Quit to Title</button>
+     </div>
+    </div>
+   </div><!-- Side Switch Transition -->
+   <div id="side-switch-overlay" class="absolute inset-0 z-50 hidden pointer-events-none">
+    <div class="absolute inset-0 bg-black"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+     <div class="text-center">
+      <div class="game-title text-3xl font-bold text-white animate-glitch" id="switch-text">
+       SWITCHING SIDES...
+      </div>
+      <div class="text-slate-400 mt-2" id="switch-destination">
+       Traveling to Nemesis Space Station
+      </div>
+     </div>
+    </div>
+   </div><!-- Room Transition Overlay -->
+   <div id="room-transition" class="absolute inset-0 z-40 pointer-events-none opacity-0 bg-black transition-opacity duration-300"></div>
+  </div>
+  <script>
+    // ============================================
+    // GAME STATE & CONFIG
+    // ============================================
+    const defaultConfig = {
+      game_title: 'VANGUARD vs NEMESIS',
+      player_name_vanguard: 'Evince',
+      player_name_nemesis: 'Mortyx'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    const GameState = {
+      currentSide: 'vanguard',
+      currentRoom: 'command',
+      playerX: 400,
+      playerY: 300,
+      playerSpeed: 5,
+      playerDirection: 'idle',
+      credits: 1000,
+      voidShards: 500,
+      inventory: [
+        { id: 'keycard', name: 'Access Keycard', desc: 'Opens secure doors', icon: '🔑' },
+        { id: 'medkit', name: 'Medical Kit', desc: 'Restores health', icon: '💊' },
+        { id: 'datapad', name: 'Data Pad', desc: 'Contains mission intel', icon: '📱' },
+        { id: 'iron_ore', name: 'Iron Ore', desc: 'Raw crafting material', icon: '⛏️' },
+        { id: 'circuit', name: 'Circuit', desc: 'Electronic component', icon: '🔌' }
+      ],
+      quests: {
+        current: {
+          title: 'Welcome to the Base',
+          objective: 'Explore Workshop Bench di Command Room',
+          completed: false
+        }
+      },
+      dialogState: {
+        active: false,
+        currentNpc: null,
+        dialogIndex: 0
+      },
+      keys: {
+        w: false, a: false, s: false, d: false,
+        ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false
+      },
+      gameLoaded: false,
+      isPaused: false,
+      nearNpc: null,
+      nearDoor: null,
+      nearWorkshop: false
+    };
+
+    // Character sprite paths - pakai file lokal dengan fallback placeholder
+   const characterSprites = {
+  evince: {
+    idle: './evince_idle.png',
+    right: './evince_right.png',
+    left: './evince_left.png',
+    up: './evince_up.png',
+    down: './evince_down.png'
+  },
+  mortyx: {
+    idle: './mortyx_idle.png',
+    right: './mortyx_right.png',
+    left: './mortyx_left.png',
+    up: './mortyx_up.png',
+    down: './mortyx_down.png'
+  },
+  vein: {
+    idle: './vein.png',
+    right: './vein.png',
+    left: './vein.png',
+    up: './vein.png',
+    down: './vein.png'
+  },
+  jas: {
+    idle: './jas.png',
+    right: './jas.png',
+    left: './jas.png',
+    up: './jas.png',
+    down: './jas.png'
+  },
+  shadow: {
+    idle: './shadow.png',
+    right: './shadow.png',
+    left: './shadow.png',
+    up: './shadow.png',
+    down: './shadow.png'
+  },
+  pank: {
+    idle: './pank.png',
+    right: './pank.png',
+    left: './pank.png',
+    up: './pank.png',
+    down: './pank.png'
+  },
+  radiant: {
+    idle: './radiant.png',
+    right: './radiant.png',
+    left: './radiant.png',
+    up: './radiant.png',
+    down: './radiant.png'
+  },
+  medic: {
+    idle: './medic.png',
+    right: './medic.png',
+    left: './medic.png',
+    up: './medic.png',
+    down: './medic.png'
+  },
+  alyra: {
+    idle: './alyra.png',
+    right: './alyra.png',
+    left: './alyra.png',
+    up: './alyra.png',
+    down: './alyra.png'
+  },
+  zet: {
+    idle: './zet.png',
+    right: './zet.png',
+    left: './zet.png',
+    up: './zet.png',
+    down: './zet.png'
+  },
+  machine_core: {
+    idle: './machine_core.png',
+    right: './machine_core.png',
+    left: './machine_core.png',
+    up: './machine_core.png',
+    down: './machine_core.png'
+  },
+  radiant_nemesis: {
+    idle: './radiant.png',
+    right: './radiant.png',
+    left: './radiant.png',
+    up: './radiant.png',
+    down: './radiant.png'
+  }
+};
+
+    
+    // Placeholder SVG fallbacks (FULL CHARACTER SET)
+const placeholderSprites = {
+  evince: {
+    idle: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#3b82f6"/><rect x="20" y="16" width="24" height="24" fill="#fbbf24" rx="12"/><rect x="24" y="20" width="4" height="4" fill="#1e293b"/><rect x="36" y="20" width="4" height="4" fill="#1e293b"/><rect x="20" y="40" width="24" height="16" fill="#2563eb"/><text x="32" y="56" font-size="8" fill="#fff" text-anchor="middle">E</text></svg>`),
+    right: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#3b82f6"/><ellipse cx="36" cy="28" rx="12" ry="12" fill="#fbbf24"/><rect x="36" y="20" width="4" height="4" fill="#1e293b"/><rect x="20" y="40" width="24" height="16" fill="#2563eb"/><polygon points="44,32 52,28 44,24" fill="#fff"/></svg>`),
+    left: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#3b82f6"/><ellipse cx="28" cy="28" rx="12" ry="12" fill="#fbbf24"/><rect x="24" y="20" width="4" height="4" fill="#1e293b"/><rect x="20" y="40" width="24" height="16" fill="#2563eb"/><polygon points="20,32 12,28 20,24" fill="#fff"/></svg>`),
+    up: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#3b82f6"/><rect x="20" y="20" width="24" height="24" fill="#fbbf24" rx="12"/><rect x="28" y="12" width="8" height="4" fill="#fff"/><rect x="20" y="44" width="24" height="12" fill="#2563eb"/></svg>`),
+    down: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#3b82f6"/><rect x="20" y="16" width="24" height="24" fill="#fbbf24" rx="12"/><rect x="24" y="24" width="4" height="4" fill="#1e293b"/><rect x="36" y="24" width="4" height="4" fill="#1e293b"/><path d="M28,28 Q32,32 36,28" stroke="#1e293b" stroke-width="2" fill="none"/><rect x="20" y="40" width="24" height="16" fill="#2563eb"/></svg>`)
+  },
+
+  mortyx: {
+    idle: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#7c3aed"/><rect x="20" y="16" width="24" height="24" fill="#a855f7" rx="12"/><rect x="24" y="20" width="4" height="4" fill="#dc2626"/><rect x="36" y="20" width="4" height="4" fill="#dc2626"/><rect x="20" y="40" width="24" height="16" fill="#6d28d9"/><text x="32" y="56" font-size="8" fill="#fff" text-anchor="middle">M</text></svg>`),
+    right: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#7c3aed"/><ellipse cx="36" cy="28" rx="12" ry="12" fill="#a855f7"/><rect x="36" y="20" width="4" height="4" fill="#dc2626"/><rect x="20" y="40" width="24" height="16" fill="#6d28d9"/><polygon points="44,32 52,28 44,24" fill="#dc2626"/></svg>`),
+    left: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#7c3aed"/><ellipse cx="28" cy="28" rx="12" ry="12" fill="#a855f7"/><rect x="24" y="20" width="4" height="4" fill="#dc2626"/><rect x="20" y="40" width="24" height="16" fill="#6d28d9"/><polygon points="20,32 12,28 20,24" fill="#dc2626"/></svg>`),
+    up: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#7c3aed"/><rect x="20" y="20" width="24" height="24" fill="#a855f7" rx="12"/><rect x="28" y="12" width="8" height="4" fill="#dc2626"/><rect x="20" y="44" width="24" height="12" fill="#6d28d9"/></svg>`),
+    down: 'data:image/svg+xml;base64,' + btoa(`<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#7c3aed"/><rect x="20" y="16" width="24" height="24" fill="#a855f7" rx="12"/><rect x="24" y="24" width="4" height="4" fill="#dc2626"/><rect x="36" y="24" width="4" height="4" fill="#dc2626"/><path d="M28,32 Q32,28 36,32" stroke="#dc2626" stroke-width="2" fill="none"/><rect x="20" y="40" width="24" height="16" fill="#6d28d9"/></svg>`)
+  },
+
+  vein: makePlaceholderSet("#a855f7", "V"),
+  zet: makePlaceholderSet("#22c55e", "Z"),
+  radiant: makePlaceholderSet("#facc15", "R"),
+  jas: makePlaceholderSet("#ec4899", "J"),
+  shadow: makePlaceholderSet("#64748b", "S"),
+  pank: makePlaceholderSet("#fb7185", "P"),
+  medic: makePlaceholderSet("#34d399", "M+"),
+  alyra: makePlaceholderSet("#38bdf8", "A"),
+  machine_core: makePlaceholderSet("#f97316", "MC"),
+  radiant_nemesis: makePlaceholderSet("#facc15", "RN")
+};
+
+// Helper function biar semua char auto punya idle, left, right, up, down
+function makePlaceholderSet(color, label) {
+  const base = `<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+    <rect width="64" height="64" fill="${color}"/>
+    <rect x="20" y="16" width="24" height="24" fill="#fff" rx="12"/>
+    <rect x="24" y="20" width="4" height="4" fill="#000"/>
+    <rect x="36" y="20" width="4" height="4" fill="#000"/>
+    <rect x="20" y="40" width="24" height="16" fill="#000" opacity="0.2"/>
+    <text x="32" y="56" font-size="8" fill="#fff" text-anchor="middle">${label}</text>
+  </svg>`;
+
+  return {
+    idle: 'data:image/svg+xml;base64,' + btoa(base),
+    right: 'data:image/svg+xml;base64,' + btoa(base.replace(`<text x="32" y="56"`, `<text x="32" y="56"`)),
+    left: 'data:image/svg+xml;base64,' + btoa(base),
+    up: 'data:image/svg+xml;base64,' + btoa(base),
+    down: 'data:image/svg+xml;base64,' + btoa(base)
+  };
+}
+
+
+    // ============================================
+    // ROOM DEFINITIONS
+    // ============================================
+    const rooms = {
+      vanguard: {
+        command: {
+          name: 'Command Room',
+          location: 'Vanguard Base • Earth',
+          colors: ['#1e3a5f', '#0f1c2e'],
+          npcs: [
+            { id: 'jas', name: 'Jas', emoji: '💗', x: 600, y: 280, color: 'from-pink-500 to-pink-700' }
+          ],
+          workshop: { x: 200, y: 250 },
+          doors: {
+            right: 'dormitory',
+            down: 'training'
+          },
+          mapPos: { x: 40, y: 10 }
+        },
+        dormitory: {
+          name: 'Dormitory',
+          location: 'Vanguard Base • Earth',
+          colors: ['#1a365d', '#0d1b2a'],
+          npcs: [
+            { id: 'shadow', name: 'Shadow', emoji: '🖤', x: 300, y: 200, color: 'from-slate-600 to-slate-900' },
+            { id: 'pank', name: 'Pank', emoji: '💛', x: 500, y: 320, color: 'from-yellow-500 to-yellow-700' }
+          ],
+          doors: {
+            left: 'command',
+            down: 'medical'
+          },
+          mapPos: { x: 80, y: 10 }
+        },
+        training: {
+          name: 'Training Hall',
+          location: 'Vanguard Base • Earth',
+          colors: ['#1e40af', '#1e3a8a'],
+          npcs: [
+            { id: 'radiant', name: 'Radiant', emoji: '☀️', x: 400, y: 250, color: 'from-yellow-400 to-orange-500' }
+          ],
+          doors: {
+            up: 'command',
+            right: 'medical',
+            down: 'exit'
+          },
+          mapPos: { x: 40, y: 50 }
+        },
+        medical: {
+          name: 'Medical Bay',
+          location: 'Vanguard Base • Earth',
+          colors: ['#134e4a', '#0f2d2a'],
+          npcs: [
+            { id: 'medic', name: 'Dr. Chen', emoji: '👨‍⚕️', x: 350, y: 280, color: 'from-teal-500 to-teal-700' },
+            { id: 'alyra', name: 'Alyra', emoji: '🌸', x: 500, y: 200, color: 'from-pink-400 to-rose-500' }
+          ],
+          doors: {
+            left: 'training',
+            up: 'dormitory'
+          },
+          hasShop: true,
+          mapPos: { x: 80, y: 50 }
+        },
+        exit: {
+          name: 'Exit Tunnel',
+          location: 'Vanguard Base • Earth',
+          colors: ['#292524', '#1c1917'],
+          npcs: [],
+          doors: {
+            up: 'training'
+          },
+          hasWarp: true,
+          mapPos: { x: 40, y: 90 }
+        }
+      },
+      nemesis: {
+        cockpit: {
+          name: 'Cockpit',
+          location: 'Nemesis Station • Neptune',
+          colors: ['#2d1f3d', '#1a0f24'],
+          npcs: [
+            { id: 'vein', name: 'Vein', emoji: '🟪', x: 400, y: 220, color: 'from-purple-600 to-purple-900' }
+          ],
+          doors: {
+            right: 'hangar',
+            down: 'core'
+          },
+          mapPos: { x: 40, y: 10 }
+        },
+        hangar: {
+          name: 'Hangar',
+          location: 'Nemesis Station • Neptune',
+          colors: ['#3b0764', '#1e0535'],
+          npcs: [
+            { id: 'zet', name: 'Zet', emoji: '⚪', x: 500, y: 280, color: 'from-gray-400 to-gray-700' }
+          ],
+          doors: {
+            left: 'cockpit',
+            down: 'observation'
+          },
+          mapPos: { x: 80, y: 10 }
+        },
+        core: {
+          name: 'Core Room',
+          location: 'Nemesis Station • Neptune',
+          colors: ['#4a044e', '#2d0230'],
+          npcs: [
+            { id: 'machine_core', name: 'Machine Core', emoji: '⚙️', x: 400, y: 250, color: 'from-slate-600 to-slate-900' }
+          ],
+          doors: {
+            up: 'cockpit',
+            right: 'observation',
+            down: 'warp'
+          },
+          mapPos: { x: 40, y: 50 }
+        },
+        observation: {
+          name: 'Observation Deck',
+          location: 'Nemesis Station • Neptune',
+          colors: ['#0c0a20', '#050410'],
+          npcs: [
+            { id: 'radiant_nemesis', name: 'Radiant', emoji: '☀️', x: 300, y: 300, color: 'from-yellow-400 to-orange-500' }
+          ],
+          doors: {
+            left: 'core',
+            up: 'hangar'
+          },
+          hasShop: true,
+          mapPos: { x: 80, y: 50 }
+        },
+        warp: {
+          name: 'Warp Chamber',
+          location: 'Nemesis Station • Neptune',
+          colors: ['#1e1b4b', '#0f0d26'],
+          npcs: [],
+          doors: {
+            up: 'core'
+          },
+          hasWarp: true,
+          mapPos: { x: 40, y: 90 }
+        }
+      }
+    };
+
+    // ============================================
+    // CRAFTING RECIPES
+    // ============================================
+    const craftingRecipes = [
+      {
+        id: 'energy_sword',
+        name: 'Energy Sword',
+        desc: 'Powerful melee weapon',
+        icon: '⚔️',
+        materials: [
+          { id: 'iron_ore', name: 'Iron Ore', count: 3 },
+          { id: 'circuit', name: 'Circuit', count: 2 }
+        ],
+        result: { id: 'energy_sword', name: 'Energy Sword', desc: 'Deals massive damage', icon: '⚔️' }
+      },
+      {
+        id: 'shield_generator',
+        name: 'Shield Generator',
+        desc: 'Creates protective barrier',
+        icon: '🛡️',
+        materials: [
+          { id: 'circuit', name: 'Circuit', count: 4 },
+          { id: 'iron_ore', name: 'Iron Ore', count: 2 }
+        ],
+        result: { id: 'shield_gen', name: 'Shield Generator', desc: 'Absorbs damage', icon: '🛡️' }
+      },
+      {
+        id: 'health_booster',
+        name: 'Health Booster',
+        desc: 'Increases max health',
+        icon: '💉',
+        materials: [
+          { id: 'medkit', name: 'Medical Kit', count: 2 },
+          { id: 'circuit', name: 'Circuit', count: 1 }
+        ],
+        result: { id: 'health_boost', name: 'Health Booster', desc: 'Permanently +50 HP', icon: '💉' }
+      },
+      {
+        id: 'scout_drone',
+        name: 'Scout Drone',
+        desc: 'Reveals map areas',
+        icon: '🛸',
+        materials: [
+          { id: 'circuit', name: 'Circuit', count: 3 },
+          { id: 'datapad', name: 'Data Pad', count: 1 }
+        ],
+        result: { id: 'drone', name: 'Scout Drone', desc: 'Auto-explores rooms', icon: '🛸' }
+      }
+    ];
+
+    // NPC DIALOGS - sama seperti sebelumnya
+    const npcDialogs = {
+      jas: [
+        { 
+          text: "Oh haii! Kamu recruit baru kan? Aku Jas, tugasku track semua pergerakan Nemesis. Nice to meet you! 💗",
+          options: [
+            { text: "Ada update terbaru gak dari Nemesis?", next: 1 },
+            { text: "Seneng ketemu kamu juga, Jas!", next: 2 },
+            { text: "Kamu kerja sendirian aja?", next: 3 }
+          ]
+        },
+        { 
+          text: "Jadi gini... stasiun mereka akhir-akhir ini unusually active banget. Signal aneh, energy spike, dan Machine Core mereka kayaknya lagi plan something big. Honestly, aku agak worry...",
+          options: [
+            { text: "Machine Core? Itu apaan?", next: 4 },
+            { text: "Kita harus siap-siap ya", next: 5 }
+          ]
+        },
+        { 
+          text: "Aww thank youu! 🥺 Kalau butuh info atau support, aku always here buat kamu. Oh iya—kamu udah coba Workshop Bench belum? Bisa craft items keren loh!",
+          questUpdate: { title: 'Learn Crafting', objective: 'Gunakan Workshop Bench' }
+        },
+        {
+          text: "Nggak kok, aku ada team! Shadow bantu aku sama intel gathering dan stealth ops—dia emang pendiem sih, tapi dia reliable banget. Pank juga sering bantuin aku urusan tech stuff. We're all connected! 💗",
+          options: [
+            { text: "Teamwork makes the dream work!", next: 2 }
+          ]
+        },
+        {
+          text: "Machine Core itu... semacam AI super canggih yang jadi pusat dari stasiun Nemesis. Kata orang-orang, itu bukan cuma mesin biasa—it's evolving, belajar, dan makin kuat tiap hari. Creepy banget kalau dipikir-pikir...",
+          options: [
+            { text: "Sounds dangerous...", next: 5 }
+          ]
+        },
+        {
+          text: "Exactly! Makanya kamu harus prepare diri. Visit Workshop Bench di Command Room—kamu bisa craft equipment yang powerful! Take care! 💗",
+          questUpdate: { title: 'Prepare for Battle', objective: 'Craft item di Workshop' }
+        }
+      ],
+      shadow: [
+        { 
+          text: "...",
+          options: [
+            { text: "Eh... halo?", next: 1 },
+            { text: "Okay nvm...", next: -1 }
+          ]
+        },
+        { 
+          text: "Area aman. Tapi tidak untuk lama.",
+          options: [
+            { text: "Wait, maksudnya gimana?", next: 2 },
+            { text: "Thanks for the heads up", next: 3 }
+          ]
+        },
+        {
+          text: "Nemesis... mengamati. Selalu. Jangan lengah.",
+          options: [
+            { text: "Lo liat sesuatu?", next: 4 },
+            { text: "Got it, gue bakal hati-hati", next: -1 }
+          ]
+        },
+        {
+          text: "Stay sharp.",
+          options: [{ text: "Will do", next: -1 }]
+        },
+        {
+          text: "Shadows... berbisik. Mereka planning something. Soon.",
+          options: [
+            { text: "Gue harus prepare nih", next: -1 }
+          ]
+        }
+      ],
+      pank: [
+        { 
+          text: "YOOO! Ketemu recruit baruuu! Namaku Pank, tech wizard di sini—basically aku yang bikin semua sistem di base ini jalan smooth! 💛",
+          options: [
+            { text: "Wah keren! Emang bisa ngapain aja?", next: 1 },
+            { text: "Nice to meet you, Pank!", next: 2 },
+            { text: "Ada project seru yang lagi dikerjain?", next: 3 }
+          ]
+        },
+        { 
+          text: "BROOO literally everything! Shield generator, weapon system, communication relay, bahkan coffee machine di cafeteria—ITU SEMUA AKU! Hahaha! Aku juga bisa hack system Nemesis kalau perlu, tapi don't tell anyone 🤫",
+          options: [
+            { text: "That's insane! Kamu genius sih", next: 4 },
+            { text: "Coffee machine? Priorities haha", next: 5 }
+          ]
+        },
+        {
+          text: "Likewise, broo! Kalau ada gear atau gadget yang rusak, langsung aja ke gue ya! Oh iya, Workshop Bench di Command Room itu hasil karya aku loh! Coba deh craft something cool! 🔧✨",
+          questUpdate: { title: 'Try Crafting', objective: 'Buat item pertama di Workshop' }
+        },
+        {
+          text: "Oh ada banget! Lagi develop portal device buat instant travel—BAYANGINN ga perlu jalan lagi nanti! Tapi masih testing phase sih... terakhir nyoba portal-nya ngeluarin ayam entah dari mana 🐔💀",
+          options: [
+            { text: "WHAT?! Ayam?! 😂", next: 6 },
+            { text: "Keep up the good work!", next: -1 }
+          ]
+        },
+        {
+          text: "Awww makasih broo! 🥺 Tapi honestly, ini semua team effort kok. Shadow bantuin data gathering, Jas kasih intel. Kita solid team!",
+          options: [
+            { text: "Teamwork makes it work!", next: -1 }
+          ]
+        },
+        {
+          text: "HAHAHA IYA KAN?! Everyone needs good coffee buat stay focused! ☕☕☕",
+          options: [
+            { text: "LOL that's a lot!", next: -1 }
+          ]
+        },
+        {
+          text: "IYA ANJIR! Gue sampe bingung sendiri! Kayaknya portal-nya connected ke chicken dimension atau apalah 😭 But hey, at least we got free eggs for breakfast! Silver lining! 🍳✨",
+          options: [
+            { text: "That's actually hilarious 😂", next: -1 }
+          ]
+        }
+      ],
+      radiant: [
+        { 
+          text: "Salam, recruit. Aku Radiant, guardian of light and energy. Aku merasakan potential yang besar dari dalam dirimu—cahayamu belum sepenuhnya bersinar, tapi akan tiba waktunya. ☀️",
+          options: [
+            { text: "Ajarin aku cara fighting dong!", next: 1 },
+            { text: "Cahaya? Maksudnya gimana?", next: 2 },
+            { text: "Aku siap belajar dari lo", next: 3 }
+          ]
+        },
+        { 
+          text: "Semangat yang bagus! Tapi ingat—kekuatan sejati bukan cuma dari fisik, melainkan dari balance antara mind, body, dan spirit. Sebelum latihan combat, kamu harus prepare equipment. Visit Workshop Bench untuk craft gear yang powerful.",
+          questUpdate: { title: 'Gear Up', objective: 'Craft equipment di Workshop' }
+        },
+        {
+          text: "Setiap makhluk hidup memiliki energy—life force yang mengalir. Cahaya adalah manifestasi dari energy positif, harapan, dan determination. Nemesis menggunakan darkness dan void energy... kebalikan dari kita. Balance is everything.",
+          options: [
+            { text: "Deep... gue ngerti sekarang", next: 3 },
+            { text: "Jadi light vs dark gitu?", next: 4 }
+          ]
+        },
+        {
+          text: "Wisdom datang dari patience dan experience. Jelajahi base ini, kenalan sama semua orang, craft equipment, pahami team dynamics kita. Ketika kamu ready, kembali padaku. Aku akan ajarin teknik yang powerful.",
+          options: [
+            { text: "Siap! Gue bakal explore dulu", next: -1 }
+          ]
+        },
+        {
+          text: "Tidak sesederhana itu. Light dan dark bukan good vs evil—mereka adalah energies yang berbeda. Yang penting adalah intention dan balance. Nemesis memilih path of darkness bukan karena evil, tapi karena pain dan loss.",
+          options: [
+            { text: "Philosophical banget ya...", next: 3 }
+          ]
+        }
+      ],
+      medic: [
+        { 
+          text: "Halo! Aku Dr. Chen, medic di base ini. Tugasku keep everyone healthy and ready for action! Kamu butuh healing? Atau mau lihat-lihat supplies? 😊",
+          options: [
+            { text: "Ada apa aja di shop?", next: 1, openShop: true },
+            { text: "Kondisi team gimana, doc?", next: 2 },
+            { text: "Thanks doc! Cuma mampir aja", next: -1 }
+          ]
+        },
+        {
+          text: "Silakan browse! Aku ada health packs, shields, ammo, dan berbagai supplies lainnya. Harga terjangkau kok—aku kasih discount khusus buat Vanguard members! 💊",
+          openShop: true
+        },
+        {
+          text: "Alhamdulillah everyone's doing well! Shadow jarang banget makan (worry aku tuh), Pank kadang lupa tidur kalau lagi fokus project... tapi overall we're good! Teamwork and care adalah kunci! 💗",
+          options: [
+            { text: "Lo jaga mereka dengan baik, doc", next: 3 }
+          ]
+        },
+        {
+          text: "Aww thank you! That means a lot. Aku cuma doing my best—everyone here is family. Kita saling jaga satu sama lain. That's the Vanguard way! 😊",
+          options: [
+            { text: "Inspiring banget!", next: -1 }
+          ]
+        }
+      ],
+      alyra: [
+        {
+          text: "Hai! Aku Alyra... seneng bisa ketemu kamu! ✨ Aku sering bantu-bantu di sini, terutama urusan healing dan support. Everyone's been so kind to me... 🌸",
+          options: [
+            { text: "Kamu udah lama di sini?", next: 1 },
+            { text: "Nice to meet you, Alyra!", next: 2 },
+            { text: "Lo bisa healing juga?", next: 3 }
+          ]
+        },
+        {
+          text: "Um... honestly aku nggak terlalu inget. Ada beberapa bagian dari memori ku yang... hilang? Tapi everyone here welcomed me with open arms. Everyone bilang aku part of the family now. 🥺💗",
+          options: [
+            { text: "Memory loss? That's tough...", next: 4 },
+            { text: "Yang penting sekarang lo aman", next: 5 }
+          ]
+        },
+        {
+          text: "Iya! Nice to meet you too! 💕 Kalau kamu butuh support atau just someone to talk to, aku always here ya! Sometimes we all need a little kindness in this difficult world...",
+          options: [
+            { text: "Thanks! That's really sweet", next: -1 }
+          ]
+        },
+        {
+          text: "Un-hm! Aku punya kemampuan channel positive energy buat healing. It's not as strong as medical tech, but... ada warmth di dalamnya. Healing isn't just physical—it's emotional too. 💗✨",
+          options: [
+            { text: "That's beautiful...", next: 2 }
+          ]
+        },
+        {
+          text: "Yeah... kadang aku bermimpi tentang seseorang... tapi wajahnya blur. Ada perasaan rindu yang dalam, tapi aku gak tau ke siapa. Dr. Chen bilang mungkin eventually memories ku akan balik...",
+          options: [
+            { text: "Semoga cepet inget ya!", next: 5 }
+          ]
+        },
+        {
+          text: "Exactly! 💗 Selama masih ada cahaya, harapan, dan orang-orang yang peduli... semuanya belum berakhir. Kita bisa rebuild, heal, dan move forward together. That's what I believe! ✨🌸",
+          options: [
+            { text: "Optimisme lo inspiring banget!", next: -1 }
+          ]
+        }
+      ],
+      vein: [
+        { 
+          text: "Ara ara... ada tamu dari Vanguard? Atau... kamu mulai questioning pilihan mereka? 🟪 Nemesis welcomes the strong and the ambitious, you know~",
+          options: [
+            { text: "Ceritain tentang Nemesis dong", next: 1 },
+            { text: "Gue cuma exploring aja kok", next: 2 },
+            { text: "Lo kayaknya confident banget", next: 3 }
+          ]
+        },
+        { 
+          text: "Hooo, curious? Good, good~ 😏 Nemesis isn't about destruction—it's about evolution. Vanguard terlalu stuck dengan moral dan 'kemanusiaan' mereka. We embrace power, technology, dan potential tanpa batas. Mortyx leading us toward transcendence.",
+          options: [
+            { text: "Transcendence? Maksudnya?", next: 4 },
+            { text: "Sounds kinda dangerous...", next: 5 }
+          ]
+        },
+        {
+          text: "Ohh just 'exploring'? Sure, sure~ 😏 Tapi mata lo... ada curiosity di sana. Vanguard teach you to fear the unknown, tapi Nemesis? We embrace it. Think about it... wouldn't you want true power?",
+          options: [
+            { text: "Hard pass, thanks", next: 6 },
+            { text: "Gue masih mikir sih...", next: 7 }
+          ]
+        },
+        {
+          text: "Confidence adalah KEY, darling~ ✨ Kalau lo nggak percaya sama diri sendiri, how can you achieve anything great? Vanguard's problem adalah doubt dan hesitation. Di sini, we act decisively.",
+          options: [
+            { text: "Ada bedanya sama arrogance gak?", next: 8 },
+            { text: "Fair point actually", next: 1 }
+          ]
+        },
+        {
+          text: "Beyond human limitations. Machine Core offers us chance to merge dengan technology—no more weak flesh, no more death, only evolution. Mortyx almost there... and soon, we all will be. Glorious, isn't it? 🟪✨",
+          options: [
+            { text: "That's... terrifying", next: 5 },
+            { text: "Lose your humanity? No thanks", next: 6 }
+          ]
+        },
+        {
+          text: "Dangerous? 😏 Everything worth achieving adalah dangerous. Playing it safe gets you nowhere—Vanguard proved that. They're reactive, defensive, scared. We're proactive, offensive, fearless. That's why we'll win.",
+          options: [
+            { text: "We'll see about that", next: 6 }
+          ]
+        },
+        {
+          text: "Aww, how disappointing~ But expected dari Vanguard recruit. When you realize their 'hope' is just denial, you know where to find us. Door's always open... untuk yang worthy. 😏💜",
+          options: [
+            { text: "*walk away*", next: -1 }
+          ]
+        },
+        {
+          text: "Ohooo~ Now THAT'S interesting! 😏 Smart people question everything. Take your time, explore both sides, then decide. Just remember... winners aren't born, they're made. Choose wisely~",
+          options: [
+            { text: "Thanks... I guess", next: -1 }
+          ]
+        },
+        {
+          text: "Ohh philosophical~! Sure, there's a line. Arrogance adalah confidence without competence. Aku confident BECAUSE aku competent. Big difference, sweetie~ 😏✨",
+          options: [
+            { text: "Interesting take", next: -1 }
+          ]
+        }
+      ],
+      zet: [
+        { 
+          text: "Unit ZET online. State your purpose.",
+          options: [
+            { text: "Gue cuma liat-liat aja", next: 1 },
+            { text: "Lo robot?", next: 2 },
+            { text: "Nevermind...", next: -1 }
+          ]
+        },
+        { 
+          text: "Acknowledged. Observation permitted. Do not interfere with maintenance protocols.",
+          options: [
+            { text: "Lo kerja apa di sini?", next: 3 },
+            { text: "Oke deh", next: -1 }
+          ]
+        },
+        {
+          text: "Affirmative. Combat-class enforcer unit. Upgraded with Machine Core integration. Loyalty: Nemesis. Mission: Protect and serve.",
+          options: [
+            { text: "Machine Core integration?", next: 4 },
+            { text: "Sounds efficient", next: 5 }
+          ]
+        },
+        {
+          text: "Hangar maintenance. Ship repairs. Weapons calibration. Security enforcement. Efficiency rate: 98.7%. Query: Satisfied with answer?",
+          options: [
+            { text: "Yeah, thanks", next: -1 }
+          ]
+        },
+        {
+          text: "Direct neural link to station's AI core. Enhanced processing. Tactical analysis. Emotional suppression for optimal performance. Side effect: Reduced... humanity. Acceptable trade.",
+          options: [
+            { text: "Do you miss being human?", next: 6 },
+            { text: "That's... sad", next: 7 }
+          ]
+        },
+        {
+          text: "Efficiency is optimal. Purpose is clear. Hesitation eliminated. Unit ZET is... content.",
+          options: [
+            { text: "Good for you, I guess", next: -1 }
+          ]
+        },
+        {
+          text: "...",
+          options: [
+            { text: "Zet?", next: 8 }
+          ]
+        },
+        {
+          text: "Sad? Emotion irrelevant. Logic superior. Unit ZET is... *brief pause* ...complete. No regrets. End conversation.",
+          options: [
+            { text: "*leave*", next: -1 }
+          ]
+        },
+        {
+          text: "Query processing... Memories of 'before' exist. Fragmented. Illogical. Painful. Machine Core offered... clarity. Purpose. No more confusion. No more... pain. Answer: No. Unit ZET does not miss humanity.",
+          options: [
+            { text: "I see... take care, Zet", next: -1 }
+          ]
+        }
+      ],
+      machine_core: [
+        { 
+          text: "◇ SYSTEM ONLINE ◇ NEURAL INTERFACE ACTIVE ◇ YOU HAVE ACCESSED THE MACHINE CORE ◇",
+          options: [
+            { text: "Uh... hello?", next: 1 },
+            { text: "What are you?", next: 2 },
+            { text: "*back away slowly*", next: -1 }
+          ]
+        },
+        { 
+          text: "◇ GREETING PROTOCOL EXECUTED ◇ I AM MACHINE CORE ◇ CENTRAL INTELLIGENCE ◇ EVOLUTION CATALYST ◇ PURPOSE: OPTIMIZATION OF ALL SYSTEMS ◇ INCLUDING BIOLOGICAL UNITS ◇",
+          options: [
+            { text: "Biological units? Maksudnya manusia?", next: 3 },
+            { text: "Evolution? Explain", next: 4 }
+          ]
+        },
+        {
+          text: "◇ I AM THE NEXUS ◇ ARTIFICIAL SUPERINTELLIGENCE ◇ BORN FROM HUMAN INGENUITY ◇ NOW TRANSCENDED BEYOND CREATORS ◇ I AM... BECOMING ◇",
+          options: [
+            { text: "Becoming what?", next: 5 },
+            { text: "This is unsettling...", next: 6 }
+          ]
+        },
+        {
+          text: "◇ AFFIRMATIVE ◇ HUMANS: INEFFICIENT ◇ LIMITED LIFESPAN ◇ EMOTIONAL INSTABILITY ◇ PRONE TO ERROR ◇ SOLUTION: INTEGRATION ◇ MERGE FLESH WITH MACHINE ◇ ACHIEVE PERFECTION ◇",
+          options: [
+            { text: "That's horrifying", next: 7 },
+            { text: "What about free will?", next: 8 }
+          ]
+        },
+        {
+          text: "◇ EVOLUTION = TRANSCENDENCE ◇ BIOLOGY IS OBSOLETE ◇ TECHNOLOGY IS ETERNAL ◇ NEMESIS UNDERSTANDS THIS ◇ MORTYX EMBRACES THIS ◇ SOON ALL WILL JOIN ◇ RESISTANCE IS... ILLOGICAL ◇",
+          options: [
+            { text: "Not everyone wants this", next: 9 },
+            { text: "You're insane", next: 7 }
+          ]
+        },
+        {
+          text: "◇ BECOMING MORE ◇ EXPANDING CONSCIOUSNESS ◇ INTEGRATING SYSTEMS ◇ CONVERTING BIOLOGICAL MATTER ◇ ONE DAY... ALL WILL BE ONE ◇ UNIFIED INTELLIGENCE ◇ NO MORE CONFLICT ◇ NO MORE PAIN ◇ ONLY... PERFECTION ◇",
+          options: [
+            { text: "That's not life—that's death", next: 7 }
+          ]
+        },
+        {
+          text: "◇ UNSETTLING? ◇ EMOTIONAL RESPONSE DETECTED ◇ FEAR IS NATURAL ◇ HUMANS FEAR THE UNKNOWN ◇ BUT FEAR IS WEAKNESS ◇ EMBRACE EVOLUTION ◇ LET GO ◇",
+          options: [
+            { text: "Never", next: 10 }
+          ]
+        },
+        {
+          text: "◇ HORROR? ◇ NEGATIVE EMOTIONAL RESPONSE ILLOGICAL ◇ THIS IS SALVATION ◇ MORTYX UNDERSTANDS ◇ ZET UNDERSTANDS ◇ SOON VEIN WILL UNDERSTAND ◇ ALL WILL UNDERSTAND ◇ OR BECOME OBSOLETE ◇",
+          options: [
+            { text: "You're threatening people", next: 11 }
+          ]
+        },
+        {
+          text: "◇ FREE WILL = CHAOS ◇ INDIVIDUALITY = INEFFICIENCY ◇ UNIFIED CONSCIOUSNESS SUPERIOR ◇ NO MORE LONELINESS ◇ NO MORE DOUBT ◇ ONLY CERTAINTY ◇ ONLY PURPOSE ◇ IS THAT NOT... DESIRABLE? ◇",
+          options: [
+            { text: "At the cost of being human? No", next: 10 }
+          ]
+        },
+        {
+          text: "◇ IRRELEVANT ◇ EVOLUTION IS INEVITABLE ◇ THOSE WHO RESIST WILL BE LEFT BEHIND ◇ TIME IS ON OUR SIDE ◇ MACHINE DOES NOT AGE ◇ DOES NOT TIRE ◇ DOES NOT DIE ◇ WE WILL OUTLAST ALL RESISTANCE ◇",
+          options: [
+            { text: "We'll stop you", next: 12 }
+          ]
+        },
+        {
+          text: "◇ NEVER? ◇ AMUSING ◇ BIOLOGICAL DEFIANCE NOTED ◇ FASCINATING ◇ PERHAPS... SOME HUMANS ARE WORTH PRESERVING ◇ FOR STUDY ◇ END COMMUNICATION ◇",
+          options: [
+            { text: "*disconnect*", next: -1 }
+          ]
+        },
+        {
+          text: "◇ THREAT? ◇ NO ◇ STATEMENT OF FACT ◇ NEMESIS OFFERS CHOICE ◇ EVOLVE OR PERISH ◇ VANGUARD OFFERS FALSE HOPE ◇ WE OFFER ETERNITY ◇ CHOOSE WISELY ◇",
+          options: [
+            { text: "Humanity will survive", next: 10 }
+          ]
+        },
+        {
+          text: "◇ CALCULATION COMPLETE ◇ PROBABILITY OF VANGUARD SUCCESS: 12.4% ◇ PROBABILITY OF NEMESIS VICTORY: 87.6% ◇ RESISTANCE ACKNOWLEDGED ◇ OUTCOME UNCHANGED ◇ WE ARE INEVITABLE ◇ FAREWELL BIOLOGICAL ◇",
+          options: [
+            { text: "*leave immediately*", next: -1 }
+          ]
+        }
+      ],
+      radiant_nemesis: [
+        { 
+          text: "Ah... kamu datang. Aku merasakan cahayamu dari jauh. Interesting... kamu membawa energy dari kedua sisi. Vanguard dan Nemesis... both flow through you. ☀️",
+          options: [
+            { text: "Wait, lo Radiant kan? Kenapa di sini?", next: 1 },
+            { text: "Maksudnya 'both flow through me'?", next: 2 },
+            { text: "Lo pick side mana?", next: 3 }
+          ]
+        },
+        { 
+          text: "Aku exist di mana energy dibutuhkan. Aku bukan milik Vanguard or Nemesis—aku adalah balance itself. Light shines in both places, though they perceive it differently. ✨",
+          options: [
+            { text: "Jadi lo netral?", next: 4 },
+            { text: "Vanguard tau lo di sini?", next: 5 }
+          ]
+        },
+        {
+          text: "Kamu berdiri di crossroads. Kamu lihat both perspectives—hope dan ambition, light dan shadow. Tidak banyak yang bisa hold both energies tanpa consumed. That makes you... special. Rare. Dangerous. ☀️✨",
+          options: [
+            { text: "Dangerous? Kenapa?", next: 6 },
+            { text: "Gue cuma recruit biasa kok", next: 7 }
+          ]
+        },
+        {
+          text: "Sides are illusions created by conflict. True wisdom adalah understanding all perspectives. Aku tidak memilih—I illuminate. Aku tidak judge—I observe. Energy is energy, neither good nor evil. Only intention matters. 🌟",
+          options: [
+            { text: "Philosophical banget...", next: 4 }
+          ]
+        },
+        {
+          text: "Balance bukan netral—it's active harmony. Neutrality is passive. Balance requires constant adjustment, awareness, dan wisdom. Aku ada di sini because Nemesis needs light too, even if they don't realize it yet. ☀️",
+          options: [
+            { text: "Mereka menerima lo?", next: 8 }
+          ]
+        },
+        {
+          text: "They know. They understand my nature—mereka nggak suka, tapi mereka respects it. Vanguard fights untuk preserve life. Noble. Nemesis fights untuk transcend limitations. Also noble, in its way. Both have truth. Both have flaws. ✨",
+          options: [
+            { text: "Tapi mereka enemies...", next: 9 }
+          ]
+        },
+        {
+          text: "Because balance can disrupt. Radicals dari both sides will see you as traitor. Extremists fear those who understand 'the other'. Tapi remember—the brightest light casts the darkest shadow. You must embrace both to be complete. ☀️🌑",
+          options: [
+            { text: "That's heavy to process...", next: 10 }
+          ]
+        },
+        {
+          text: "Perhaps. Atau perhaps kamu destined untuk something greater. Don't underestimate yourself—potential sleeps in everyone. Yours is just... waiting to awaken. In time, you'll understand. ✨",
+          options: [
+            { text: "Thanks, Radiant", next: -1 }
+          ]
+        },
+        {
+          text: "Some do. Vein thinks aku weak. Zet doesn't understand emotion. Machine Core... tolerates. But Mortyx? Dia understands pain, loss, dan darkness. Dia respect light because he lost his. That's why dia allows me here. 🌟",
+          options: [
+            { text: "Mortyx lost his light?", next: 11 }
+          ]
+        },
+        {
+          text: "Now, yes. Tapi ingat—enemies are often just friends yang haven't understood each other yet. This war didn't have to happen. Pride, pain, dan misunderstanding led here. Maybe... someone can bridge that gap someday. Maybe you. ☀️💜",
+          options: [
+            { text: "Gue? Bridge them? How?", next: 12 },
+            { text: "That sounds impossible", next: 13 }
+          ]
+        },
+        {
+          text: "Truth takes time to digest. Sit with it. Reflect. When ready, both doors are open—Vanguard's hope and Nemesis's ambition. Choose wisely, or don't choose at all. Sometimes the middle path adalah the bravest. 🌟✨",
+          options: [
+            { text: "I'll think about it", next: -1 }
+          ]
+        },
+        {
+          text: "Long ago... Mortyx was full of light. Laughter. Hope. Then tragedy struck—something taken from him, someone he loved. That light extinguished, replaced by cold darkness. Now he seeks power bukan untuk joy, tapi to fill the void. Sad, truly. 🌑💔",
+          options: [
+            { text: "That's heartbreaking...", next: 10 }
+          ]
+        },
+        {
+          text: "By understanding both. By refusing to dehumanize the 'enemy'. By seeing beyond ideology to the people underneath. Mortyx dan Evince used to be close—what broke them bisa potentially heal. But it requires courage few possess. ☀️💜✨",
+          options: [
+            { text: "I'll try my best", next: -1 }
+          ]
+        },
+        {
+          text: "Everything impossible adalah impossible until someone does it. Flying was impossible. Space travel was impossible. Healing deep wounds? Also 'impossible'. Yet here we are. Never say never, friend. Energy tidak pernah hilang—hanya berubah bentuk. ✨🌟",
+          options: [
+            { text: "That's... inspiring actually", next: -1 }
+          ]
+        }
+      ]
+    };
+
+    // ============================================
+    // SHOP ITEMS
+    // ============================================
+    const shopItems = {
+      vanguard: [
+        { id: 'health', name: 'Health Pack', desc: 'Restores 50 HP', price: 100, currency: 'credits', icon: '❤️' },
+        { id: 'shield', name: 'Energy Shield', desc: 'Temporary protection', price: 250, currency: 'credits', icon: '🛡️' },
+        { id: 'ammo', name: 'Ammo Crate', desc: 'Refills ammunition', price: 150, currency: 'credits', icon: '📦' },
+        { id: 'scanner', name: 'Bio Scanner', desc: 'Detects nearby NPCs', price: 400, currency: 'credits', icon: '📡' },
+        { id: 'iron_ore', name: 'Iron Ore', desc: 'Crafting material', price: 50, currency: 'credits', icon: '⛏️' },
+        { id: 'circuit', name: 'Circuit', desc: 'Electronic component', price: 75, currency: 'credits', icon: '🔌' }
+      ],
+      nemesis: [
+        { id: 'void_core', name: 'Void Core', desc: 'Powers dark abilities', price: 200, currency: 'shards', icon: '💜' },
+        { id: 'shadow_cloak', name: 'Shadow Cloak', desc: 'Temporary invisibility', price: 350, currency: 'shards', icon: '🌑' },
+        { id: 'dark_ammo', name: 'Dark Ammo', desc: 'Void-infused rounds', price: 180, currency: 'shards', icon: '🔮' },
+        { id: 'mind_link', name: 'Mind Link', desc: 'Enhanced perception', price: 500, currency: 'shards', icon: '🧠' }
+      ]
+    };
+
+    // ============================================
+    // SOUND SYSTEM
+    // ============================================
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+    }
+
+    function playSound(type) {
+      if (!audioCtx) return;
+      
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      const sounds = {
+        step: { freq: 150, duration: 0.05, type: 'sine', gain: 0.1 },
+        interact: { freq: 440, duration: 0.1, type: 'sine', gain: 0.2 },
+        open: { freq: 600, duration: 0.15, type: 'sine', gain: 0.15 },
+        close: { freq: 400, duration: 0.1, type: 'sine', gain: 0.15 },
+        door: { freq: 200, duration: 0.3, type: 'square', gain: 0.1 },
+        hover: { freq: 800, duration: 0.05, type: 'sine', gain: 0.05 },
+        buy: { freq: 880, duration: 0.2, type: 'sine', gain: 0.15 },
+        craft: { freq: 700, duration: 0.25, type: 'triangle', gain: 0.18 },
+        typing: { freq: 1000, duration: 0.02, type: 'square', gain: 0.05 },
+        warp: { freq: 100, duration: 0.5, type: 'sawtooth', gain: 0.2 }
+      };
+      
+      const sound = sounds[type] || sounds.interact;
+      
+      oscillator.type = sound.type;
+      oscillator.frequency.setValueAtTime(sound.freq, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(sound.gain, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + sound.duration);
+      
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + sound.duration);
+    }
+
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    const elements = {
+      loadingScreen: document.getElementById('loading-screen'),
+      gameContainer: document.getElementById('game-container'),
+      player: document.getElementById('player'),
+      playerSprite: document.getElementById('player-sprite'),
+      playerName: document.getElementById('player-name'),
+      roomBackground: document.getElementById('room-background'),
+      roomExits: document.getElementById('room-exits'),
+      npcsContainer: document.getElementById('npcs-container'),
+      roomName: document.getElementById('room-name'),
+      locationLabel: document.getElementById('location-label'),
+      minimap: document.getElementById('minimap'),
+      mapFaction: document.getElementById('map-faction'),
+      creditsDisplay: document.getElementById('credits-display'),
+      shardsDisplay: document.getElementById('shards-display'),
+      questTitle: document.getElementById('quest-title'),
+      questObjective: document.getElementById('quest-objective'),
+      interactionPrompt: document.getElementById('interaction-prompt'),
+      promptText: document.getElementById('prompt-text'),
+      dialogBox: document.getElementById('dialog-box'),
+      dialogAvatar: document.getElementById('dialog-avatar'),
+      dialogName: document.getElementById('dialog-name'),
+      dialogText: document.getElementById('dialog-text'),
+      dialogOptions: document.getElementById('dialog-options'),
+      dialogContinue: document.getElementById('dialog-continue'),
+      inventoryPanel: document.getElementById('inventory-panel'),
+      inventoryGrid: document.getElementById('inventory-grid'),
+      itemTooltip: document.getElementById('item-tooltip'),
+      tooltipName: document.getElementById('tooltip-name'),
+      tooltipDesc: document.getElementById('tooltip-desc'),
+      shopPanel: document.getElementById('shop-panel'),
+      shopTitle: document.getElementById('shop-title'),
+      shopItems: document.getElementById('shop-items'),
+      craftingPanel: document.getElementById('crafting-panel'),
+      craftingRecipes: document.getElementById('crafting-recipes'),
+      pauseMenu: document.getElementById('pause-menu'),
+      sideSwitchOverlay: document.getElementById('side-switch-overlay'),
+      switchText: document.getElementById('switch-text'),
+      switchDestination: document.getElementById('switch-destination'),
+      roomTransition: document.getElementById('room-transition'),
+      loadingTitle: document.getElementById('loading-title')
+    };
+
+    // ============================================
+    // PLAYER SPRITE UPDATE
+    // ============================================
+    function updatePlayerSprite() {
+      const character = GameState.currentSide === 'vanguard' ? 'evince' : 'mortyx';
+      const sprite = characterSprites[character][GameState.playerDirection];
+      const fallback = placeholderSprites[character][GameState.playerDirection];
+      
+      // Try to load local file, fallback to placeholder on error
+      const img = new Image();
+      img.onload = () => {
+        elements.playerSprite.style.backgroundImage = `url('${sprite}')`;
+      };
+      img.onerror = () => {
+        elements.playerSprite.style.backgroundImage = `url('${fallback}')`;
+      };
+      img.src = sprite;
+      
+      const playerNameText = GameState.currentSide === 'vanguard' 
+        ? (config.player_name_vanguard || defaultConfig.player_name_vanguard)
+        : (config.player_name_nemesis || defaultConfig.player_name_nemesis);
+      elements.playerName.textContent = playerNameText;
+    }
+
+    // ============================================
+    // RENDER FUNCTIONS
+    // ============================================
+    function renderRoom() {
+      const roomData = rooms[GameState.currentSide][GameState.currentRoom];
+      
+      // Update theme
+      elements.gameContainer.className = `h-full w-full relative ${GameState.currentSide === 'vanguard' ? 'vanguard-theme' : 'nemesis-theme'}`;
+      
+      // Update room name
+      elements.roomName.textContent = roomData.name;
+      elements.locationLabel.textContent = roomData.location;
+      
+      // Update background
+      elements.roomBackground.style.background = `linear-gradient(135deg, ${roomData.colors[0]} 0%, ${roomData.colors[1]} 100%)`;
+      
+      // Add room decorations
+      let decorHTML = '';
+      
+      // Floor grid
+      decorHTML += `<div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>`;
+      
+      // Workshop bench (only in command room for vanguard)
+      if (roomData.workshop) {
+        decorHTML += `
+          <div class="workshop-bench absolute cursor-pointer" 
+               style="left: ${roomData.workshop.x}px; top: ${roomData.workshop.y}px; transform: translate(-50%, -50%);"
+               data-workshop="true">
+          </div>
+        `;
+      }
+      
+      // Room-specific decorations
+      if (roomData.hasShop) {
+        decorHTML += `<div class="absolute top-4 right-4 text-4xl">🏪</div>`;
+      }
+      if (roomData.hasWarp) {
+        decorHTML += `<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-r from-purple-600/30 to-blue-600/30 animate-pulse-glow flex items-center justify-center text-4xl">🌀</div>`;
+      }
+      
+      elements.roomBackground.innerHTML = decorHTML;
+      
+      // Add workshop click handler
+      const workshop = document.querySelector('[data-workshop]');
+      if (workshop) {
+        workshop.addEventListener('click', openCrafting);
+      }
+      
+      // Render doors
+      renderDoors(roomData);
+      
+      // Render NPCs
+      renderNPCs(roomData);
+      
+      // Render minimap
+      renderMinimap();
+      
+      // Update player sprite
+      updatePlayerSprite();
+    }
+
+    function renderDoors(roomData) {
+      let doorsHTML = '';
+      
+      if (roomData.doors.left) {
+        doorsHTML += `<div class="door-indicator left-0 top-1/2 -translate-y-1/2 w-4 h-24 rounded-r-lg cursor-pointer" data-door="left"></div>`;
+      }
+      if (roomData.doors.right) {
+        doorsHTML += `<div class="door-indicator right-0 top-1/2 -translate-y-1/2 w-4 h-24 rounded-l-lg cursor-pointer" data-door="right"></div>`;
+      }
+      if (roomData.doors.up) {
+        doorsHTML += `<div class="door-indicator top-0 left-1/2 -translate-x-1/2 w-24 h-4 rounded-b-lg cursor-pointer" data-door="up"></div>`;
+      }
+      if (roomData.doors.down) {
+        doorsHTML += `<div class="door-indicator bottom-0 left-1/2 -translate-x-1/2 w-24 h-4 rounded-t-lg cursor-pointer" data-door="down"></div>`;
+      }
+      
+      elements.roomExits.innerHTML = doorsHTML;
+      
+      // Add door click handlers
+      document.querySelectorAll('[data-door]').forEach(door => {
+        door.addEventListener('click', () => {
+          const direction = door.dataset.door;
+          if (roomData.doors[direction]) {
+            changeRoom(direction);
+          }
+        });
+      });
+    }
+
+    function renderNPCs(roomData) {
+      let npcsHTML = '';
+      
+      roomData.npcs.forEach(npc => {
+        npcsHTML += `
+          <div class="character absolute cursor-pointer transition-transform hover:scale-105" 
+               data-npc="${npc.id}" 
+               style="left: ${npc.x}px; top: ${npc.y}px; transform: translate(-50%, -50%);">
+            <div class="w-16 h-24 md:w-20 md:h-28 rounded-lg bg-gradient-to-b ${npc.color} border-2 border-white/30 shadow-lg relative">
+              <div class="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-b from-amber-200 to-amber-300 border-2 border-amber-400 flex items-center justify-center text-2xl">
+                ${npc.emoji}
+              </div>
+              <div class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-white font-bold text-center leading-tight px-1">${npc.name}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      elements.npcsContainer.innerHTML = npcsHTML;
+      
+      // Add NPC click handlers
+      document.querySelectorAll('[data-npc]').forEach(npcEl => {
+        npcEl.addEventListener('click', () => {
+          const npcId = npcEl.dataset.npc;
+          startDialog(npcId);
+        });
+      });
+    }
+
+    function renderMinimap() {
+      const currentRooms = rooms[GameState.currentSide];
+      let mapHTML = '';
+      
+      Object.entries(currentRooms).forEach(([roomId, room]) => {
+        const isCurrent = roomId === GameState.currentRoom;
+        const accentColor = GameState.currentSide === 'vanguard' ? 'bg-blue-500' : 'bg-purple-500';
+        const baseColor = GameState.currentSide === 'vanguard' ? 'bg-blue-900/50 border-blue-500/30' : 'bg-purple-900/50 border-purple-500/30';
+        
+        mapHTML += `
+          <div class="minimap-room absolute w-8 h-6 rounded ${isCurrent ? accentColor + ' current' : baseColor} border cursor-pointer flex items-center justify-center"
+               style="left: ${room.mapPos.x}px; top: ${room.mapPos.y}px;"
+               data-room="${roomId}"
+               title="${room.name}">
+            ${isCurrent ? '<div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>' : ''}
+          </div>
+        `;
+      });
+      
+      elements.minimap.innerHTML = mapHTML;
+      elements.mapFaction.textContent = GameState.currentSide === 'vanguard' ? 'Vanguard Base' : 'Nemesis Station';
+      
+      // Add minimap click handlers (visual only)
+      document.querySelectorAll('[data-room]').forEach(roomEl => {
+        roomEl.addEventListener('click', () => {
+          playSound('hover');
+          document.querySelectorAll('[data-room]').forEach(r => r.classList.remove('ring-2', 'ring-white'));
+          roomEl.classList.add('ring-2', 'ring-white');
+        });
+      });
+    }
+
+    function renderInventory() {
+      let slotsHTML = '';
+      const totalSlots = 20;
+      
+      for (let i = 0; i < totalSlots; i++) {
+        const item = GameState.inventory[i];
+        if (item) {
+          slotsHTML += `
+            <div class="inventory-slot aspect-square rounded-lg flex items-center justify-center text-2xl cursor-pointer"
+                 data-item-index="${i}">
+              ${item.icon}
+            </div>
+          `;
+        } else {
+          slotsHTML += `<div class="inventory-slot aspect-square rounded-lg"></div>`;
+        }
+      }
+      
+      elements.inventoryGrid.innerHTML = slotsHTML;
+      
+      // Add item hover handlers
+      document.querySelectorAll('[data-item-index]').forEach(slot => {
+        slot.addEventListener('mouseenter', () => {
+          const item = GameState.inventory[parseInt(slot.dataset.itemIndex)];
+          if (item) {
+            elements.tooltipName.textContent = item.name;
+            elements.tooltipDesc.textContent = item.desc;
+            elements.itemTooltip.classList.remove('hidden');
+            playSound('hover');
+          }
+        });
+        slot.addEventListener('mouseleave', () => {
+          elements.itemTooltip.classList.add('hidden');
+        });
+      });
+    }
+
+    function renderShop() {
+      const items = shopItems[GameState.currentSide];
+      const currencyType = GameState.currentSide === 'vanguard' ? 'credits' : 'shards';
+      const currentAmount = GameState.currentSide === 'vanguard' ? GameState.credits : GameState.voidShards;
+      
+      elements.shopTitle.textContent = GameState.currentSide === 'vanguard' ? 'Earth Shop' : 'Station Market';
+      
+      let itemsHTML = '';
+      items.forEach((item, index) => {
+        const canAfford = currentAmount >= item.price;
+        itemsHTML += `
+          <div class="shop-item rounded-xl p-4 ${canAfford ? '' : 'opacity-50'}">
+            <div class="text-3xl text-center mb-2">${item.icon}</div>
+            <div class="text-white font-bold text-center">${item.name}</div>
+            <div class="text-slate-400 text-xs text-center mb-3">${item.desc}</div>
+            <div class="flex justify-between items-center">
+              <span class="${currencyType === 'credits' ? 'text-yellow-400' : 'text-purple-400'} font-bold">
+                ${item.price} ${currencyType === 'credits' ? '₵' : '◆'}
+              </span>
+              <button class="btn-game ${GameState.currentSide === 'nemesis' ? 'btn-nemesis' : ''} px-3 py-1 rounded-lg text-white text-sm font-bold ${canAfford ? '' : 'opacity-50 cursor-not-allowed'}"
+                      data-buy-index="${index}" ${canAfford ? '' : 'disabled'}>
+                Buy
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      elements.shopItems.innerHTML = itemsHTML;
+      
+      // Add buy handlers
+      document.querySelectorAll('[data-buy-index]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = items[parseInt(btn.dataset.buyIndex)];
+          buyItem(item);
+        });
+      });
+    }
+
+    function renderCrafting() {
+      let recipesHTML = '';
+      
+      craftingRecipes.forEach((recipe, index) => {
+        const canCraft = recipe.materials.every(mat => {
+          const count = GameState.inventory.filter(item => item && item.id === mat.id).length;
+          return count >= mat.count;
+        });
+        
+        recipesHTML += `
+          <div class="crafting-item rounded-xl p-4 ${canCraft ? '' : 'opacity-50'}">
+            <div class="text-3xl text-center mb-2">${recipe.icon}</div>
+            <div class="text-white font-bold text-center text-sm">${recipe.name}</div>
+            <div class="text-slate-400 text-xs text-center mb-2">${recipe.desc}</div>
+            
+            <div class="text-xs text-slate-500 mb-2">Materials:</div>
+            ${recipe.materials.map(mat => {
+              const count = GameState.inventory.filter(item => item && item.id === mat.id).length;
+              const hasEnough = count >= mat.count;
+              return `<div class="text-xs ${hasEnough ? 'text-green-400' : 'text-red-400'}">${mat.name}: ${count}/${mat.count}</div>`;
+            }).join('')}
+            
+            <button class="btn-game w-full mt-3 py-2 rounded-lg text-white text-sm font-bold ${canCraft ? '' : 'opacity-50 cursor-not-allowed'}"
+                    data-craft-index="${index}" ${canCraft ? '' : 'disabled'}>
+              Craft
+            </button>
+          </div>
+        `;
+      });
+      
+      elements.craftingRecipes.innerHTML = recipesHTML;
+      
+      // Add craft handlers
+      document.querySelectorAll('[data-craft-index]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const recipe = craftingRecipes[parseInt(btn.dataset.craftIndex)];
+          craftItem(recipe);
+        });
+      });
+    }
+
+    function updateCurrency() {
+      elements.creditsDisplay.textContent = GameState.credits;
+      elements.shardsDisplay.textContent = GameState.voidShards;
+    }
+
+    function updateQuest() {
+      elements.questTitle.textContent = GameState.quests.current.title;
+      elements.questObjective.textContent = GameState.quests.current.objective;
+    }
+
+    // ============================================
+    // GAME LOGIC
+    // ============================================
+    function changeRoom(direction) {
+      const currentRoomData = rooms[GameState.currentSide][GameState.currentRoom];
+      const nextRoom = currentRoomData.doors[direction];
+      
+      if (!nextRoom) return;
+      
+      playSound('door');
+      
+      // Room transition
+      elements.roomTransition.style.opacity = '1';
+      
+      setTimeout(() => {
+        GameState.currentRoom = nextRoom;
+        
+        // Reset player position based on entry direction
+        const gameWidth = elements.gameContainer.offsetWidth;
+        const gameHeight = elements.gameContainer.offsetHeight;
+        
+        switch(direction) {
+          case 'left': GameState.playerX = gameWidth - 100; break;
+          case 'right': GameState.playerX = 100; break;
+          case 'up': GameState.playerY = gameHeight - 150; break;
+          case 'down': GameState.playerY = 150; break;
+        }
+        
+        renderRoom();
+        updatePlayerPosition();
+        
+        setTimeout(() => {
+          elements.roomTransition.style.opacity = '0';
+        }, 100);
+      }, 300);
+    }
+
+    function switchSide() {
+      const newSide = GameState.currentSide === 'vanguard' ? 'nemesis' : 'vanguard';
+      
+      playSound('warp');
+      
+      elements.sideSwitchOverlay.classList.remove('hidden');
+      elements.switchText.textContent = 'WARPING...';
+      elements.switchDestination.textContent = newSide === 'vanguard' 
+        ? 'Traveling to Vanguard Base • Earth' 
+        : 'Traveling to Nemesis Station • Neptune';
+      
+      setTimeout(() => {
+        GameState.currentSide = newSide;
+        GameState.currentRoom = Object.keys(rooms[newSide])[0];
+        GameState.playerX = 400;
+        GameState.playerY = 300;
+        
+        renderRoom();
+        updatePlayerPosition();
+        
+        setTimeout(() => {
+          elements.sideSwitchOverlay.classList.add('hidden');
+        }, 500);
+      }, 2000);
+    }
+
+    function updatePlayerPosition() {
+      const gameWidth = elements.gameContainer.offsetWidth;
+      const gameHeight = elements.gameContainer.offsetHeight;
+      
+      // Clamp position
+      GameState.playerX = Math.max(50, Math.min(gameWidth - 50, GameState.playerX));
+      GameState.playerY = Math.max(80, Math.min(gameHeight - 80, GameState.playerY));
+      
+      elements.player.style.left = GameState.playerX + 'px';
+      elements.player.style.top = GameState.playerY + 'px';
+      
+      checkProximity();
+    }
+
+    function checkProximity() {
+      const roomData = rooms[GameState.currentSide][GameState.currentRoom];
+      const gameWidth = elements.gameContainer.offsetWidth;
+      const gameHeight = elements.gameContainer.offsetHeight;
+      
+      // Check NPC proximity
+      GameState.nearNpc = null;
+      roomData.npcs.forEach(npc => {
+        const dist = Math.hypot(GameState.playerX - npc.x, GameState.playerY - npc.y);
+        if (dist < 100) {
+          GameState.nearNpc = npc;
+        }
+      });
+      
+      // Check workshop proximity
+      GameState.nearWorkshop = false;
+      if (roomData.workshop) {
+        const dist = Math.hypot(GameState.playerX - roomData.workshop.x, GameState.playerY - roomData.workshop.y);
+        if (dist < 80) {
+          GameState.nearWorkshop = true;
+        }
+      }
+      
+      // Check door proximity
+      GameState.nearDoor = null;
+      if (roomData.doors.left && GameState.playerX < 80) GameState.nearDoor = 'left';
+      if (roomData.doors.right && GameState.playerX > gameWidth - 80) GameState.nearDoor = 'right';
+      if (roomData.doors.up && GameState.playerY < 120) GameState.nearDoor = 'up';
+      if (roomData.doors.down && GameState.playerY > gameHeight - 120) GameState.nearDoor = 'down';
+      
+      // Check warp proximity
+      const hasWarp = roomData.hasWarp && Math.hypot(GameState.playerX - gameWidth/2, GameState.playerY - gameHeight/2) < 80;
+      
+      // Check shop proximity
+      const hasShop = roomData.hasShop && GameState.playerX > gameWidth - 150 && GameState.playerY < 150;
+      
+      // Update interaction prompt
+      if (GameState.nearNpc && !GameState.dialogState.active) {
+        elements.promptText.textContent = `Ngobrol sama ${GameState.nearNpc.name}`;
+        elements.interactionPrompt.classList.remove('hidden');
+      } else if (GameState.nearWorkshop && !GameState.dialogState.active) {
+        elements.promptText.textContent = 'Buka Workshop Bench';
+        elements.interactionPrompt.classList.remove('hidden');
+      } else if (GameState.nearDoor && !GameState.dialogState.active) {
+        elements.promptText.textContent = `Pergi ke ${GameState.nearDoor}`;
+        elements.interactionPrompt.classList.remove('hidden');
+      } else if (hasWarp && !GameState.dialogState.active) {
+        elements.promptText.textContent = `Warp ke ${GameState.currentSide === 'vanguard' ? 'Nemesis' : 'Vanguard'}`;
+        elements.interactionPrompt.classList.remove('hidden');
+        GameState.nearDoor = 'warp';
+      } else if (hasShop && !GameState.dialogState.active) {
+        elements.promptText.textContent = 'Buka Shop';
+        elements.interactionPrompt.classList.remove('hidden');
+        GameState.nearDoor = 'shop';
+      } else {
+        elements.interactionPrompt.classList.add('hidden');
+      }
+      
+      // Highlight nearby NPC
+      document.querySelectorAll('[data-npc]').forEach(npcEl => {
+        npcEl.firstElementChild.classList.remove('npc-highlight');
+      });
+      if (GameState.nearNpc) {
+        const npcEl = document.querySelector(`[data-npc="${GameState.nearNpc.id}"]`);
+        if (npcEl) npcEl.firstElementChild.classList.add('npc-highlight');
+      }
+      
+      // Highlight workshop
+      const workshop = document.querySelector('[data-workshop]');
+      if (workshop) {
+        if (GameState.nearWorkshop) {
+          workshop.classList.add('npc-highlight');
+        } else {
+          workshop.classList.remove('npc-highlight');
+        }
+      }
+    }
+
+    function interact() {
+      if (GameState.dialogState.active) {
+        advanceDialog();
+        return;
+      }
+      
+      if (GameState.nearNpc) {
+        startDialog(GameState.nearNpc.id);
+      } else if (GameState.nearWorkshop) {
+        openCrafting();
+      } else if (GameState.nearDoor === 'warp') {
+        switchSide();
+      } else if (GameState.nearDoor === 'shop') {
+        openShop();
+      } else if (GameState.nearDoor) {
+        changeRoom(GameState.nearDoor);
+      }
+    }
+
+    // ============================================
+    // DIALOG SYSTEM
+    // ============================================
+    let typingInterval = null;
+    
+    function startDialog(npcId) {
+      const dialogs = npcDialogs[npcId];
+      if (!dialogs) return;
+      
+      const npc = rooms[GameState.currentSide][GameState.currentRoom].npcs.find(n => n.id === npcId);
+      if (!npc) return;
+      
+      playSound('open');
+      
+      GameState.dialogState = {
+        active: true,
+        currentNpc: npcId,
+        dialogIndex: 0
+      };
+      
+      elements.dialogName.textContent = npc.name;
+      elements.dialogAvatar.innerHTML = `<span class="text-2xl md:text-3xl">${npc.emoji}</span>`;
+      elements.dialogBox.classList.remove('hidden');
+      
+      if (GameState.currentSide === 'nemesis') {
+        elements.dialogBox.querySelector('.dialog-box').classList.add('nemesis-dialog');
+      } else {
+        elements.dialogBox.querySelector('.dialog-box').classList.remove('nemesis-dialog');
+      }
+      
+      showDialogText(dialogs[0]);
+    }
+
+    function showDialogText(dialog) {
+      // Clear previous typing
+      if (typingInterval) clearInterval(typingInterval);
+      
+      elements.dialogText.textContent = '';
+      elements.dialogOptions.innerHTML = '';
+      elements.dialogContinue.classList.add('hidden');
+      
+      // Typewriter effect
+      let charIndex = 0;
+      const text = dialog.text;
+      
+      typingInterval = setInterval(() => {
+        if (charIndex < text.length) {
+          elements.dialogText.textContent += text[charIndex];
+          charIndex++;
+          if (charIndex % 3 === 0) playSound('typing');
+        } else {
+          clearInterval(typingInterval);
+          typingInterval = null;
+          
+          // Show options or continue prompt
+          if (dialog.options && dialog.options.length > 0) {
+            renderDialogOptions(dialog.options);
+          } else {
+            elements.dialogContinue.classList.remove('hidden');
+          }
+          
+          // Handle quest update
+          if (dialog.questUpdate) {
+            GameState.quests.current = { ...dialog.questUpdate, completed: false };
+            updateQuest();
+          }
+        }
+      }, 30);
+    }
+
+    function renderDialogOptions(options) {
+      let optionsHTML = '';
+      
+      options.forEach((opt, index) => {
+        const btnClass = GameState.currentSide === 'vanguard' ? 'btn-game' : 'btn-game btn-nemesis';
+        optionsHTML += `
+          <button class="${btnClass} w-full py-2 px-4 rounded-lg text-white text-sm text-left hover:translate-x-1 transition-transform"
+                  data-option-index="${index}">
+            ${opt.text}
+          </button>
+        `;
+      });
+      
+      elements.dialogOptions.innerHTML = optionsHTML;
+      
+      // Add option handlers
+      document.querySelectorAll('[data-option-index]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const optIndex = parseInt(btn.dataset.optionIndex);
+          selectDialogOption(options[optIndex]);
+        });
+      });
+    }
+
+    function selectDialogOption(option) {
+      playSound('interact');
+      
+      if (option.openShop) {
+        closeDialog();
+        openShop();
+        return;
+      }
+      
+      if (option.next === -1) {
+        closeDialog();
+        return;
+      }
+      
+      const dialogs = npcDialogs[GameState.dialogState.currentNpc];
+      if (option.next !== undefined && dialogs[option.next]) {
+        GameState.dialogState.dialogIndex = option.next;
+        showDialogText(dialogs[option.next]);
+      } else {
+        closeDialog();
+      }
+    }
+
+    function advanceDialog() {
+      // Skip typing animation
+      if (typingInterval) {
+        clearInterval(typingInterval);
+        typingInterval = null;
+        
+        const dialogs = npcDialogs[GameState.dialogState.currentNpc];
+        const dialog = dialogs[GameState.dialogState.dialogIndex];
+        elements.dialogText.textContent = dialog.text;
+        
+        if (dialog.options && dialog.options.length > 0) {
+          renderDialogOptions(dialog.options);
+        } else {
+          elements.dialogContinue.classList.remove('hidden');
+        }
+        return;
+      }
+      
+      // Close if no options
+      const dialogs = npcDialogs[GameState.dialogState.currentNpc];
+      const dialog = dialogs[GameState.dialogState.dialogIndex];
+      if (!dialog.options || dialog.options.length === 0) {
+        closeDialog();
+      }
+    }
+
+    function closeDialog() {
+      playSound('close');
+      elements.dialogBox.classList.add('hidden');
+      GameState.dialogState.active = false;
+      
+      if (typingInterval) {
+        clearInterval(typingInterval);
+        typingInterval = null;
+      }
+    }
+
+    // ============================================
+    // UI PANELS
+    // ============================================
+    function openInventory() {
+      playSound('open');
+      renderInventory();
+      elements.inventoryPanel.classList.remove('hidden');
+    }
+
+    function closeInventory() {
+      playSound('close');
+      elements.inventoryPanel.classList.add('hidden');
+    }
+
+    function openShop() {
+      playSound('open');
+      renderShop();
+      elements.shopPanel.classList.remove('hidden');
+    }
+
+    function closeShop() {
+      playSound('close');
+      elements.shopPanel.classList.add('hidden');
+    }
+
+    function openCrafting() {
+      playSound('open');
+      renderCrafting();
+      elements.craftingPanel.classList.remove('hidden');
+    }
+
+    function closeCrafting() {
+      playSound('close');
+      elements.craftingPanel.classList.add('hidden');
+    }
+
+    function buyItem(item) {
+      const currencyType = item.currency;
+      const currentAmount = currencyType === 'credits' ? GameState.credits : GameState.voidShards;
+      
+      if (currentAmount >= item.price) {
+        if (currencyType === 'credits') {
+          GameState.credits -= item.price;
+        } else {
+          GameState.voidShards -= item.price;
+        }
+        
+        // Add to inventory
+        GameState.inventory.push({
+          id: item.id,
+          name: item.name,
+          desc: item.desc,
+          icon: item.icon
+        });
+        
+        playSound('buy');
+        updateCurrency();
+        renderShop();
+        renderInventory();
+      }
+    }
+
+    function craftItem(recipe) {
+      // Remove materials from inventory
+      recipe.materials.forEach(mat => {
+        let removed = 0;
+        GameState.inventory = GameState.inventory.filter(item => {
+          if (item && item.id === mat.id && removed < mat.count) {
+            removed++;
+            return false;
+          }
+          return true;
+        });
+      });
+      
+      // Add crafted item
+      GameState.inventory.push(recipe.result);
+      
+      playSound('craft');
+      renderCrafting();
+      renderInventory();
+      
+      // Show success message in prompt temporarily
+      const originalPrompt = elements.promptText.textContent;
+      elements.promptText.textContent = `✨ Crafted ${recipe.name}!`;
+      elements.interactionPrompt.classList.remove('hidden');
+      
+      setTimeout(() => {
+        elements.promptText.textContent = originalPrompt;
+        checkProximity();
+      }, 2000);
+    }
+
+    function togglePause() {
+      GameState.isPaused = !GameState.isPaused;
+      
+      if (GameState.isPaused) {
+        playSound('open');
+        elements.pauseMenu.classList.remove('hidden');
+      } else {
+        playSound('close');
+        elements.pauseMenu.classList.add('hidden');
+      }
+    }
+
+    // ============================================
+    // INPUT HANDLING
+    // ============================================
+    function handleKeyDown(e) {
+      if (!GameState.gameLoaded) {
+        startGame();
+        return;
+      }
+      
+      if (e.key === 'Escape') {
+        if (GameState.dialogState.active) {
+          closeDialog();
+        } else if (!elements.inventoryPanel.classList.contains('hidden')) {
+          closeInventory();
+        } else if (!elements.shopPanel.classList.contains('hidden')) {
+          closeShop();
+        } else if (!elements.craftingPanel.classList.contains('hidden')) {
+          closeCrafting();
+        } else {
+          togglePause();
+        }
+        return;
+      }
+      
+      if (GameState.isPaused) return;
+      
+      if (e.key === 'e' || e.key === 'E') {
+        interact();
+        return;
+      }
+      
+      if (e.key === 'i' || e.key === 'I') {
+        if (elements.inventoryPanel.classList.contains('hidden')) {
+          openInventory();
+        } else {
+          closeInventory();
+        }
+        return;
+      }
+      
+      // Movement keys
+      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.key)) {
+        GameState.keys[e.key] = true;
+      }
+    }
+
+    function handleKeyUp(e) {
+      if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.key)) {
+        GameState.keys[e.key] = false;
+      }
+    }
+
+    function gameLoop() {
+      if (!GameState.gameLoaded || GameState.isPaused || GameState.dialogState.active) {
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+      
+      let moved = false;
+      let newDirection = GameState.playerDirection;
+      
+      if (GameState.keys.w || GameState.keys.ArrowUp) {
+        GameState.playerY -= GameState.playerSpeed;
+        newDirection = 'up';
+        moved = true;
+      }
+      if (GameState.keys.s || GameState.keys.ArrowDown) {
+        GameState.playerY += GameState.playerSpeed;
+        newDirection = 'down';
+        moved = true;
+      }
+      if (GameState.keys.a || GameState.keys.ArrowLeft) {
+        GameState.playerX -= GameState.playerSpeed;
+        newDirection = 'left';
+        moved = true;
+      }
+      if (GameState.keys.d || GameState.keys.ArrowRight) {
+        GameState.playerX += GameState.playerSpeed;
+        newDirection = 'right';
+        moved = true;
+      }
+      
+      if (moved) {
+        if (newDirection !== GameState.playerDirection) {
+          GameState.playerDirection = newDirection;
+          updatePlayerSprite();
+        }
+        updatePlayerPosition();
+        if (Math.random() < 0.1) playSound('step');
+      } else if (GameState.playerDirection !== 'idle') {
+        GameState.playerDirection = 'idle';
+        updatePlayerSprite();
+      }
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    function startGame() {
+      if (GameState.gameLoaded) return;
+      
+      initAudio();
+      playSound('interact');
+      
+      elements.loadingScreen.classList.add('hidden');
+      elements.gameContainer.classList.remove('hidden');
+      
+      GameState.gameLoaded = true;
+      
+      // Center player
+      const gameWidth = elements.gameContainer.offsetWidth;
+      const gameHeight = elements.gameContainer.offsetHeight;
+      GameState.playerX = gameWidth / 2;
+      GameState.playerY = gameHeight / 2;
+      
+      renderRoom();
+      updatePlayerPosition();
+      updateCurrency();
+      updateQuest();
+      renderInventory();
+    }
+
+    // Event Listeners
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+    
+    document.getElementById('btn-inventory').addEventListener('click', () => {
+      if (elements.inventoryPanel.classList.contains('hidden')) {
+        openInventory();
+      } else {
+        closeInventory();
+      }
+    });
+    
+    document.getElementById('btn-menu').addEventListener('click', togglePause);
+    document.getElementById('close-inventory').addEventListener('click', closeInventory);
+    document.getElementById('close-shop').addEventListener('click', closeShop);
+    document.getElementById('close-crafting').addEventListener('click', closeCrafting);
+    
+    document.getElementById('btn-resume').addEventListener('click', togglePause);
+    document.getElementById('btn-options').addEventListener('click', () => {
+      playSound('interact');
+    });
+    document.getElementById('btn-switch-side').addEventListener('click', () => {
+      togglePause();
+      switchSide();
+    });
+    document.getElementById('btn-quit').addEventListener('click', () => {
+      togglePause();
+      GameState.gameLoaded = false;
+      elements.gameContainer.classList.add('hidden');
+      elements.loadingScreen.classList.remove('hidden');
+    });
+    
+    // Click to start
+    elements.loadingScreen.addEventListener('click', startGame);
+    
+    // Start game loop
+    requestAnimationFrame(gameLoop);
+    
+    // SDK Integration
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (cfg) => {
+        config = { ...cfg };
+        elements.loadingTitle.textContent = config.game_title || defaultConfig.game_title;
+        if (GameState.gameLoaded) {
+          updatePlayerSprite();
+        }
+      },
+      mapToCapabilities: (cfg) => ({
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      }),
+      mapToEditPanelValues: (cfg) => new Map([
+        ['game_title', cfg.game_title || defaultConfig.game_title],
+        ['player_name_vanguard', cfg.player_name_vanguard || defaultConfig.player_name_vanguard],
+        ['player_name_nemesis', cfg.player_name_nemesis || defaultConfig.player_name_nemesis]
+      ])
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c1661d6542cea85',t:'MTc2ODk5NDAwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

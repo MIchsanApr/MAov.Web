@@ -1,0 +1,2209 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashes of Vengeance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { box-sizing: border-box; }
+    
+    * { font-family: 'Rajdhani', sans-serif; }
+    
+    .title-font { font-family: 'Orbitron', monospace; }
+    
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px currentColor); }
+      50% { filter: drop-shadow(0 0 20px currentColor); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    
+    @keyframes scan-line {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    
+    .glow-text { animation: pulse-glow 2s ease-in-out infinite; }
+    .float-anim { animation: float 3s ease-in-out infinite; }
+    
+    .scan-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(transparent, rgba(0, 255, 255, 0.1), transparent);
+      animation: scan-line 4s linear infinite;
+    }
+    
+    .dialog-box {
+      background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.95) 100%);
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 60px rgba(0, 255, 255, 0.05);
+    }
+    
+    .nemesis-style {
+      border-color: #ff3366;
+      box-shadow: 0 0 30px rgba(255, 51, 102, 0.3), inset 0 0 60px rgba(255, 51, 102, 0.05);
+    }
+    
+    .btn-cyber {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-cyber::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn-cyber:hover::before { left: 100%; }
+    
+    .minimap-container {
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    }
+    
+    .inventory-slot {
+      background: rgba(20, 30, 50, 0.8);
+      border: 1px solid #334;
+      transition: all 0.2s ease;
+    }
+    
+    .inventory-slot:hover {
+      border-color: #00ffff;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+    
+    .inventory-slot.has-item { border-color: #66ff66; }
+    
+    .health-bar-bg {
+      background: linear-gradient(90deg, #1a1a2e, #16213e);
+      border: 1px solid #334;
+    }
+    
+    .health-bar-fill {
+      background: linear-gradient(90deg, #ff3366, #ff6b6b);
+      box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+      transition: width 0.3s ease;
+    }
+    
+    .npc-sprite {
+      transition: transform 0.1s ease;
+    }
+    
+    .npc-sprite:hover { transform: scale(1.1); }
+    
+    .room-transition {
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .choice-btn {
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+    
+    .choice-btn:hover {
+      border-left-color: #00ffff;
+      padding-left: 1.5rem;
+      background: rgba(0, 255, 255, 0.1);
+    }
+    
+    .nemesis-choice:hover {
+      border-left-color: #ff3366;
+      background: rgba(255, 51, 102, 0.1);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-gray-900 overflow-hidden">
+  <div id="app" class="h-full w-full relative"><!-- MAIN MENU -->
+   <div id="main-menu" class="absolute inset-0 z-50 flex flex-col items-center justify-center scan-line" style="background: radial-gradient(ellipse at center, #0a0f1e 0%, #000 100%);">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+     <div class="absolute w-96 h-96 rounded-full opacity-20" style="background: radial-gradient(circle, #00ffff 0%, transparent 70%); top: 10%; left: 10%; filter: blur(60px);"></div>
+     <div class="absolute w-80 h-80 rounded-full opacity-15" style="background: radial-gradient(circle, #ff3366 0%, transparent 70%); bottom: 20%; right: 15%; filter: blur(50px);"></div>
+    </div>
+    <div class="text-center z-10">
+     <h1 id="game-title-display" class="title-font text-6xl font-black mb-2 glow-text" style="color: #00ffff; text-shadow: 0 0 40px rgba(0, 255, 255, 0.8);">ASHES OF VENGEANCE</h1>
+     <p class="text-gray-400 text-lg tracking-widest mb-12">CHOOSE YOUR PATH</p>
+     <div class="flex gap-8 mb-12"><!-- Vanguard Path --> <button onclick="game.selectFaction('vanguard')" class="btn-cyber group relative w-64 p-6 rounded-lg border-2 border-cyan-500 bg-gradient-to-b from-cyan-900/30 to-transparent hover:from-cyan-800/50 transition-all">
+       <div class="text-6xl mb-4 float-anim">
+        ⚔️
+       </div><h2 class="title-font text-2xl text-cyan-400 mb-2">VANGUARD PATH</h2><p class="text-gray-400 text-sm">Play as <span class="text-cyan-300 font-bold">EVINCE</span></p><p class="text-gray-500 text-xs mt-2">Defend Earth • Unite allies • Seek justice</p></button> <!-- Nemesis Path --> <button onclick="game.selectFaction('nemesis')" class="btn-cyber group relative w-64 p-6 rounded-lg border-2 border-rose-500 bg-gradient-to-b from-rose-900/30 to-transparent hover:from-rose-800/50 transition-all">
+       <div class="text-6xl mb-4 float-anim" style="animation-delay: 0.5s;">
+        🩸
+       </div><h2 class="title-font text-2xl text-rose-400 mb-2">NEMESIS PATH</h2><p class="text-gray-400 text-sm">Play as <span class="text-rose-300 font-bold">MORTYX</span></p><p class="text-gray-500 text-xs mt-2">Embrace darkness • Command fear • Take revenge</p></button>
+     </div>
+     <div class="flex flex-col gap-3"><button onclick="game.loadGame()" class="btn-cyber px-8 py-3 rounded border border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-all"> 📂 LOAD GAME </button> <button onclick="game.showOptions()" class="btn-cyber px-8 py-3 rounded border border-gray-700 text-gray-500 hover:text-gray-300 hover:border-gray-500 transition-all"> ⚙️ OPTIONS </button>
+     </div>
+    </div>
+    <div class="absolute bottom-4 text-gray-600 text-sm">
+     WASD Move • SHIFT Sprint • E Interact • I Inventory • ESC Pause
+    </div>
+   </div><!-- GAME WORLD -->
+   <div id="game-world" class="absolute inset-0 hidden"><!-- Game Canvas Container -->
+    <div id="game-canvas" class="absolute inset-0" style="background: #0a0a0f;"><!-- Room will be rendered here -->
+     <canvas id="room-canvas" class="absolute inset-0"></canvas><!-- Player -->
+     <div id="player" class="absolute transition-all duration-100" style="width: 48px; height: 48px; z-index: 20;">
+      <div id="player-sprite" class="w-full h-full flex items-center justify-center text-3xl">
+       🧑
+      </div>
+     </div><!-- NPCs Container -->
+     <div id="npcs-container" class="absolute inset-0" style="z-index: 15;"></div><!-- Interaction Prompt -->
+     <div id="interact-prompt" class="absolute hidden px-3 py-1 rounded bg-black/80 border border-cyan-500 text-cyan-400 text-sm" style="z-index: 30;">
+      Press <span class="font-bold">E</span> to interact
+     </div>
+    </div><!-- HUD -->
+    <div id="hud" class="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none" style="z-index: 40;"><!-- Left HUD -->
+     <div class="flex flex-col gap-3 pointer-events-auto"><!-- Health Bar -->
+      <div class="flex items-center gap-2"><span class="text-rose-500 text-xl">❤️</span>
+       <div class="health-bar-bg w-40 h-5 rounded-full overflow-hidden">
+        <div id="health-fill" class="health-bar-fill h-full rounded-full" style="width: 100%;"></div>
+       </div><span id="health-text" class="text-white text-sm font-bold">100/100</span>
+      </div><!-- Currency -->
+      <div id="currency-display" class="flex items-center gap-2 px-3 py-2 rounded bg-black/60 border border-gray-700"><span id="currency-icon">💎</span> <span id="currency-amount" class="text-yellow-400 font-bold">0</span>
+      </div><!-- Location -->
+      <div class="px-3 py-1 rounded bg-black/60 border border-gray-700"><span class="text-gray-500 text-xs">LOCATION:</span> <span id="location-name" class="text-white text-sm ml-2">Loading...</span>
+      </div>
+     </div><!-- Right HUD - Minimap -->
+     <div class="minimap-container w-40 h-40 rounded-lg overflow-hidden pointer-events-auto">
+      <div id="minimap" class="relative w-full h-full">
+       <div id="minimap-rooms"></div>
+       <div id="minimap-player" class="absolute w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50" style="transform: translate(-50%, -50%);"></div>
+      </div>
+     </div>
+    </div><!-- Bottom HUD -->
+    <div class="absolute bottom-4 left-4 flex gap-2 pointer-events-auto" style="z-index: 40;"><button onclick="game.toggleInventory()" class="w-12 h-12 rounded-lg bg-black/60 border border-gray-600 hover:border-cyan-500 flex items-center justify-center text-2xl transition-all"> 🎒 </button> <button onclick="game.toggleQuests()" class="w-12 h-12 rounded-lg bg-black/60 border border-gray-600 hover:border-cyan-500 flex items-center justify-center text-2xl transition-all"> 📜 </button>
+    </div>
+   </div><!-- DIALOGUE BOX -->
+   <div id="dialogue-box" class="absolute bottom-8 left-1/2 -translate-x-1/2 w-3/4 max-w-3xl hidden" style="z-index: 50;">
+    <div id="dialogue-container" class="dialog-box rounded-xl p-6">
+     <div class="flex gap-4"><!-- Portrait -->
+      <div id="dialogue-portrait" class="w-24 h-24 rounded-lg bg-gray-800 border-2 border-cyan-500 flex items-center justify-center text-5xl shrink-0">
+       👤
+      </div><!-- Content -->
+      <div class="flex-1">
+       <div id="dialogue-name" class="title-font text-lg text-cyan-400 mb-2">
+        Speaker Name
+       </div>
+       <div id="dialogue-text" class="text-gray-200 text-lg leading-relaxed min-h-16"></div>
+      </div>
+     </div><!-- Choices -->
+     <div id="dialogue-choices" class="mt-4 flex flex-col gap-2 hidden"></div><!-- Continue Prompt -->
+     <div id="dialogue-continue" class="mt-4 text-center text-gray-500 text-sm">
+      Press <span class="text-cyan-400">E</span> or click to continue...
+     </div>
+    </div>
+   </div><!-- INVENTORY PANEL -->
+   <div id="inventory-panel" class="absolute inset-0 bg-black/80 hidden flex items-center justify-center" style="z-index: 60;">
+    <div class="dialog-box w-4/5 max-w-4xl rounded-xl p-6">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="title-font text-2xl text-cyan-400">INVENTORY</h2><button onclick="game.toggleInventory()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+     </div>
+     <div class="grid grid-cols-2 gap-6"><!-- Items Grid -->
+      <div>
+       <h3 class="text-gray-400 mb-3">ITEMS</h3>
+       <div id="inventory-grid" class="grid grid-cols-5 gap-2"><!-- Slots generated by JS -->
+       </div>
+      </div><!-- Item Details -->
+      <div class="border-l border-gray-700 pl-6">
+       <h3 class="text-gray-400 mb-3">DETAILS</h3>
+       <div id="item-details" class="text-gray-500">
+        Select an item to view details
+       </div>
+      </div>
+     </div><!-- Currency Display -->
+     <div class="mt-6 pt-6 border-t border-gray-700 flex gap-8">
+      <div class="flex items-center gap-2"><span class="text-2xl">💎</span> <span class="text-cyan-400 font-bold" id="inv-vanguard-currency">0</span> <span class="text-gray-500 text-sm">Vanguard Credits</span>
+      </div>
+      <div class="flex items-center gap-2"><span class="text-2xl">🔮</span> <span class="text-rose-400 font-bold" id="inv-nemesis-currency">0</span> <span class="text-gray-500 text-sm">Nemesis Souls</span>
+      </div>
+     </div>
+    </div>
+   </div><!-- SHOP PANEL -->
+   <div id="shop-panel" class="absolute inset-0 bg-black/80 hidden flex items-center justify-center" style="z-index: 60;">
+    <div class="dialog-box w-4/5 max-w-4xl rounded-xl p-6">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="title-font text-2xl text-cyan-400">MERCHANT</h2><button onclick="game.closeShop()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+     </div>
+     <div class="grid grid-cols-2 gap-6"><!-- Shop Items -->
+      <div>
+       <h3 class="text-gray-400 mb-3">FOR SALE</h3>
+       <div id="shop-items" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
+      </div><!-- Player Items to Sell -->
+      <div class="border-l border-gray-700 pl-6">
+       <h3 class="text-gray-400 mb-3">YOUR ITEMS</h3>
+       <div id="sell-items" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
+      </div>
+     </div>
+     <div class="mt-6 pt-6 border-t border-gray-700">
+      <div id="shop-currency" class="flex items-center gap-2"><span class="text-2xl">💎</span> <span class="text-cyan-400 font-bold" id="shop-balance">0</span>
+      </div>
+     </div>
+    </div>
+   </div><!-- CRAFTING PANEL -->
+   <div id="crafting-panel" class="absolute inset-0 bg-black/80 hidden flex items-center justify-center" style="z-index: 60;">
+    <div class="dialog-box w-4/5 max-w-3xl rounded-xl p-6">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="title-font text-2xl text-cyan-400">CRAFTING STATION</h2><button onclick="game.closeCrafting()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+     </div>
+     <div id="crafting-recipes" class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto"></div>
+    </div>
+   </div><!-- PAUSE MENU -->
+   <div id="pause-menu" class="absolute inset-0 bg-black/90 hidden flex items-center justify-center" style="z-index: 70;">
+    <div class="text-center">
+     <h2 class="title-font text-4xl text-cyan-400 mb-8 glow-text">PAUSED</h2>
+     <div class="flex flex-col gap-4"><button onclick="game.resume()" class="btn-cyber px-12 py-4 rounded-lg border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/20 text-xl"> ▶️ RESUME </button> <button onclick="game.saveGame()" class="btn-cyber px-12 py-4 rounded-lg border border-gray-600 text-gray-300 hover:border-gray-400"> 💾 SAVE GAME </button> <button onclick="game.switchSide()" class="btn-cyber px-12 py-4 rounded-lg border border-gray-600 text-gray-300 hover:border-gray-400"> 🔄 SWITCH SIDE </button> <button onclick="game.showOptions()" class="btn-cyber px-12 py-4 rounded-lg border border-gray-600 text-gray-300 hover:border-gray-400"> ⚙️ OPTIONS </button> <button onclick="game.quitToMenu()" class="btn-cyber px-12 py-4 rounded-lg border border-rose-600 text-rose-400 hover:bg-rose-500/20"> 🚪 QUIT TO MENU </button>
+     </div>
+    </div>
+   </div><!-- OPTIONS PANEL -->
+   <div id="options-panel" class="absolute inset-0 bg-black/90 hidden flex items-center justify-center" style="z-index: 75;">
+    <div class="dialog-box w-96 rounded-xl p-6">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="title-font text-2xl text-cyan-400">OPTIONS</h2><button onclick="game.closeOptions()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+     </div>
+     <div class="flex flex-col gap-4">
+      <div><label class="text-gray-400 text-sm">MUSIC VOLUME</label> <input type="range" id="music-volume" min="0" max="100" value="50" class="w-full mt-2">
+      </div>
+      <div><label class="text-gray-400 text-sm">SFX VOLUME</label> <input type="range" id="sfx-volume" min="0" max="100" value="70" class="w-full mt-2">
+      </div>
+      <div class="flex items-center justify-between"><span class="text-gray-400">SHOW MINIMAP</span> <input type="checkbox" id="show-minimap" checked class="w-5 h-5">
+      </div>
+     </div><button onclick="game.closeOptions()" class="mt-6 w-full py-3 rounded-lg border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20"> DONE </button>
+    </div>
+   </div><!-- QUESTS PANEL -->
+   <div id="quests-panel" class="absolute inset-0 bg-black/80 hidden flex items-center justify-center" style="z-index: 60;">
+    <div class="dialog-box w-4/5 max-w-2xl rounded-xl p-6">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="title-font text-2xl text-cyan-400">QUESTS</h2><button onclick="game.toggleQuests()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+     </div>
+     <div id="quests-list" class="flex flex-col gap-4 max-h-96 overflow-y-auto">
+      <div class="text-gray-500 text-center py-8">
+       No active quests
+      </div>
+     </div>
+    </div>
+   </div><!-- TELEPORT PANEL (Nemesis) -->
+   <div id="teleport-panel" class="absolute inset-0 bg-black/90 hidden flex items-center justify-center" style="z-index: 60;">
+    <div class="dialog-box nemesis-style w-96 rounded-xl p-6 text-center">
+     <h2 class="title-font text-2xl text-rose-400 mb-6">TELEPORT STATION</h2>
+     <p class="text-gray-400 mb-6">Choose your destination:</p>
+     <div class="flex flex-col gap-3"><button onclick="game.teleportTo('merchant_planet')" class="btn-cyber py-3 rounded-lg border border-rose-500 text-rose-400 hover:bg-rose-500/20"> 🛒 Merchant Planet </button> <button onclick="game.teleportTo('crafting_station')" class="btn-cyber py-3 rounded-lg border border-rose-500 text-rose-400 hover:bg-rose-500/20"> 🔧 Crafting Outpost </button> <button onclick="game.closeTeleport()" class="btn-cyber py-3 rounded-lg border border-gray-600 text-gray-400 hover:border-gray-400"> Cancel </button>
+     </div>
+    </div>
+   </div><!-- LOADING OVERLAY -->
+   <div id="loading-overlay" class="absolute inset-0 bg-black flex items-center justify-center hidden" style="z-index: 100;">
+    <div class="text-center">
+     <div class="text-4xl mb-4 animate-spin">
+      ⚡
+     </div>
+     <div class="text-cyan-400 title-font">
+      LOADING...
+     </div>
+    </div>
+   </div><!-- TOAST NOTIFICATIONS -->
+   <div id="toast-container" class="absolute top-20 right-4 flex flex-col gap-2" style="z-index: 80;"></div>
+  </div>
+  <script>
+    // ==========================================
+    // ASHES OF VENGEANCE - MAIN GAME ENGINE
+    // ==========================================
+    
+    const defaultConfig = {
+      game_title: 'ASHES OF VENGEANCE',
+      background_color: '#0a0a0f',
+      surface_color: '#0a0f1e',
+      text_color: '#e5e5e5',
+      primary_action: '#00ffff',
+      secondary_action: '#ff3366'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    // ==========================================
+    // GAME DATA DEFINITIONS
+    // ==========================================
+    
+    const ROOMS = {
+      // VANGUARD ROOMS (Earth Base)
+      vanguard_spawn: {
+        name: 'Vanguard HQ - Command Center',
+        width: 800,
+        height: 600,
+        bgColor: '#0a1628',
+        faction: 'vanguard',
+        exits: {
+          north: 'vanguard_hallway',
+          east: 'vanguard_armory'
+        },
+        npcs: ['jas', 'alyra'],
+        objects: ['terminal', 'hologram_table']
+      },
+      vanguard_hallway: {
+        name: 'Vanguard HQ - Main Corridor',
+        width: 600,
+        height: 800,
+        bgColor: '#0c1a2d',
+        faction: 'vanguard',
+        exits: {
+          south: 'vanguard_spawn',
+          west: 'vanguard_barracks',
+          north: 'earth_outdoor'
+        },
+        npcs: ['pank'],
+        objects: []
+      },
+      vanguard_armory: {
+        name: 'Vanguard HQ - Armory',
+        width: 500,
+        height: 500,
+        bgColor: '#0d1e30',
+        faction: 'vanguard',
+        exits: {
+          west: 'vanguard_spawn'
+        },
+        npcs: ['tharz'],
+        objects: ['weapon_rack', 'crafting_station']
+      },
+      vanguard_barracks: {
+        name: 'Vanguard HQ - Barracks',
+        width: 600,
+        height: 500,
+        bgColor: '#0b1624',
+        faction: 'vanguard',
+        exits: {
+          east: 'vanguard_hallway'
+        },
+        npcs: ['shadow'],
+        objects: ['bunk_beds', 'locker']
+      },
+      earth_outdoor: {
+        name: 'Earth - Settlement Square',
+        width: 1000,
+        height: 800,
+        bgColor: '#1a2634',
+        faction: 'vanguard',
+        exits: {
+          south: 'vanguard_hallway'
+        },
+        npcs: ['merchant'],
+        objects: ['fountain', 'shop_stall']
+      },
+      
+      // NEMESIS ROOMS
+      nemesis_spawn: {
+        name: 'Nemesis HQ - Dark Throne',
+        width: 800,
+        height: 600,
+        bgColor: '#1a0a0f',
+        faction: 'nemesis',
+        exits: {
+          north: 'nemesis_corridor',
+          east: 'nemesis_lab'
+        },
+        npcs: ['zet', 'radiant'],
+        objects: ['dark_throne', 'blood_fountain']
+      },
+      nemesis_corridor: {
+        name: 'Nemesis HQ - Shadow Hall',
+        width: 600,
+        height: 700,
+        bgColor: '#1c0c12',
+        faction: 'nemesis',
+        exits: {
+          south: 'nemesis_spawn',
+          west: 'nemesis_chambers'
+        },
+        npcs: ['vein'],
+        objects: ['teleporter']
+      },
+      nemesis_lab: {
+        name: 'Nemesis HQ - Experiment Lab',
+        width: 600,
+        height: 500,
+        bgColor: '#1e0d14',
+        faction: 'nemesis',
+        exits: {
+          west: 'nemesis_spawn'
+        },
+        npcs: [],
+        objects: ['experiment_table', 'tubes']
+      },
+      nemesis_chambers: {
+        name: 'Nemesis HQ - Private Chambers',
+        width: 500,
+        height: 500,
+        bgColor: '#190a10',
+        faction: 'nemesis',
+        exits: {
+          east: 'nemesis_corridor'
+        },
+        npcs: [],
+        objects: ['bed', 'mirror']
+      },
+      merchant_planet: {
+        name: 'Outworld - Merchant Station',
+        width: 700,
+        height: 600,
+        bgColor: '#1a1a28',
+        faction: 'neutral',
+        exits: {
+          teleport_back: true
+        },
+        npcs: ['alien_merchant'],
+        objects: ['shop_terminal', 'crates']
+      },
+      crafting_station: {
+        name: 'Outworld - Forge Outpost',
+        width: 600,
+        height: 500,
+        bgColor: '#201810',
+        faction: 'neutral',
+        exits: {
+          teleport_back: true
+        },
+        npcs: [],
+        objects: ['advanced_forge', 'anvil']
+      }
+    };
+    
+    const NPCS = {
+      // Vanguard NPCs
+      jas: {
+        name: 'Jas',
+        emoji: '👩‍🔬',
+        faction: 'vanguard',
+        role: 'Scientist',
+        personality: 'Curious and analytical',
+        dialogues: {
+          initial: {
+            text: "Oh! You must be the new recruit. I'm Jas, head of research. We're studying the Nemesis threat. Care to help?",
+            choices: [
+              { text: "I'm ready to help however I can.", response: 'helpful', relationship: 5 },
+              { text: "What exactly are you researching?", response: 'curious', relationship: 3 },
+              { text: "Maybe later.", response: 'dismiss', relationship: -2 }
+            ]
+          },
+          helpful: {
+            text: "Excellent! Your dedication is refreshing. I need samples from the field. Check back when you've explored more.",
+            choices: [{ text: "I'll keep that in mind.", response: 'end', quest: 'collect_samples' }]
+          },
+          curious: {
+            text: "The Nemesis use a form of dark energy we don't fully understand. Each piece of intel helps us develop countermeasures.",
+            choices: [{ text: "Fascinating. I'll help gather data.", response: 'helpful', relationship: 2 }]
+          },
+          dismiss: {
+            text: "Oh... well, you know where to find me if you change your mind.",
+            choices: [{ text: "Sure.", response: 'end' }]
+          },
+          friendly: {
+            text: "Good to see you again! Any samples to report? The research is progressing well.",
+            choices: [
+              { text: "Still gathering data.", response: 'end', relationship: 1 },
+              { text: "Tell me more about the Nemesis.", response: 'lore', relationship: 2 }
+            ]
+          },
+          lore: {
+            text: "The Nemesis weren't always our enemies. Long ago, we were one people. A catastrophe split us... but that's ancient history now.",
+            choices: [{ text: "I understand. Thank you for sharing.", response: 'end', relationship: 3 }]
+          }
+        }
+      },
+      pank: {
+        name: 'Pank',
+        emoji: '💪',
+        faction: 'vanguard',
+        role: 'Combat Trainer',
+        personality: 'Tough but fair',
+        dialogues: {
+          initial: {
+            text: "New blood! I'm Pank, combat instructor. You look like you could use some training. Ready to prove yourself?",
+            choices: [
+              { text: "Train me! I want to be stronger.", response: 'eager', relationship: 5, quest: 'combat_training' },
+              { text: "I can handle myself.", response: 'cocky', relationship: -1 },
+              { text: "What can you teach me?", response: 'curious', relationship: 2 }
+            ]
+          },
+          eager: {
+            text: "Ha! That's the spirit! We'll make a warrior out of you yet. Meet me at the training grounds when you're ready.",
+            choices: [{ text: "I won't let you down!", response: 'end' }]
+          },
+          cocky: {
+            text: "Confidence is good, overconfidence gets you killed. The Nemesis don't play fair. Think about it.",
+            choices: [{ text: "...Maybe you're right.", response: 'eager', relationship: 3 }]
+          },
+          curious: {
+            text: "Combat tactics, weapon handling, survival skills. Everything you need to stay alive out there.",
+            choices: [{ text: "Sign me up.", response: 'eager', relationship: 2 }]
+          },
+          friendly: {
+            text: "Back for more? Good. A true warrior never stops improving.",
+            choices: [{ text: "Let's train.", response: 'end', relationship: 2 }]
+          }
+        }
+      },
+      alyra: {
+        name: 'Alyra',
+        emoji: '🧝‍♀️',
+        faction: 'vanguard',
+        role: 'Strategic Advisor',
+        personality: 'Wise and mysterious',
+        dialogues: {
+          initial: {
+            text: "Greetings, traveler. I am Alyra. I've seen your future in the threads of fate... and it is uncertain.",
+            choices: [
+              { text: "What do you see?", response: 'vision', relationship: 3 },
+              { text: "I make my own fate.", response: 'defiant', relationship: 1 },
+              { text: "That's... unsettling.", response: 'nervous', relationship: 2 }
+            ]
+          },
+          vision: {
+            text: "Two paths diverge before you. One leads to glory, the other to ruin. Your choices will determine which.",
+            choices: [{ text: "I'll choose wisely.", response: 'end', relationship: 2 }]
+          },
+          defiant: {
+            text: "Hmm, determination. That alone won't change destiny, but it's a start. Prove yourself worthy.",
+            choices: [{ text: "I will.", response: 'end', relationship: 3 }]
+          },
+          nervous: {
+            text: "Fear not. Uncertainty means possibility. You have the power to shape what comes.",
+            choices: [{ text: "Thank you for the encouragement.", response: 'end', relationship: 2 }]
+          },
+          friendly: {
+            text: "The threads grow clearer each day. You are making progress on your journey.",
+            choices: [{ text: "What should I do next?", response: 'advice', relationship: 2 }]
+          },
+          advice: {
+            text: "Seek the truth hidden in shadows. Not all enemies are what they seem, nor all allies trustworthy.",
+            choices: [{ text: "I'll keep that in mind.", response: 'end', relationship: 1 }]
+          }
+        }
+      },
+      tharz: {
+        name: 'Tharz',
+        emoji: '🔧',
+        faction: 'vanguard',
+        role: 'Weapons Engineer',
+        personality: 'Gruff but skilled',
+        dialogues: {
+          initial: {
+            text: "*grunt* Name's Tharz. I make the weapons that keep us alive. Need something built or modified?",
+            choices: [
+              { text: "Show me what you can craft.", response: 'crafting', relationship: 2 },
+              { text: "Any tips for a newcomer?", response: 'tips', relationship: 3 },
+              { text: "Just looking around.", response: 'dismiss', relationship: 0 }
+            ]
+          },
+          crafting: {
+            text: "Got materials? I can work wonders. Bring me what you find out there and I'll turn it into something useful.",
+            choices: [{ text: "I'll bring you materials.", response: 'end', action: 'open_crafting' }]
+          },
+          tips: {
+            text: "Always keep your gear maintained. A jammed weapon in battle means a dead soldier. Also, never trust cheap ammo.",
+            choices: [{ text: "Solid advice. Thanks.", response: 'end', relationship: 2 }]
+          },
+          dismiss: {
+            text: "*shrug* Suit yourself. Tools are here when you need 'em.",
+            choices: [{ text: "Thanks anyway.", response: 'end' }]
+          },
+          friendly: {
+            text: "Back again? Good. I've been working on some new designs. Bring materials and let's get to work.",
+            choices: [{ text: "Let's see what we can make.", response: 'end', action: 'open_crafting' }]
+          }
+        }
+      },
+      shadow: {
+        name: 'Shadow',
+        emoji: '🥷',
+        faction: 'vanguard',
+        role: 'Intel Specialist',
+        personality: 'Secretive and cunning',
+        dialogues: {
+          initial: {
+            text: "...*appears from darkness* You move too loudly. I'm Shadow. I gather... information. Perhaps we can help each other.",
+            choices: [
+              { text: "What kind of information?", response: 'curious', relationship: 3 },
+              { text: "I don't trust spies.", response: 'distrust', relationship: -3 },
+              { text: "How did you do that?!", response: 'impressed', relationship: 2 }
+            ]
+          },
+          curious: {
+            text: "Nemesis movements, secret passages, hidden caches. Knowledge is power. I share it with those who've earned my trust.",
+            choices: [{ text: "How do I earn your trust?", response: 'trust_quest', quest: 'shadow_trust' }]
+          },
+          trust_quest: {
+            text: "Complete a task for me. Find the hidden terminal in the barracks. Bring me what you find. Then we'll talk.",
+            choices: [{ text: "Consider it done.", response: 'end', relationship: 2 }]
+          },
+          distrust: {
+            text: "Smart. Trust is earned, not given. Perhaps in time, you'll see I'm on your side.",
+            choices: [{ text: "We'll see.", response: 'end' }]
+          },
+          impressed: {
+            text: "*slight smile* Years of practice. Stick around, maybe I'll teach you a few tricks.",
+            choices: [{ text: "I'd like that.", response: 'end', relationship: 3 }]
+          },
+          friendly: {
+            text: "You're getting better at noticing me. There's hope for you yet.",
+            choices: [{ text: "Any new intel?", response: 'intel', relationship: 2 }]
+          },
+          intel: {
+            text: "The Nemesis are planning something big. I don't have all the details yet. Stay alert.",
+            choices: [{ text: "Thanks for the warning.", response: 'end', relationship: 1 }]
+          }
+        }
+      },
+      merchant: {
+        name: 'Earth Merchant',
+        emoji: '🧑‍🌾',
+        faction: 'vanguard',
+        role: 'Trader',
+        personality: 'Friendly entrepreneur',
+        dialogues: {
+          initial: {
+            text: "Welcome, welcome! Fresh goods from across the settlements! What can I get for you today?",
+            choices: [
+              { text: "Show me your wares.", response: 'shop', action: 'open_shop' },
+              { text: "Any news from the settlements?", response: 'news', relationship: 2 },
+              { text: "Just passing through.", response: 'end' }
+            ]
+          },
+          shop: {
+            text: "Of course! Take your time, friend. Quality guaranteed or your credits back!",
+            choices: [{ text: "Let's see...", response: 'end', action: 'open_shop' }]
+          },
+          news: {
+            text: "Rumors of Nemesis scouts near the eastern ridge. Stay safe out there, friend.",
+            choices: [{ text: "Thanks for the warning.", response: 'shop', relationship: 1 }]
+          },
+          friendly: {
+            text: "Ah, my favorite customer returns! Got some special items today, just for you.",
+            choices: [{ text: "Show me!", response: 'end', action: 'open_shop' }]
+          }
+        }
+      },
+      
+      // Nemesis NPCs
+      zet: {
+        name: 'Zet',
+        emoji: '😈',
+        faction: 'nemesis',
+        role: 'War Commander',
+        personality: 'Ruthless and calculating',
+        dialogues: {
+          initial: {
+            text: "So you're the new blood Mortyx brought in. I am Zet, commander of our forces. Don't disappoint me.",
+            choices: [
+              { text: "I won't fail the cause.", response: 'loyal', relationship: 5 },
+              { text: "What's our next target?", response: 'eager', relationship: 3 },
+              { text: "I follow Mortyx, not you.", response: 'defiant', relationship: -5 }
+            ]
+          },
+          loyal: {
+            text: "Good. Loyalty is the cornerstone of power. Prove yourself in battle, and you'll rise quickly in our ranks.",
+            choices: [{ text: "Victory awaits.", response: 'end', quest: 'prove_worth' }]
+          },
+          eager: {
+            text: "I like your enthusiasm. The Vanguard have a supply depot we've been watching. Perhaps it's time to strike.",
+            choices: [{ text: "I'm ready.", response: 'end', relationship: 2, quest: 'raid_depot' }]
+          },
+          defiant: {
+            text: "*cold stare* Bold. Mortyx won't always be there to protect you. Choose your allegiances carefully.",
+            choices: [{ text: "I'll keep that in mind.", response: 'end' }]
+          },
+          friendly: {
+            text: "You've proven yourself competent. Perhaps I misjudged you. There's work to be done.",
+            choices: [{ text: "What's the mission?", response: 'mission', relationship: 2 }]
+          },
+          mission: {
+            text: "Sabotage their communications. Weaken them before the final assault. Can you handle it?",
+            choices: [{ text: "Consider it done.", response: 'end', quest: 'sabotage' }]
+          }
+        }
+      },
+      radiant: {
+        name: 'Radiant',
+        emoji: '✨',
+        faction: 'nemesis',
+        role: 'Dark Priestess',
+        personality: 'Eerily calm, speaks in riddles',
+        dialogues: {
+          initial: {
+            text: "The darkness welcomes you... I am Radiant, keeper of the ancient rites. Do you seek... enlightenment?",
+            choices: [
+              { text: "Teach me the dark arts.", response: 'teach', relationship: 5 },
+              { text: "What are these ancient rites?", response: 'curious', relationship: 3 },
+              { text: "You're creeping me out.", response: 'dismiss', relationship: -2 }
+            ]
+          },
+          teach: {
+            text: "Patience... Power flows to those who wait. First, you must understand the void. Meditate on nothingness.",
+            choices: [{ text: "I will try.", response: 'end', relationship: 2 }]
+          },
+          curious: {
+            text: "Before the split, we were one. The rites connect us to that primal power. To what we once were... and could be again.",
+            choices: [{ text: "Fascinating...", response: 'teach', relationship: 2 }]
+          },
+          dismiss: {
+            text: "*ethereal laugh* Fear is natural. Return when the shadows call to you... they always do.",
+            choices: [{ text: "...Right.", response: 'end' }]
+          },
+          friendly: {
+            text: "The void stirs within you. I can sense your growing power. Come, let us channel it.",
+            choices: [{ text: "Guide me.", response: 'end', relationship: 3 }]
+          }
+        }
+      },
+      vein: {
+        name: 'Vein',
+        emoji: '🩸',
+        faction: 'nemesis',
+        role: 'Assassin',
+        personality: 'Cold and efficient',
+        dialogues: {
+          initial: {
+            text: "*examines blade* Another recruit. I'm Vein. I remove... obstacles. Interested in learning the trade?",
+            choices: [
+              { text: "Teach me to be deadly.", response: 'teach', relationship: 5 },
+              { text: "Who do you... remove?", response: 'curious', relationship: 2 },
+              { text: "That's not my style.", response: 'decline', relationship: -1 }
+            ]
+          },
+          teach: {
+            text: "Speed. Precision. No hesitation. These are the keys. Watch, learn, and perhaps survive.",
+            choices: [{ text: "I'm a quick learner.", response: 'end', relationship: 3 }]
+          },
+          curious: {
+            text: "Those who threaten Nemesis interests. Traitors. Vanguard officers. Anyone who gets in the way.",
+            choices: [{ text: "Efficient.", response: 'teach', relationship: 1 }]
+          },
+          decline: {
+            text: "*shrug* Different tools for different tasks. But don't expect mercy from our enemies.",
+            choices: [{ text: "Noted.", response: 'end' }]
+          },
+          friendly: {
+            text: "You move better now. Keep practicing. The blade remembers what the mind forgets.",
+            choices: [{ text: "Any targets to practice on?", response: 'target', relationship: 2 }]
+          },
+          target: {
+            text: "There's a Vanguard informant in the neutral zone. Interested?",
+            choices: [
+              { text: "Point the way.", response: 'end', quest: 'eliminate_informant', relationship: 3 },
+              { text: "Not yet.", response: 'end' }
+            ]
+          }
+        }
+      },
+      alien_merchant: {
+        name: 'Xr\'thak',
+        emoji: '👽',
+        faction: 'neutral',
+        role: 'Alien Trader',
+        personality: 'Greedy but honest',
+        dialogues: {
+          initial: {
+            text: "*clicking sounds* Greetings, surface-dweller! Xr'thak has rare goods! Credits or souls, Xr'thak accepts both!",
+            choices: [
+              { text: "Show me what you have.", response: 'end', action: 'open_shop' },
+              { text: "What are you?", response: 'curious', relationship: 2 },
+              { text: "Maybe later.", response: 'end' }
+            ]
+          },
+          curious: {
+            text: "*amused clicking* Xr'thak is Xr'thak! From the Nebula Reaches! Best merchant in sector! Now, shopping?",
+            choices: [{ text: "Sure, show me.", response: 'end', action: 'open_shop' }]
+          },
+          friendly: {
+            text: "Ah, good customer returns! Xr'thak saved special items! Very rare, very powerful!",
+            choices: [{ text: "Let's see them.", response: 'end', action: 'open_shop' }]
+          }
+        }
+      }
+    };
+    
+    const ITEMS = {
+      // Consumables
+      health_potion: { name: 'Health Potion', emoji: '🧪', type: 'consumable', value: 25, effect: { health: 30 }, description: 'Restores 30 health points.' },
+      energy_cell: { name: 'Energy Cell', emoji: '🔋', type: 'consumable', value: 15, effect: { energy: 50 }, description: 'Restores 50 energy.' },
+      ration: { name: 'Combat Ration', emoji: '🥫', type: 'consumable', value: 10, effect: { health: 15 }, description: 'A basic meal. Restores 15 health.' },
+      
+      // Materials
+      scrap_metal: { name: 'Scrap Metal', emoji: '🔩', type: 'material', value: 5, description: 'Basic crafting material.' },
+      dark_crystal: { name: 'Dark Crystal', emoji: '💎', type: 'material', value: 20, description: 'A crystal infused with dark energy.' },
+      circuit_board: { name: 'Circuit Board', emoji: '🔌', type: 'material', value: 15, description: 'Electronic component for advanced crafting.' },
+      
+      // Equipment
+      basic_blade: { name: 'Basic Blade', emoji: '🗡️', type: 'weapon', value: 50, stats: { attack: 5 }, description: 'A simple but reliable blade.' },
+      energy_pistol: { name: 'Energy Pistol', emoji: '🔫', type: 'weapon', value: 75, stats: { attack: 8 }, description: 'Standard issue sidearm.' },
+      shield_module: { name: 'Shield Module', emoji: '🛡️', type: 'armor', value: 60, stats: { defense: 5 }, description: 'Personal energy shield.' },
+      
+      // Key Items
+      vanguard_keycard: { name: 'Vanguard Keycard', emoji: '🪪', type: 'key', value: 0, description: 'Access card for Vanguard facilities.' },
+      nemesis_sigil: { name: 'Nemesis Sigil', emoji: '📛', type: 'key', value: 0, description: 'Mark of the Nemesis faction.' }
+    };
+    
+    const RECIPES = {
+      enhanced_blade: {
+        name: 'Enhanced Blade',
+        result: 'basic_blade',
+        resultName: 'Enhanced Blade',
+        ingredients: { scrap_metal: 3, circuit_board: 1 },
+        description: 'A stronger blade with enhanced edge.'
+      },
+      health_potion: {
+        name: 'Health Potion',
+        result: 'health_potion',
+        ingredients: { ration: 2 },
+        description: 'Synthesize healing solution.'
+      },
+      dark_weapon: {
+        name: 'Dark Infused Blade',
+        result: 'basic_blade',
+        resultName: 'Dark Blade',
+        ingredients: { basic_blade: 1, dark_crystal: 2 },
+        factionRequired: 'nemesis',
+        description: 'A blade infused with dark energy.'
+      }
+    };
+    
+    const SHOP_INVENTORY = {
+      vanguard: [
+        { item: 'health_potion', price: 30 },
+        { item: 'energy_cell', price: 20 },
+        { item: 'ration', price: 10 },
+        { item: 'scrap_metal', price: 8 },
+        { item: 'circuit_board', price: 25 },
+        { item: 'basic_blade', price: 60 },
+        { item: 'shield_module', price: 75 }
+      ],
+      nemesis: [
+        { item: 'health_potion', price: 35 },
+        { item: 'energy_cell', price: 25 },
+        { item: 'dark_crystal', price: 30 },
+        { item: 'scrap_metal', price: 10 },
+        { item: 'energy_pistol', price: 90 },
+        { item: 'basic_blade', price: 55 }
+      ]
+    };
+    
+    const QUESTS = {
+      collect_samples: { name: 'Collect Research Samples', description: 'Gather samples for Jas\'s research.', objectives: ['Explore 3 different rooms'], reward: 50 },
+      combat_training: { name: 'Combat Training', description: 'Complete training with Pank.', objectives: ['Talk to Pank again'], reward: 30 },
+      shadow_trust: { name: 'Earn Shadow\'s Trust', description: 'Find the hidden terminal for Shadow.', objectives: ['Find hidden terminal'], reward: 75 },
+      prove_worth: { name: 'Prove Your Worth', description: 'Show Zet your capabilities.', objectives: ['Complete a mission'], reward: 60 },
+      raid_depot: { name: 'Supply Raid', description: 'Raid the Vanguard supply depot.', objectives: ['Locate depot', 'Retrieve supplies'], reward: 100 },
+      sabotage: { name: 'Communication Sabotage', description: 'Disable Vanguard communications.', objectives: ['Find comm tower', 'Disable systems'], reward: 80 },
+      eliminate_informant: { name: 'Eliminate Informant', description: 'Remove the Vanguard spy.', objectives: ['Find informant', 'Neutralize target'], reward: 90 }
+    };
+    
+    // ==========================================
+    // GAME STATE
+    // ==========================================
+    
+    const gameState = {
+      started: false,
+      paused: false,
+      faction: null,
+      playerName: '',
+      currentRoom: '',
+      previousRoom: '',
+      player: {
+        x: 400,
+        y: 300,
+        speed: 4,
+        sprintSpeed: 7,
+        direction: 'down',
+        health: 100,
+        maxHealth: 100,
+        vanguardCurrency: 100,
+        nemesisCurrency: 100
+      },
+      inventory: [],
+      relationships: {},
+      activeQuests: [],
+      completedQuests: [],
+      flags: {},
+      dialogueState: null,
+      saves: []
+    };
+    
+    const keys = {
+      w: false, a: false, s: false, d: false,
+      shift: false, e: false, i: false, escape: false
+    };
+    
+    let nearbyNPC = null;
+    let nearbyObject = null;
+    let gameLoopId = null;
+    let typingTimeout = null;
+    
+    // ==========================================
+    // GAME OBJECT
+    // ==========================================
+    
+    const game = {
+      // Initialization
+      async init() {
+        this.bindEvents();
+        this.generateInventorySlots();
+        await this.initSDKs();
+      },
+      
+      async initSDKs() {
+        // Initialize Element SDK
+        if (window.elementSdk) {
+          window.elementSdk.init({
+            defaultConfig,
+            onConfigChange: async (newConfig) => {
+              config = { ...newConfig };
+              this.applyConfig();
+            },
+            mapToCapabilities: (cfg) => ({
+              recolorables: [
+                { get: () => cfg.background_color || defaultConfig.background_color, set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+                { get: () => cfg.surface_color || defaultConfig.surface_color, set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+                { get: () => cfg.text_color || defaultConfig.text_color, set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+                { get: () => cfg.primary_action || defaultConfig.primary_action, set: (v) => { cfg.primary_action = v; window.elementSdk.setConfig({ primary_action: v }); } },
+                { get: () => cfg.secondary_action || defaultConfig.secondary_action, set: (v) => { cfg.secondary_action = v; window.elementSdk.setConfig({ secondary_action: v }); } }
+              ],
+              borderables: [],
+              fontEditable: undefined,
+              fontSizeable: undefined
+            }),
+            mapToEditPanelValues: (cfg) => new Map([
+              ['game_title', cfg.game_title || defaultConfig.game_title]
+            ])
+          });
+        }
+        
+        // Initialize Data SDK
+        if (window.dataSdk) {
+          const result = await window.dataSdk.init({
+            onDataChanged: (data) => {
+              gameState.saves = data;
+            }
+          });
+          if (!result.isOk) {
+            console.error('Failed to initialize Data SDK');
+          }
+        }
+      },
+      
+      applyConfig() {
+        const title = document.getElementById('game-title-display');
+        if (title) title.textContent = config.game_title || defaultConfig.game_title;
+        document.title = config.game_title || defaultConfig.game_title;
+      },
+      
+      bindEvents() {
+        document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+        
+        const dialogueBox = document.getElementById('dialogue-box');
+        dialogueBox.addEventListener('click', () => {
+          if (!document.getElementById('dialogue-choices').classList.contains('hidden')) return;
+          this.advanceDialogue();
+        });
+      },
+      
+      handleKeyDown(e) {
+        const key = e.key.toLowerCase();
+        if (key === 'w' || key === 'arrowup') keys.w = true;
+        if (key === 'a' || key === 'arrowleft') keys.a = true;
+        if (key === 's' || key === 'arrowdown') keys.s = true;
+        if (key === 'd' || key === 'arrowright') keys.d = true;
+        if (key === 'shift') keys.shift = true;
+        
+        if (key === 'e') {
+          if (gameState.dialogueState) {
+            this.advanceDialogue();
+          } else if (nearbyNPC) {
+            this.startDialogue(nearbyNPC);
+          } else if (nearbyObject) {
+            this.interactWithObject(nearbyObject);
+          }
+        }
+        
+        if (key === 'i') {
+          if (gameState.started && !gameState.paused) {
+            this.toggleInventory();
+          }
+        }
+        
+        if (key === 'escape') {
+          if (gameState.started) {
+            this.togglePause();
+          }
+        }
+      },
+      
+      handleKeyUp(e) {
+        const key = e.key.toLowerCase();
+        if (key === 'w' || key === 'arrowup') keys.w = false;
+        if (key === 'a' || key === 'arrowleft') keys.a = false;
+        if (key === 's' || key === 'arrowdown') keys.s = false;
+        if (key === 'd' || key === 'arrowright') keys.d = false;
+        if (key === 'shift') keys.shift = false;
+      },
+      
+      generateInventorySlots() {
+        const grid = document.getElementById('inventory-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'inventory-slot w-14 h-14 rounded flex items-center justify-center text-2xl cursor-pointer';
+          slot.dataset.slot = i;
+          slot.onclick = () => this.selectInventorySlot(i);
+          grid.appendChild(slot);
+        }
+      },
+      
+      // Faction Selection
+      selectFaction(faction) {
+        gameState.faction = faction;
+        gameState.playerName = faction === 'vanguard' ? 'Evince' : 'Mortyx';
+        gameState.currentRoom = faction === 'vanguard' ? 'vanguard_spawn' : 'nemesis_spawn';
+        
+        // Initialize relationships
+        Object.keys(NPCS).forEach(npcId => {
+          gameState.relationships[npcId] = { level: 0, dialogueState: 'initial' };
+        });
+        
+        // Give starting items
+        this.addItem('ration');
+        this.addItem('ration');
+        this.addItem('health_potion');
+        
+        this.startGame();
+      },
+      
+      // Game Start
+      startGame() {
+        gameState.started = true;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('game-world').classList.remove('hidden');
+        
+        this.loadRoom(gameState.currentRoom);
+        this.updateHUD();
+        this.startGameLoop();
+        
+        this.showToast(`Welcome, ${gameState.playerName}!`, 'success');
+      },
+      
+      // Room Management
+      loadRoom(roomId) {
+        const room = ROOMS[roomId];
+        if (!room) return;
+        
+        gameState.previousRoom = gameState.currentRoom;
+        gameState.currentRoom = roomId;
+        
+        // Update location display
+        document.getElementById('location-name').textContent = room.name;
+        
+        // Render room
+        this.renderRoom(room);
+        
+        // Spawn NPCs
+        this.spawnNPCs(room.npcs);
+        
+        // Update minimap
+        this.updateMinimap();
+        
+        // Position player at appropriate entrance
+        this.positionPlayerAtEntrance();
+        
+        // Apply faction styling
+        this.applyFactionStyling();
+      },
+      
+      renderRoom(room) {
+        const canvas = document.getElementById('room-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Background
+        ctx.fillStyle = room.bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Grid pattern
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 1;
+        const gridSize = 50;
+        
+        for (let x = 0; x < canvas.width; x += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        
+        for (let y = 0; y < canvas.height; y += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        
+        // Draw exits
+        const exits = Object.entries(room.exits);
+        exits.forEach(([direction, target]) => {
+          if (target === true) return; // teleport
+          
+          const isNemesis = room.faction === 'nemesis';
+          ctx.fillStyle = isNemesis ? 'rgba(255, 51, 102, 0.3)' : 'rgba(0, 255, 255, 0.3)';
+          
+          switch (direction) {
+            case 'north':
+              ctx.fillRect(canvas.width/2 - 40, 0, 80, 20);
+              break;
+            case 'south':
+              ctx.fillRect(canvas.width/2 - 40, canvas.height - 20, 80, 20);
+              break;
+            case 'east':
+              ctx.fillRect(canvas.width - 20, canvas.height/2 - 40, 20, 80);
+              break;
+            case 'west':
+              ctx.fillRect(0, canvas.height/2 - 40, 20, 80);
+              break;
+          }
+        });
+        
+        // Draw room objects
+        room.objects.forEach((objId, i) => {
+          this.drawRoomObject(ctx, objId, canvas.width, canvas.height, i);
+        });
+      },
+      
+      drawRoomObject(ctx, objId, roomWidth, roomHeight, index) {
+        const positions = [
+          { x: roomWidth * 0.3, y: roomHeight * 0.3 },
+          { x: roomWidth * 0.7, y: roomHeight * 0.3 },
+          { x: roomWidth * 0.3, y: roomHeight * 0.7 },
+          { x: roomWidth * 0.7, y: roomHeight * 0.7 }
+        ];
+        
+        const pos = positions[index % positions.length];
+        
+        const objects = {
+          terminal: { emoji: '🖥️', size: 40 },
+          hologram_table: { emoji: '📊', size: 50 },
+          weapon_rack: { emoji: '🗡️', size: 45 },
+          crafting_station: { emoji: '🔧', size: 45 },
+          bunk_beds: { emoji: '🛏️', size: 40 },
+          locker: { emoji: '🗄️', size: 35 },
+          fountain: { emoji: '⛲', size: 50 },
+          shop_stall: { emoji: '🏪', size: 45 },
+          dark_throne: { emoji: '👑', size: 55 },
+          blood_fountain: { emoji: '🩸', size: 45 },
+          teleporter: { emoji: '🌀', size: 50 },
+          experiment_table: { emoji: '🧬', size: 45 },
+          tubes: { emoji: '🧪', size: 40 },
+          bed: { emoji: '🛏️', size: 40 },
+          mirror: { emoji: '🪞', size: 35 },
+          shop_terminal: { emoji: '🛒', size: 45 },
+          crates: { emoji: '📦', size: 40 },
+          advanced_forge: { emoji: '🔥', size: 50 },
+          anvil: { emoji: '⚒️', size: 40 }
+        };
+        
+        const obj = objects[objId];
+        if (!obj) return;
+        
+        ctx.font = `${obj.size}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(obj.emoji, pos.x, pos.y);
+      },
+      
+      spawnNPCs(npcIds) {
+        const container = document.getElementById('npcs-container');
+        container.innerHTML = '';
+        
+        const positions = [
+          { x: window.innerWidth * 0.25, y: window.innerHeight * 0.4 },
+          { x: window.innerWidth * 0.75, y: window.innerHeight * 0.4 },
+          { x: window.innerWidth * 0.4, y: window.innerHeight * 0.6 },
+          { x: window.innerWidth * 0.6, y: window.innerHeight * 0.6 }
+        ];
+        
+        npcIds.forEach((npcId, i) => {
+          const npc = NPCS[npcId];
+          if (!npc) return;
+          
+          const pos = positions[i % positions.length];
+          
+          const npcEl = document.createElement('div');
+          npcEl.className = 'npc-sprite absolute flex flex-col items-center cursor-pointer';
+          npcEl.dataset.npcId = npcId;
+          npcEl.style.left = `${pos.x}px`;
+          npcEl.style.top = `${pos.y}px`;
+          npcEl.style.transform = 'translate(-50%, -50%)';
+          
+          const isNemesis = npc.faction === 'nemesis';
+          const borderColor = isNemesis ? '#ff3366' : '#00ffff';
+          
+          npcEl.innerHTML = `
+            <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl bg-gray-800/80 border-2" 
+                 style="border-color: ${borderColor}; box-shadow: 0 0 15px ${borderColor}40;">
+              ${npc.emoji}
+            </div>
+            <div class="mt-1 px-2 py-0.5 rounded text-xs font-bold" 
+                 style="background: rgba(0,0,0,0.7); color: ${borderColor};">
+              ${npc.name}
+            </div>
+          `;
+          
+          npcEl.onclick = () => this.startDialogue(npcId);
+          container.appendChild(npcEl);
+        });
+      },
+      
+      positionPlayerAtEntrance() {
+        const room = ROOMS[gameState.currentRoom];
+        const prevRoom = ROOMS[gameState.previousRoom];
+        
+        let px = window.innerWidth / 2;
+        let py = window.innerHeight / 2;
+        
+        if (prevRoom) {
+          Object.entries(room.exits).forEach(([direction, target]) => {
+            if (target === gameState.previousRoom) {
+              switch (direction) {
+                case 'north': py = 100; break;
+                case 'south': py = window.innerHeight - 100; break;
+                case 'east': px = window.innerWidth - 100; break;
+                case 'west': px = 100; break;
+              }
+            }
+          });
+        }
+        
+        gameState.player.x = px;
+        gameState.player.y = py;
+        this.updatePlayerPosition();
+      },
+      
+      applyFactionStyling() {
+        const room = ROOMS[gameState.currentRoom];
+        const isNemesis = room?.faction === 'nemesis' || gameState.faction === 'nemesis';
+        
+        const dialogueContainer = document.getElementById('dialogue-container');
+        if (isNemesis) {
+          dialogueContainer.classList.add('nemesis-style');
+        } else {
+          dialogueContainer.classList.remove('nemesis-style');
+        }
+        
+        // Update currency display
+        const currencyIcon = document.getElementById('currency-icon');
+        const currencyAmount = document.getElementById('currency-amount');
+        
+        if (gameState.faction === 'nemesis') {
+          currencyIcon.textContent = '🔮';
+          currencyAmount.textContent = gameState.player.nemesisCurrency;
+          currencyAmount.className = 'text-rose-400 font-bold';
+        } else {
+          currencyIcon.textContent = '💎';
+          currencyAmount.textContent = gameState.player.vanguardCurrency;
+          currencyAmount.className = 'text-yellow-400 font-bold';
+        }
+      },
+      
+      // Game Loop
+      startGameLoop() {
+        const loop = () => {
+          if (!gameState.paused && gameState.started && !gameState.dialogueState) {
+            this.update();
+          }
+          gameLoopId = requestAnimationFrame(loop);
+        };
+        loop();
+      },
+      
+      update() {
+        this.handleMovement();
+        this.checkInteractions();
+        this.checkRoomTransitions();
+      },
+      
+      handleMovement() {
+        const speed = keys.shift ? gameState.player.sprintSpeed : gameState.player.speed;
+        let dx = 0, dy = 0;
+        
+        if (keys.w) { dy = -speed; gameState.player.direction = 'up'; }
+        if (keys.s) { dy = speed; gameState.player.direction = 'down'; }
+        if (keys.a) { dx = -speed; gameState.player.direction = 'left'; }
+        if (keys.d) { dx = speed; gameState.player.direction = 'right'; }
+        
+        // Boundary checking
+        const newX = Math.max(24, Math.min(window.innerWidth - 24, gameState.player.x + dx));
+        const newY = Math.max(24, Math.min(window.innerHeight - 24, gameState.player.y + dy));
+        
+        gameState.player.x = newX;
+        gameState.player.y = newY;
+        
+        this.updatePlayerPosition();
+        this.updatePlayerSprite();
+      },
+      
+      updatePlayerPosition() {
+        const player = document.getElementById('player');
+        player.style.left = `${gameState.player.x - 24}px`;
+        player.style.top = `${gameState.player.y - 24}px`;
+      },
+      
+      updatePlayerSprite() {
+        const sprite = document.getElementById('player-sprite');
+        const isNemesis = gameState.faction === 'nemesis';
+        
+        const sprites = {
+          vanguard: { up: '🧑‍🚀', down: '🧑‍🚀', left: '🧑‍🚀', right: '🧑‍🚀' },
+          nemesis: { up: '🦹', down: '🦹', left: '🦹', right: '🦹' }
+        };
+        
+        const factionSprites = isNemesis ? sprites.nemesis : sprites.vanguard;
+        sprite.textContent = factionSprites[gameState.player.direction];
+      },
+      
+      checkInteractions() {
+        const room = ROOMS[gameState.currentRoom];
+        nearbyNPC = null;
+        nearbyObject = null;
+        
+        // Check NPCs
+        const npcElements = document.querySelectorAll('#npcs-container > div');
+        npcElements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const npcX = rect.left + rect.width / 2;
+          const npcY = rect.top + rect.height / 2;
+          
+          const dist = Math.hypot(gameState.player.x - npcX, gameState.player.y - npcY);
+          if (dist < 80) {
+            nearbyNPC = el.dataset.npcId;
+          }
+        });
+        
+        // Check objects
+        if (room.objects.includes('teleporter') && gameState.faction === 'nemesis') {
+          // Simple teleporter check in center-right area
+          if (gameState.player.x > window.innerWidth * 0.6 && 
+              gameState.player.y > window.innerHeight * 0.3 && 
+              gameState.player.y < window.innerHeight * 0.7) {
+            nearbyObject = 'teleporter';
+          }
+        }
+        
+        if (room.objects.includes('crafting_station') || room.objects.includes('advanced_forge')) {
+          if (gameState.player.x > window.innerWidth * 0.5 && 
+              gameState.player.y < window.innerHeight * 0.5) {
+            nearbyObject = 'crafting_station';
+          }
+        }
+        
+        // Update interaction prompt
+        const prompt = document.getElementById('interact-prompt');
+        if (nearbyNPC || nearbyObject) {
+          prompt.classList.remove('hidden');
+          prompt.style.left = `${gameState.player.x}px`;
+          prompt.style.top = `${gameState.player.y - 60}px`;
+          prompt.style.transform = 'translateX(-50%)';
+        } else {
+          prompt.classList.add('hidden');
+        }
+      },
+      
+      checkRoomTransitions() {
+        const room = ROOMS[gameState.currentRoom];
+        const px = gameState.player.x;
+        const py = gameState.player.y;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        
+        Object.entries(room.exits).forEach(([direction, target]) => {
+          if (target === true) return;
+          
+          let shouldTransition = false;
+          
+          switch (direction) {
+            case 'north':
+              shouldTransition = py < 30 && px > w/2 - 50 && px < w/2 + 50;
+              break;
+            case 'south':
+              shouldTransition = py > h - 30 && px > w/2 - 50 && px < w/2 + 50;
+              break;
+            case 'east':
+              shouldTransition = px > w - 30 && py > h/2 - 50 && py < h/2 + 50;
+              break;
+            case 'west':
+              shouldTransition = px < 30 && py > h/2 - 50 && py < h/2 + 50;
+              break;
+          }
+          
+          if (shouldTransition) {
+            this.transitionToRoom(target);
+          }
+        });
+      },
+      
+      transitionToRoom(roomId) {
+        const overlay = document.getElementById('loading-overlay');
+        overlay.classList.remove('hidden');
+        
+        setTimeout(() => {
+          this.loadRoom(roomId);
+          overlay.classList.add('hidden');
+        }, 300);
+      },
+      
+      interactWithObject(objId) {
+        switch (objId) {
+          case 'teleporter':
+            this.showTeleport();
+            break;
+          case 'crafting_station':
+            this.openCrafting();
+            break;
+        }
+      },
+      
+      // Dialogue System
+      startDialogue(npcId) {
+        const npc = NPCS[npcId];
+        if (!npc) return;
+        
+        const relationship = gameState.relationships[npcId];
+        let dialogueKey = relationship.dialogueState;
+        
+        // Check if we should use friendly dialogue
+        if (relationship.level >= 5 && npc.dialogues.friendly) {
+          dialogueKey = 'friendly';
+        }
+        
+        const dialogue = npc.dialogues[dialogueKey];
+        if (!dialogue) return;
+        
+        gameState.dialogueState = {
+          npcId,
+          currentDialogue: dialogue,
+          textIndex: 0,
+          fullText: dialogue.text
+        };
+        
+        this.showDialogueBox(npc, dialogue);
+      },
+      
+      showDialogueBox(npc, dialogue) {
+        const box = document.getElementById('dialogue-box');
+        const portrait = document.getElementById('dialogue-portrait');
+        const name = document.getElementById('dialogue-name');
+        const text = document.getElementById('dialogue-text');
+        const choices = document.getElementById('dialogue-choices');
+        const continuePrompt = document.getElementById('dialogue-continue');
+        
+        box.classList.remove('hidden');
+        portrait.textContent = npc.emoji;
+        name.textContent = npc.name;
+        name.style.color = npc.faction === 'nemesis' ? '#ff3366' : '#00ffff';
+        
+        // Type out text
+        text.textContent = '';
+        this.typeText(dialogue.text, text, () => {
+          // Show choices if available
+          if (dialogue.choices && dialogue.choices.length > 0) {
+            this.showDialogueChoices(dialogue.choices);
+            continuePrompt.classList.add('hidden');
+          } else {
+            continuePrompt.classList.remove('hidden');
+          }
+        });
+      },
+      
+      typeText(fullText, element, callback) {
+        let index = 0;
+        element.textContent = '';
+        
+        const type = () => {
+          if (index < fullText.length) {
+            element.textContent += fullText[index];
+            index++;
+            typingTimeout = setTimeout(type, 20);
+          } else if (callback) {
+            callback();
+          }
+        };
+        
+        type();
+      },
+      
+      showDialogueChoices(choiceList) {
+        const choices = document.getElementById('dialogue-choices');
+        const isNemesis = gameState.faction === 'nemesis';
+        
+        choices.innerHTML = '';
+        choices.classList.remove('hidden');
+        
+        choiceList.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = `choice-btn w-full text-left px-4 py-3 rounded bg-gray-800/50 text-gray-200 hover:text-white ${isNemesis ? 'nemesis-choice' : ''}`;
+          btn.textContent = `${i + 1}. ${choice.text}`;
+          btn.onclick = () => this.selectChoice(choice);
+          choices.appendChild(btn);
+        });
+      },
+      
+      selectChoice(choice) {
+        if (!gameState.dialogueState) return;
+        
+        const npcId = gameState.dialogueState.npcId;
+        const npc = NPCS[npcId];
+        const relationship = gameState.relationships[npcId];
+        
+        // Update relationship
+        if (choice.relationship) {
+          relationship.level += choice.relationship;
+          if (choice.relationship > 0) {
+            this.showToast(`${npc.name} likes that! (+${choice.relationship})`, 'success');
+          } else if (choice.relationship < 0) {
+            this.showToast(`${npc.name} doesn't like that... (${choice.relationship})`, 'warning');
+          }
+        }
+        
+        // Handle quest
+        if (choice.quest) {
+          this.addQuest(choice.quest);
+        }
+        
+        // Handle action
+        if (choice.action) {
+          this.handleDialogueAction(choice.action);
+        }
+        
+        // Progress dialogue
+        if (choice.response === 'end') {
+          this.endDialogue();
+        } else if (choice.response && npc.dialogues[choice.response]) {
+          relationship.dialogueState = choice.response;
+          const nextDialogue = npc.dialogues[choice.response];
+          gameState.dialogueState.currentDialogue = nextDialogue;
+          gameState.dialogueState.fullText = nextDialogue.text;
+          
+          document.getElementById('dialogue-choices').classList.add('hidden');
+          document.getElementById('dialogue-text').textContent = '';
+          
+          this.typeText(nextDialogue.text, document.getElementById('dialogue-text'), () => {
+            if (nextDialogue.choices && nextDialogue.choices.length > 0) {
+              this.showDialogueChoices(nextDialogue.choices);
+            } else {
+              document.getElementById('dialogue-continue').classList.remove('hidden');
+            }
+          });
+        }
+      },
+      
+      handleDialogueAction(action) {
+        switch (action) {
+          case 'open_shop':
+            this.endDialogue();
+            setTimeout(() => this.openShop(), 100);
+            break;
+          case 'open_crafting':
+            this.endDialogue();
+            setTimeout(() => this.openCrafting(), 100);
+            break;
+        }
+      },
+      
+      advanceDialogue() {
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+          const text = document.getElementById('dialogue-text');
+          text.textContent = gameState.dialogueState?.fullText || '';
+          
+          const dialogue = gameState.dialogueState?.currentDialogue;
+          if (dialogue?.choices && dialogue.choices.length > 0) {
+            this.showDialogueChoices(dialogue.choices);
+            document.getElementById('dialogue-continue').classList.add('hidden');
+          }
+          typingTimeout = null;
+          return;
+        }
+        
+        this.endDialogue();
+      },
+      
+      endDialogue() {
+        gameState.dialogueState = null;
+        document.getElementById('dialogue-box').classList.add('hidden');
+        document.getElementById('dialogue-choices').classList.add('hidden');
+        document.getElementById('dialogue-choices').innerHTML = '';
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+          typingTimeout = null;
+        }
+      },
+      
+      // Quest System
+      addQuest(questId) {
+        const quest = QUESTS[questId];
+        if (!quest || gameState.activeQuests.includes(questId)) return;
+        
+        gameState.activeQuests.push(questId);
+        this.showToast(`New Quest: ${quest.name}`, 'success');
+        this.updateQuestsList();
+      },
+      
+      updateQuestsList() {
+        const list = document.getElementById('quests-list');
+        
+        if (gameState.activeQuests.length === 0) {
+          list.innerHTML = '<div class="text-gray-500 text-center py-8">No active quests</div>';
+          return;
+        }
+        
+        list.innerHTML = '';
+        gameState.activeQuests.forEach(questId => {
+          const quest = QUESTS[questId];
+          const questEl = document.createElement('div');
+          questEl.className = 'p-4 rounded-lg bg-gray-800/50 border border-gray-700';
+          questEl.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-cyan-400 font-bold">${quest.name}</h3>
+                <p class="text-gray-400 text-sm mt-1">${quest.description}</p>
+              </div>
+              <span class="text-yellow-400 text-sm">+${quest.reward}💎</span>
+            </div>
+            <ul class="mt-2 text-sm text-gray-500">
+              ${quest.objectives.map(obj => `<li class="flex items-center gap-2"><span class="text-gray-600">○</span>${obj}</li>`).join('')}
+            </ul>
+          `;
+          list.appendChild(questEl);
+        });
+      },
+      
+      toggleQuests() {
+        const panel = document.getElementById('quests-panel');
+        panel.classList.toggle('hidden');
+        this.updateQuestsList();
+      },
+      
+      // Inventory System
+      addItem(itemId) {
+        if (gameState.inventory.length >= 20) {
+          this.showToast('Inventory full!', 'error');
+          return false;
+        }
+        
+        gameState.inventory.push(itemId);
+        this.updateInventoryDisplay();
+        this.showToast(`Obtained: ${ITEMS[itemId].name}`, 'success');
+        return true;
+      },
+      
+      removeItem(itemId) {
+        const index = gameState.inventory.indexOf(itemId);
+        if (index > -1) {
+          gameState.inventory.splice(index, 1);
+          this.updateInventoryDisplay();
+          return true;
+        }
+        return false;
+      },
+      
+      updateInventoryDisplay() {
+        const slots = document.querySelectorAll('#inventory-grid .inventory-slot');
+        
+        slots.forEach((slot, i) => {
+          slot.innerHTML = '';
+          slot.classList.remove('has-item');
+          
+          if (gameState.inventory[i]) {
+            const item = ITEMS[gameState.inventory[i]];
+            slot.textContent = item.emoji;
+            slot.classList.add('has-item');
+          }
+        });
+        
+        document.getElementById('inv-vanguard-currency').textContent = gameState.player.vanguardCurrency;
+        document.getElementById('inv-nemesis-currency').textContent = gameState.player.nemesisCurrency;
+      },
+      
+      selectInventorySlot(index) {
+        const itemId = gameState.inventory[index];
+        if (!itemId) {
+          document.getElementById('item-details').innerHTML = '<span class="text-gray-500">Select an item to view details</span>';
+          return;
+        }
+        
+        const item = ITEMS[itemId];
+        const details = document.getElementById('item-details');
+        
+        details.innerHTML = `
+          <div class="text-4xl mb-3">${item.emoji}</div>
+          <h3 class="text-white font-bold text-lg">${item.name}</h3>
+          <p class="text-gray-400 text-sm mt-2">${item.description}</p>
+          <div class="text-yellow-400 mt-2">Value: ${item.value}💎</div>
+          ${item.type === 'consumable' ? `<button onclick="game.useItem(${index})" class="mt-4 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white">Use</button>` : ''}
+        `;
+      },
+      
+      useItem(index) {
+        const itemId = gameState.inventory[index];
+        const item = ITEMS[itemId];
+        
+        if (item.type !== 'consumable') return;
+        
+        if (item.effect.health) {
+          gameState.player.health = Math.min(
+            gameState.player.maxHealth,
+            gameState.player.health + item.effect.health
+          );
+          this.showToast(`Restored ${item.effect.health} health!`, 'success');
+        }
+        
+        this.removeItem(itemId);
+        this.updateHUD();
+        this.selectInventorySlot(index);
+      },
+      
+      toggleInventory() {
+        const panel = document.getElementById('inventory-panel');
+        panel.classList.toggle('hidden');
+        this.updateInventoryDisplay();
+      },
+      
+      // Shop System
+      openShop() {
+        const panel = document.getElementById('shop-panel');
+        panel.classList.remove('hidden');
+        
+        const shopItems = document.getElementById('shop-items');
+        const sellItems = document.getElementById('sell-items');
+        const shopBalance = document.getElementById('shop-balance');
+        
+        const inventory = gameState.faction === 'vanguard' ? SHOP_INVENTORY.vanguard : SHOP_INVENTORY.nemesis;
+        const currency = gameState.faction === 'vanguard' ? gameState.player.vanguardCurrency : gameState.player.nemesisCurrency;
+        
+        shopBalance.textContent = currency;
+        
+        // Shop items
+        shopItems.innerHTML = '';
+        inventory.forEach(({ item, price }) => {
+          const itemData = ITEMS[item];
+          const el = document.createElement('div');
+          el.className = 'flex items-center justify-between p-3 rounded bg-gray-800/50 hover:bg-gray-700/50 cursor-pointer';
+          el.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">${itemData.emoji}</span>
+              <div>
+                <div class="text-white">${itemData.name}</div>
+                <div class="text-gray-500 text-xs">${itemData.description}</div>
+              </div>
+            </div>
+            <button class="px-3 py-1 rounded ${currency >= price ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-gray-600 cursor-not-allowed'} text-white text-sm">
+              ${price}💎
+            </button>
+          `;
+          el.querySelector('button').onclick = () => this.buyItem(item, price);
+          shopItems.appendChild(el);
+        });
+        
+        // Sell items
+        sellItems.innerHTML = '';
+        gameState.inventory.forEach((itemId, index) => {
+          const itemData = ITEMS[itemId];
+          const sellPrice = Math.floor(itemData.value * 0.5);
+          
+          const el = document.createElement('div');
+          el.className = 'flex items-center justify-between p-3 rounded bg-gray-800/50 hover:bg-gray-700/50 cursor-pointer';
+          el.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">${itemData.emoji}</span>
+              <div class="text-white">${itemData.name}</div>
+            </div>
+            <button class="px-3 py-1 rounded bg-rose-600 hover:bg-rose-500 text-white text-sm">
+              Sell ${sellPrice}💎
+            </button>
+          `;
+          el.querySelector('button').onclick = () => this.sellItem(index, sellPrice);
+          sellItems.appendChild(el);
+        });
+        
+        if (gameState.inventory.length === 0) {
+          sellItems.innerHTML = '<div class="text-gray-500 text-center py-4">No items to sell</div>';
+        }
+      },
+      
+      buyItem(itemId, price) {
+        const currency = gameState.faction === 'vanguard' ? 'vanguardCurrency' : 'nemesisCurrency';
+        
+        if (gameState.player[currency] < price) {
+          this.showToast('Not enough credits!', 'error');
+          return;
+        }
+        
+        if (!this.addItem(itemId)) return;
+        
+        gameState.player[currency] -= price;
+        this.updateHUD();
+        this.openShop(); // Refresh
+      },
+      
+      sellItem(index, price) {
+        const itemId = gameState.inventory[index];
+        const currency = gameState.faction === 'vanguard' ? 'vanguardCurrency' : 'nemesisCurrency';
+        
+        this.removeItem(itemId);
+        gameState.player[currency] += price;
+        this.showToast(`Sold for ${price} credits!`, 'success');
+        this.updateHUD();
+        this.openShop(); // Refresh
+      },
+      
+      closeShop() {
+        document.getElementById('shop-panel').classList.add('hidden');
+      },
+      
+      // Crafting System
+      openCrafting() {
+        const panel = document.getElementById('crafting-panel');
+        panel.classList.remove('hidden');
+        
+        const recipes = document.getElementById('crafting-recipes');
+        recipes.innerHTML = '';
+        
+        Object.entries(RECIPES).forEach(([recipeId, recipe]) => {
+          if (recipe.factionRequired && recipe.factionRequired !== gameState.faction) return;
+          
+          const canCraft = this.checkRecipeIngredients(recipe.ingredients);
+          
+          const el = document.createElement('div');
+          el.className = `p-4 rounded-lg border ${canCraft ? 'border-cyan-500 bg-cyan-900/20' : 'border-gray-700 bg-gray-800/30'}`;
+          
+          const ingredientsList = Object.entries(recipe.ingredients).map(([itemId, count]) => {
+            const item = ITEMS[itemId];
+            const playerHas = gameState.inventory.filter(i => i === itemId).length;
+            return `<span class="${playerHas >= count ? 'text-green-400' : 'text-red-400'}">${item.emoji} ${playerHas}/${count}</span>`;
+          }).join(' ');
+          
+          el.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-white font-bold">${recipe.resultName || recipe.name}</h3>
+                <p class="text-gray-400 text-sm mt-1">${recipe.description}</p>
+                <div class="mt-2 flex gap-2">${ingredientsList}</div>
+              </div>
+              <button class="px-4 py-2 rounded ${canCraft ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-gray-700 cursor-not-allowed'} text-white"
+                      ${canCraft ? '' : 'disabled'}>
+                Craft
+              </button>
+            </div>
+          `;
+          
+          el.querySelector('button').onclick = () => this.craftItem(recipeId);
+          recipes.appendChild(el);
+        });
+      },
+      
+      checkRecipeIngredients(ingredients) {
+        return Object.entries(ingredients).every(([itemId, count]) => {
+          const playerHas = gameState.inventory.filter(i => i === itemId).length;
+          return playerHas >= count;
+        });
+      },
+      
+      craftItem(recipeId) {
+        const recipe = RECIPES[recipeId];
+        if (!this.checkRecipeIngredients(recipe.ingredients)) return;
+        
+        // Remove ingredients
+        Object.entries(recipe.ingredients).forEach(([itemId, count]) => {
+          for (let i = 0; i < count; i++) {
+            this.removeItem(itemId);
+          }
+        });
+        
+        // Add result
+        this.addItem(recipe.result);
+        this.showToast(`Crafted: ${recipe.resultName || recipe.name}!`, 'success');
+        this.openCrafting(); // Refresh
+      },
+      
+      closeCrafting() {
+        document.getElementById('crafting-panel').classList.add('hidden');
+      },
+      
+      // Teleport System (Nemesis)
+      showTeleport() {
+        if (gameState.faction !== 'nemesis') return;
+        document.getElementById('teleport-panel').classList.remove('hidden');
+      },
+      
+      teleportTo(destination) {
+        document.getElementById('teleport-panel').classList.add('hidden');
+        this.transitionToRoom(destination);
+        this.showToast('Teleportation complete!', 'success');
+      },
+      
+      closeTeleport() {
+        document.getElementById('teleport-panel').classList.add('hidden');
+      },
+      
+      // Minimap
+      updateMinimap() {
+        const minimapRooms = document.getElementById('minimap-rooms');
+        const minimapPlayer = document.getElementById('minimap-player');
+        
+        // Simple minimap representation
+        minimapRooms.innerHTML = '';
+        
+        const roomPositions = {
+          vanguard_spawn: { x: 50, y: 50 },
+          vanguard_hallway: { x: 50, y: 20 },
+          vanguard_armory: { x: 80, y: 50 },
+          vanguard_barracks: { x: 20, y: 20 },
+          earth_outdoor: { x: 50, y: -10 },
+          nemesis_spawn: { x: 50, y: 50 },
+          nemesis_corridor: { x: 50, y: 20 },
+          nemesis_lab: { x: 80, y: 50 },
+          nemesis_chambers: { x: 20, y: 20 },
+          merchant_planet: { x: 50, y: 80 },
+          crafting_station: { x: 80, y: 80 }
+        };
+        
+        const currentPos = roomPositions[gameState.currentRoom] || { x: 50, y: 50 };
+        
+        // Draw all rooms in current faction
+        const isNemesis = gameState.faction === 'nemesis';
+        const factionRooms = isNemesis ? 
+          ['nemesis_spawn', 'nemesis_corridor', 'nemesis_lab', 'nemesis_chambers', 'merchant_planet', 'crafting_station'] :
+          ['vanguard_spawn', 'vanguard_hallway', 'vanguard_armory', 'vanguard_barracks', 'earth_outdoor'];
+        
+        factionRooms.forEach(roomId => {
+          const pos = roomPositions[roomId];
+          if (!pos) return;
+          
+          const roomEl = document.createElement('div');
+          roomEl.className = `absolute w-4 h-4 rounded-sm ${roomId === gameState.currentRoom ? 'bg-green-500' : 'bg-gray-600'}`;
+          roomEl.style.left = `${pos.x}%`;
+          roomEl.style.top = `${pos.y}%`;
+          roomEl.style.transform = 'translate(-50%, -50%)';
+          minimapRooms.appendChild(roomEl);
+        });
+        
+        // Update player position on minimap
+        minimapPlayer.style.left = `${currentPos.x}%`;
+        minimapPlayer.style.top = `${currentPos.y}%`;
+      },
+      
+      // HUD Updates
+      updateHUD() {
+        const healthFill = document.getElementById('health-fill');
+        const healthText = document.getElementById('health-text');
+        
+        const healthPercent = (gameState.player.health / gameState.player.maxHealth) * 100;
+        healthFill.style.width = `${healthPercent}%`;
+        healthText.textContent = `${gameState.player.health}/${gameState.player.maxHealth}`;
+        
+        this.applyFactionStyling();
+      },
+      
+      // Toast Notifications
+      showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        
+        const colors = {
+          success: 'border-green-500 bg-green-900/80 text-green-200',
+          error: 'border-red-500 bg-red-900/80 text-red-200',
+          warning: 'border-yellow-500 bg-yellow-900/80 text-yellow-200',
+          info: 'border-cyan-500 bg-cyan-900/80 text-cyan-200'
+        };
+        
+        toast.className = `px-4 py-3 rounded-lg border ${colors[type]} shadow-lg transform transition-all duration-300`;
+        toast.textContent = message;
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        
+        container.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateX(0)';
+        });
+        
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(100%)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      },
+      
+      // Pause Menu
+      togglePause() {
+        gameState.paused = !gameState.paused;
+        document.getElementById('pause-menu').classList.toggle('hidden', !gameState.paused);
+        
+        // Close other panels
+        if (gameState.paused) {
+          document.getElementById('inventory-panel').classList.add('hidden');
+          document.getElementById('shop-panel').classList.add('hidden');
+          document.getElementById('crafting-panel').classList.add('hidden');
+          document.getElementById('quests-panel').classList.add('hidden');
+        }
+      },
+      
+      resume() {
+        gameState.paused = false;
+        document.getElementById('pause-menu').classList.add('hidden');
+      },
+      
+      // Save/Load System
+      async saveGame() {
+        if (!window.dataSdk) {
+          this.showToast('Save system unavailable', 'error');
+          return;
+        }
+        
+        if (gameState.saves.length >= 999) {
+          this.showToast('Maximum saves reached!', 'error');
+          return;
+        }
+        
+        const saveData = {
+          save_id: `save_${Date.now()}`,
+          faction: gameState.faction,
+          player_x: Math.round(gameState.player.x),
+          player_y: Math.round(gameState.player.y),
+          current_room: gameState.currentRoom,
+          health: gameState.player.health,
+          vanguard_currency: gameState.player.vanguardCurrency,
+          nemesis_currency: gameState.player.nemesisCurrency,
+          inventory: JSON.stringify(gameState.inventory),
+          relationships: JSON.stringify(gameState.relationships),
+          quests: JSON.stringify({ active: gameState.activeQuests, completed: gameState.completedQuests }),
+          flags: JSON.stringify(gameState.flags),
+          timestamp: new Date().toISOString()
+        };
+        
+        const result = await window.dataSdk.create(saveData);
+        
+        if (result.isOk) {
+          this.showToast('Game saved!', 'success');
+        } else {
+          this.showToast('Failed to save game', 'error');
+        }
+      },
+      
+      async loadGame() {
+        if (!window.dataSdk || gameState.saves.length === 0) {
+          this.showToast('No saves found', 'warning');
+          return;
+        }
+        
+        // Load most recent save
+        const latestSave = gameState.saves.sort((a, b) => 
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )[0];
+        
+        if (!latestSave) {
+          this.showToast('No saves found', 'warning');
+          return;
+        }
+        
+        try {
+          gameState.faction = latestSave.faction;
+          gameState.playerName = latestSave.faction === 'vanguard' ? 'Evince' : 'Mortyx';
+          gameState.currentRoom = latestSave.current_room;
+          gameState.player.x = latestSave.player_x;
+          gameState.player.y = latestSave.player_y;
+          gameState.player.health = latestSave.health;
+          gameState.player.vanguardCurrency = latestSave.vanguard_currency;
+          gameState.player.nemesisCurrency = latestSave.nemesis_currency;
+          gameState.inventory = JSON.parse(latestSave.inventory || '[]');
+          gameState.relationships = JSON.parse(latestSave.relationships || '{}');
+          
+          const quests = JSON.parse(latestSave.quests || '{}');
+          gameState.activeQuests = quests.active || [];
+          gameState.completedQuests = quests.completed || [];
+          gameState.flags = JSON.parse(latestSave.flags || '{}');
+          
+          this.startGame();
+          this.showToast('Game loaded!', 'success');
+        } catch (e) {
+          this.showToast('Failed to load save', 'error');
+        }
+      },
+      
+      // Side Switching
+      switchSide() {
+        gameState.faction = gameState.faction === 'vanguard' ? 'nemesis' : 'vanguard';
+        gameState.playerName = gameState.faction === 'vanguard' ? 'Evince' : 'Mortyx';
+        gameState.currentRoom = gameState.faction === 'vanguard' ? 'vanguard_spawn' : 'nemesis_spawn';
+        
+        this.loadRoom(gameState.currentRoom);
+        this.updateHUD();
+        this.resume();
+        
+        this.showToast(`Switched to ${gameState.faction === 'vanguard' ? 'Vanguard' : 'Nemesis'} path!`, 'success');
+      },
+      
+      // Options
+      showOptions() {
+        document.getElementById('options-panel').classList.remove('hidden');
+      },
+      
+      closeOptions() {
+        document.getElementById('options-panel').classList.add('hidden');
+      },
+      
+      // Quit
+      quitToMenu() {
+        gameState.started = false;
+        gameState.paused = false;
+        
+        if (gameLoopId) {
+          cancelAnimationFrame(gameLoopId);
+          gameLoopId = null;
+        }
+        
+        document.getElementById('game-world').classList.add('hidden');
+        document.getElementById('pause-menu').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+      }
+    };
+    
+    // Initialize game
+    game.init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c1d071e10bdb5c9',t:'MTc2OTA2MzY5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

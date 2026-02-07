@@ -1,0 +1,2087 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashes of Vengeance - Biomechanoid Warfare</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --cyan: #00d4ff;
+      --purple: #a855f7;
+      --mint: #10b981;
+      --pink: #ec4899;
+    }
+    
+    .font-orbitron { font-family: 'Orbitron', monospace; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+    
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .glass-panel-dark {
+      background: rgba(20, 20, 30, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .simple-button {
+      transition: opacity 0.2s ease;
+    }
+    
+    .simple-button:hover {
+      opacity: 0.8;
+    }
+    
+    .rarity-common { border-color: #9ca3af; }
+    .rarity-rare { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+    .rarity-epic { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+    .rarity-legendary { border-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+    
+    .cursor-glow {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .cursor-glow:hover {
+      filter: brightness(1.2);
+    }
+    
+    .screen-shake {
+      animation: shake 0.3s ease-in-out;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    .loading-bar {
+      background: linear-gradient(90deg, var(--cyan), var(--purple), var(--mint));
+      background-size: 200% 100%;
+      animation: gradientMove 2s linear infinite;
+    }
+    
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    
+    .transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.9), rgba(168,85,247,0.9));
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    
+    .transition-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .map-tile {
+      transition: all 0.1s ease;
+    }
+    
+    .player-sprite {
+      transition: transform 0.1s ease;
+    }
+    
+    .npc-sprite {
+      cursor: pointer;
+    }
+    
+    .npc-sprite:hover {
+      filter: drop-shadow(0 0 10px var(--cyan));
+    }
+    
+    .quest-marker {
+      animation: pulse 1.5s infinite;
+    }
+    
+    .coin-animation {
+      animation: coinBounce 0.5s ease-out;
+    }
+    
+    @keyframes coinBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); color: #fbbf24; }
+      100% { transform: scale(1); }
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    #game-canvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+    }
+    
+    canvas {
+      image-rendering: optimizeSpeed;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: optimize-contrast;
+      image-rendering: pixelated;
+      -ms-interpolation-mode: nearest-neighbor;
+    }
+    
+    img {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-rajdhani bg-gradient-to-br from-slate-100 via-cyan-50 to-purple-50 overflow-hidden"><!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+   <div class="text-center">
+    <div class="mb-8">
+     <svg class="w-32 h-32 mx-auto rotate" viewbox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="url(#gradient1)" stroke-width="2" stroke-dasharray="10 5" /> <circle cx="50" cy="50" r="35" fill="none" stroke="url(#gradient2)" stroke-width="2" stroke-dasharray="5 10" /> <polygon points="50,20 60,40 80,45 65,60 70,80 50,70 30,80 35,60 20,45 40,40" fill="url(#gradient3)" opacity="0.8" /> <defs>
+       <lineargradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#00d4ff" />
+        <stop offset="100%" style="stop-color:#a855f7" />
+       </lineargradient>
+       <lineargradient id="gradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#ec4899" />
+        <stop offset="100%" style="stop-color:#10b981" />
+       </lineargradient>
+       <lineargradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#00d4ff" />
+        <stop offset="50%" style="stop-color:#a855f7" />
+        <stop offset="100%" style="stop-color:#ec4899" />
+       </lineargradient>
+      </defs>
+     </svg>
+    </div>
+    <h1 id="loading-title" class="font-orbitron text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">ASHES OF VENGEANCE</h1>
+    <p id="loading-subtitle" class="font-rajdhani text-xl text-gray-400 mb-8 tracking-widest">BIOMECHANOID WARFARE</p>
+    <div class="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mx-auto mb-4">
+     <div id="loading-bar" class="h-full loading-bar rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+    <p id="loading-text" class="text-gray-500 text-sm">Initializing systems...</p>
+    <p id="loading-tip" class="text-cyan-400 text-xs mt-4 max-w-xs mx-auto opacity-70">TIP: Press E to interact with NPCs</p>
+   </div>
+  </div><!-- Transition Overlay -->
+  <div id="transition-overlay" class="transition-overlay">
+   <div class="text-center">
+    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center">
+     <svg class="w-16 h-16 rotate" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" />
+     </svg>
+    </div>
+    <p id="transition-text" class="font-orbitron text-2xl text-white">SWITCHING SIDES...</p>
+   </div>
+  </div><!-- Main Game Container -->
+  <div id="game-container" class="h-full w-full relative hidden"><!-- Top UI Bar -->
+   <div class="absolute top-4 left-4 right-4 z-40 flex justify-between items-start pointer-events-none"><!-- Player Info -->
+    <div id="player-info-panel" class="glass-panel p-3 pointer-events-auto">
+     <div class="flex items-center gap-3">
+      <div id="player-avatar" class="w-10 h-10 rounded bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">
+       <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+       </svg>
+      </div>
+      <div>
+       <p id="player-name" class="font-orbitron text-xs font-bold text-gray-800">EVINCE</p>
+       <p id="player-faction" class="text-xs text-cyan-600 font-semibold">VANGUARD</p>
+      </div>
+     </div>
+    </div><!-- Currency Display -->
+    <div id="currency-panel" class="glass-panel p-3 pointer-events-auto">
+     <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+       <div id="currency-icon" class="w-7 h-7 rounded bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center"><span id="currency-symbol" class="text-xs font-bold text-amber-900">C</span>
+       </div><span id="currency-amount" class="font-orbitron text-sm font-bold text-gray-800">1,250</span>
+      </div>
+      <div id="currency-label" class="text-xs text-gray-500 font-semibold">
+       CREDITS
+      </div>
+     </div>
+    </div><!-- Side Switch Button --> <button id="switch-side-btn" class="glass-panel px-4 py-2 pointer-events-auto simple-button cursor-pointer flex items-center gap-2" onclick="switchSide()">
+     <svg id="switch-icon" class="w-4 h-4 text-purple-600" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+     </svg><span id="switch-text" class="font-semibold text-gray-700 text-xs">SWITCH</span> </button>
+   </div><!-- Mini Map -->
+   <div id="mini-map" class="absolute top-20 right-4 z-30 glass-panel p-2">
+    <div id="minimap-label" class="text-xs font-rajdhani text-gray-600 mb-1 text-center font-semibold">
+     MAP
+    </div>
+    <div id="minimap-container" class="w-28 h-28 bg-gray-200 rounded overflow-hidden border border-gray-300 flex items-center justify-center"><span class="text-gray-400 text-xs font-semibold">MAP</span>
+    </div>
+   </div><!-- Quest Panel -->
+   <div id="quest-panel" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 glass-panel p-3 w-48">
+    <div class="flex items-center gap-2 mb-2">
+     <svg class="w-4 h-4 text-amber-500" viewbox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+     </svg><span class="font-orbitron text-xs font-bold text-gray-800">QUEST</span>
+    </div>
+    <div id="quest-content">
+     <h3 id="quest-title" class="font-semibold text-cyan-700 mb-1 text-sm">First Contact</h3>
+     <p id="quest-objective" class="text-xs text-gray-600 mb-2">Talk to all NPCs in the base</p>
+     <div class="w-full h-1.5 bg-gray-300 rounded-full overflow-hidden">
+      <div id="quest-progress" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full transition-all duration-500" style="width: 25%"></div>
+     </div>
+     <p id="quest-progress-text" class="text-xs text-gray-500 mt-1">1/4 NPCs talked</p>
+    </div>
+   </div><!-- Game Canvas Area -->
+   <div id="game-area" class="absolute inset-0 flex items-center justify-center">
+    <canvas id="game-canvas" class="rounded-lg shadow-2xl"></canvas>
+   </div><!-- Dialog Box -->
+   <div id="dialog-box" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 w-[700px] max-w-[90%] hidden">
+    <div class="flex gap-4 items-end"><!-- Character Portrait -->
+     <div id="dialog-portrait" class="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white shadow-lg">
+      <div class="w-full h-full flex items-center justify-center text-6xl" id="dialog-portrait-content">
+       👤
+      </div>
+     </div><!-- Dialog Content -->
+     <div class="glass-panel p-5 flex-1">
+      <div class="mb-3">
+       <h3 id="dialog-name" class="font-orbitron text-base font-bold text-gray-800 mb-1">NPC Name</h3>
+       <p id="dialog-text" class="text-gray-700 text-sm leading-relaxed"></p>
+      </div><!-- Dialog Options -->
+      <div id="dialog-options" class="space-y-2"><!-- Options will be generated here -->
+      </div>
+      <div class="mt-3 text-xs text-gray-400 text-right">
+       Press ESC or ENTER to close
+      </div>
+     </div>
+    </div>
+   </div><!-- Inventory Panel -->
+   <div id="inventory-panel" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 glass-panel p-6 hidden scale-in">
+    <div class="flex items-center justify-between mb-4">
+     <h2 class="font-orbitron text-xl font-bold text-gray-800">INVENTORY</h2><button onclick="toggleInventory()" class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center transition-colors cursor-glow">
+      <svg class="w-5 h-5 text-red-600" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+    </div>
+    <div id="inventory-grid" class="grid grid-cols-6 gap-2"><!-- Inventory slots will be generated here -->
+    </div>
+   </div><!-- Shop Panel -->
+   <div id="shop-panel" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 glass-panel p-6 w-[500px] max-w-[90%] hidden scale-in">
+    <div class="flex items-center justify-between mb-4">
+     <h2 id="shop-title" class="font-orbitron text-xl font-bold text-gray-800">VANGUARD ARMORY</h2><button onclick="toggleShop()" class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center transition-colors cursor-glow">
+      <svg class="w-5 h-5 text-red-600" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+    </div>
+    <div id="shop-items" class="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto"><!-- Shop items will be generated here -->
+    </div>
+   </div><!-- Pause Menu -->
+   <div id="pause-menu" class="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center hidden">
+    <div class="glass-panel p-8 text-center scale-in">
+     <h2 class="font-orbitron text-3xl font-black mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">PAUSED</h2>
+     <div class="flex flex-col gap-3"><button onclick="togglePause()" class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity glow-button cursor-glow"> RESUME </button> <button onclick="toggleInventory(); togglePause();" class="px-8 py-3 bg-white/50 hover:bg-white/70 text-gray-800 font-semibold rounded-lg transition-colors cursor-glow"> INVENTORY </button> <button onclick="toggleShop(); togglePause();" class="px-8 py-3 bg-white/50 hover:bg-white/70 text-gray-800 font-semibold rounded-lg transition-colors cursor-glow"> SHOP </button> <button class="px-8 py-3 bg-red-500/20 hover:bg-red-500/40 text-red-700 font-semibold rounded-lg transition-colors cursor-glow" onclick="location.reload()"> RESTART </button>
+     </div>
+    </div>
+   </div><!-- Controls Help -->
+   <div id="controls-panel" class="absolute bottom-4 right-4 z-30 glass-panel p-3 text-xs text-gray-600">
+    <div class="grid grid-cols-2 gap-x-4 gap-y-1"><span>WASD/Arrows</span><span id="control-move" class="text-gray-800 font-semibold">Move</span> <span>E</span><span id="control-interact" class="text-gray-800 font-semibold">Interact</span> <span>I</span><span id="control-inventory" class="text-gray-800 font-semibold">Inventory</span> <span>B</span><span id="control-shop" class="text-gray-800 font-semibold">Shop</span> <span>ESC</span><span id="control-pause" class="text-gray-800 font-semibold">Pause</span>
+    </div>
+   </div><!-- Tooltip -->
+   <div id="tooltip" class="tooltip"></div>
+  </div>
+  <script>
+    // ==================== CONFIGURATION ====================
+    const defaultConfig = {
+      game_title: "ASHES OF VENGEANCE",
+      game_subtitle: "BIOMECHANOID WARFARE"
+    };
+
+    let config = { ...defaultConfig };
+
+    // ==================== SDK INITIALIZATION ====================
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          updateUIFromConfig();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ["game_title", cfg.game_title || defaultConfig.game_title],
+          ["game_subtitle", cfg.game_subtitle || defaultConfig.game_subtitle]
+        ])
+      });
+    }
+
+    function updateUIFromConfig() {
+      const title = config.game_title || defaultConfig.game_title;
+      const subtitle = config.game_subtitle || defaultConfig.game_subtitle;
+      
+      const loadingTitle = document.getElementById('loading-title');
+      const loadingSubtitle = document.getElementById('loading-subtitle');
+      
+      if (loadingTitle) loadingTitle.textContent = title;
+      if (loadingSubtitle) loadingSubtitle.textContent = subtitle;
+    }
+
+    // ==================== AUDIO SYSTEM ====================
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+    }
+
+    function playSound(type) {
+      if (!audioCtx) return;
+      
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      const sounds = {
+        hover: { freq: 800, duration: 0.05, type: 'sine' },
+        click: { freq: 600, duration: 0.1, type: 'square' },
+        menu: { freq: 400, duration: 0.15, type: 'triangle' },
+        coin: { freq: 1200, duration: 0.2, type: 'sine' },
+        transition: { freq: 300, duration: 0.5, type: 'sawtooth' },
+        dialog: { freq: 500, duration: 0.1, type: 'sine' },
+        step: { freq: 200, duration: 0.03, type: 'square' },
+        quest: { freq: 900, duration: 0.3, type: 'sine' }
+      };
+      
+      const sound = sounds[type] || sounds.click;
+      
+      oscillator.type = sound.type;
+      oscillator.frequency.setValueAtTime(sound.freq, audioCtx.currentTime);
+      
+      if (type === 'coin') {
+        oscillator.frequency.exponentialRampToValueAtTime(1800, audioCtx.currentTime + 0.1);
+      }
+      
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + sound.duration);
+      
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + sound.duration);
+    }
+
+    // ==================== GAME STATE ====================
+    const gameState = {
+      currentSide: 'vanguard', // 'vanguard' or 'nemesis'
+      player: {
+        x: 400,
+        y: 300,
+        width: 40,
+        height: 40,
+        speed: 3,
+        direction: 'right' // 'left', 'right', or 'idle'
+      },
+      currency: {
+        vanguard: 1250,
+        nemesis: 800
+      },
+      inventory: [],
+      quests: {
+        vanguard: {
+          title: 'First Contact',
+          objective: 'Talk to all NPCs in the base',
+          progress: 0,
+          total: 4,
+          talkedTo: []
+        },
+        nemesis: {
+          title: 'Shadow Protocol',
+          objective: 'Explore the station',
+          progress: 0,
+          total: 3,
+          visited: []
+        }
+      },
+      keys: {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+      },
+      paused: false,
+      dialogOpen: false,
+      inventoryOpen: false,
+      shopOpen: false,
+      playerSprites: {
+        evince: null,
+        mortyx: null
+      },
+      npcSprites: {}
+    };
+    
+    // ==================== SPRITE LOADING ====================
+    function loadSprites() {
+      // Load player sprites - Evince
+      const evinceIdleImg = new Image();
+      evinceIdleImg.src = 'evince_idle_sprite.png';
+      evinceIdleImg.onerror = () => console.log('Failed to load evince_idle_sprite.png');
+      gameState.playerSprites.evince_idle = evinceIdleImg;
+      
+      const evinceLeftImg = new Image();
+      evinceLeftImg.src = 'evince_left_sprite.png';
+      evinceLeftImg.onerror = () => console.log('Failed to load evince_left_sprite.png');
+      gameState.playerSprites.evince_left = evinceLeftImg;
+      
+      const evinceRightImg = new Image();
+      evinceRightImg.src = 'evince_right_sprite.png';
+      evinceRightImg.onerror = () => console.log('Failed to load evince_right_sprite.png');
+      gameState.playerSprites.evince_right = evinceRightImg;
+      
+      // Load player sprites - Mortyx
+      const mortyxIdleImg = new Image();
+      mortyxIdleImg.src = 'mortyx_idle_sprite.png';
+      mortyxIdleImg.onerror = () => console.log('Failed to load mortyx_idle_sprite.png');
+      gameState.playerSprites.mortyx_idle = mortyxIdleImg;
+      
+      const mortyxLeftImg = new Image();
+      mortyxLeftImg.src = 'mortyx_left_sprite.png';
+      mortyxLeftImg.onerror = () => console.log('Failed to load mortyx_left_sprite.png');
+      gameState.playerSprites.mortyx_left = mortyxLeftImg;
+      
+      const mortyxRightImg = new Image();
+      mortyxRightImg.src = 'mortyx_right_sprite.png';
+      mortyxRightImg.onerror = () => console.log('Failed to load mortyx_right_sprite.png');
+      gameState.playerSprites.mortyx_right = mortyxRightImg;
+      
+      // Load NPC sprites for Vanguard
+      const npcVanguardIds = ['jas', 'shadow', 'pank', 'tharz'];
+      npcVanguardIds.forEach(id => {
+        const img = new Image();
+        img.src = `${id}_sprite.png`;
+        img.onerror = () => console.log(`Failed to load ${id}_sprite.png`);
+        gameState.npcSprites[id] = img;
+      });
+      
+      // Load NPC sprites for Nemesis
+      const npcNemesisIds = ['vein', 'radiant', 'zet'];
+      npcNemesisIds.forEach(id => {
+        const img = new Image();
+        img.src = `${id}_sprite.png`;
+        img.onerror = () => console.log(`Failed to load ${id}_sprite.png`);
+        gameState.npcSprites[id] = img;
+      });
+    }
+
+    // ==================== MAP DATA ====================
+    const maps = {
+      vanguard: {
+        width: 1800,
+        height: 1400,
+        tileSize: 40,
+        background: '#e8f4f8',
+        rooms: [
+          { x: 80, y: 80, w: 500, h: 400, name: 'Command Center', color: '#cce7f0', shape: 'rect' },
+          { x: 650, y: 80, w: 450, h: 350, name: 'Research Lab', color: '#d4e8d4', shape: 'rect' },
+          { x: 1180, y: 80, w: 540, h: 500, name: 'Medical Bay', color: '#f0e6cc', shape: 'rect' },
+          { x: 80, y: 550, w: 400, h: 450, name: 'Training Complex', color: '#f0e6cc', shape: 'rect' },
+          { x: 550, y: 500, w: 300, h: 300, name: 'Central Hub', color: '#e0e0e0', shape: 'circle' },
+          { x: 920, y: 500, w: 450, h: 500, name: 'Armory & Workshop', color: '#e6d4d4', shape: 'rect' },
+          { x: 1450, y: 650, w: 270, h: 350, name: 'Hangar Bay', color: '#d0d8e0', shape: 'rect' },
+          { x: 80, y: 1070, w: 650, h: 250, name: 'Engineering Deck', color: '#cce7f0', shape: 'rect' },
+          { x: 800, y: 1070, w: 550, h: 250, name: 'Strategic Operations', color: '#d4e8d4', shape: 'rect' }
+        ],
+        // Hallways/corridors that connect rooms
+        hallways: [
+          { x: 580, y: 230, w: 70, h: 60 }, // Command to Research
+          { x: 1100, y: 230, w: 80, h: 60 }, // Research to Medical
+          { x: 480, y: 380, w: 70, h: 170 }, // Command to Central Hub
+          { x: 700, y: 350, w: 50, h: 150 }, // Research to Central Hub
+          { x: 1260, y: 580, w: 80, h: 70 }, // Medical to Armory
+          { x: 300, y: 1000, w: 60, h: 70 }, // Training to Engineering
+          { x: 730, y: 1000, w: 70, h: 70 }, // Engineering to Strategic
+          { x: 700, y: 800, w: 50, h: 270 }, // Central Hub to Engineering (vertikal panjang)
+          { x: 850, y: 720, w: 70, h: 90 }, // Central Hub to Armory
+          { x: 1370, y: 750, w: 80, h: 70 }, // Armory to Hangar
+          { x: 480, y: 650, w: 70, h: 100 }, // Training to Central Hub
+          { x: 920, y: 1000, w: 100, h: 70 } // Armory to Strategic (horizontal)
+        ],
+        walls: [
+          // Outer walls
+          { x: 0, y: 0, w: 1800, h: 40 },
+          { x: 0, y: 1360, w: 1800, h: 40 },
+          { x: 0, y: 0, w: 40, h: 1400 },
+          { x: 1760, y: 0, w: 40, h: 1400 },
+          
+          // Inner walls - Command Center
+          { x: 80, y: 80, w: 500, h: 15 }, // top
+          { x: 80, y: 80, w: 15, h: 400 }, // left
+          { x: 565, y: 80, w: 15, h: 150 }, // right top
+          { x: 565, y: 290, w: 15, h: 190 }, // right bottom
+          { x: 80, y: 465, w: 400, h: 15 }, // bottom left
+          { x: 550, y: 465, w: 30, h: 85 }, // bottom right
+          
+          // Inner walls - Research Lab
+          { x: 650, y: 80, w: 450, h: 15 }, // top
+          { x: 650, y: 80, w: 15, h: 150 }, // left top
+          { x: 650, y: 290, w: 15, h: 60 }, // left bottom (DOOR SPACE)
+          { x: 1085, y: 80, w: 15, h: 150 }, // right top
+          { x: 1085, y: 290, w: 15, h: 140 }, // right bottom
+          { x: 650, y: 415, w: 50, h: 15 }, // bottom left (DOOR SPACE)
+          { x: 750, y: 415, w: 350, h: 15 }, // bottom right
+          
+          // Inner walls - Medical Bay
+          { x: 1180, y: 80, w: 540, h: 15 }, // top
+          { x: 1180, y: 80, w: 15, h: 150 }, // left top
+          { x: 1180, y: 290, w: 15, h: 290 }, // left bottom
+          { x: 1705, y: 80, w: 15, h: 500 }, // right
+          { x: 1180, y: 565, w: 80, h: 15 }, // bottom left (DOOR SPACE)
+          { x: 1340, y: 565, w: 380, h: 15 }, // bottom right
+          
+          // Inner walls - Training Complex
+          { x: 80, y: 550, w: 400, h: 15 }, // top
+          { x: 80, y: 550, w: 15, h: 450 }, // left
+          { x: 465, y: 550, w: 15, h: 100 }, // right top (DOOR SPACE)
+          { x: 465, y: 750, w: 15, h: 250 }, // right bottom
+          { x: 80, y: 985, w: 220, h: 15 }, // bottom left
+          { x: 360, y: 985, w: 120, h: 15 }, // bottom right
+          
+          // Inner walls - Central Hub (circle - partially solid)
+          { x: 550, y: 500, w: 150, h: 15 }, // top left (DOOR SPACE)
+          { x: 700, y: 500, w: 150, h: 15 }, // top right (DOOR SPACE)
+          { x: 550, y: 785, w: 150, h: 15 }, // bottom left (DOOR SPACE ke bawah)
+          { x: 800, y: 785, w: 50, h: 15 }, // bottom right
+          { x: 550, y: 515, w: 15, h: 135 }, // left top
+          { x: 550, y: 720, w: 15, h: 65 }, // left bottom (DOOR SPACE)
+          { x: 835, y: 515, w: 15, h: 115 }, // right top
+          { x: 835, y: 700, w: 15, h: 20 }, // right bottom (DOOR SPACE)
+          { x: 835, y: 810, w: 15, h: 75 }, // right very bottom
+          { x: 700, y: 800, w: 15, h: 15 }, // celah bawah kecil (HALLWAY KE ENGINEERING)
+          
+          // Inner walls - Armory
+          { x: 920, y: 500, w: 450, h: 15 }, // top
+          { x: 920, y: 515, w: 15, h: 115 }, // left top
+          { x: 920, y: 700, w: 15, h: 20 }, // left (DOOR SPACE)
+          { x: 920, y: 810, w: 15, h: 190 }, // left bottom
+          { x: 920, y: 1070, w: 15, h: 100 }, // left very bottom (CELAH KE STRATEGIC)
+          { x: 1355, y: 500, w: 15, h: 500 }, // right
+          { x: 920, y: 985, w: 450, h: 15 }, // bottom
+          
+          // Inner walls - Hangar Bay
+          { x: 1450, y: 650, w: 270, h: 15 }, // top
+          { x: 1450, y: 665, w: 15, h: 85 }, // left top
+          { x: 1450, y: 820, w: 15, h: 180 }, // left bottom
+          { x: 1705, y: 650, w: 15, h: 350 }, // right
+          { x: 1450, y: 985, w: 270, h: 15 }, // bottom
+          
+          // Inner walls - Engineering Deck
+          { x: 80, y: 1070, w: 220, h: 15 }, // top left
+          { x: 360, y: 1070, w: 370, h: 15 }, // top right (CELAH DI TENGAH)
+          { x: 80, y: 1085, w: 15, h: 235 }, // left
+          { x: 715, y: 1085, w: 15, h: 235 }, // right
+          { x: 80, y: 1305, w: 650, h: 15 }, // bottom
+          
+          // Inner walls - Strategic Operations
+          { x: 800, y: 1070, w: 120, h: 15 }, // top left (DOOR SPACE KE ENGINEERING)
+          { x: 920, y: 1070, w: 15, h: 15 }, // celah kecil (HALLWAY KE ARMORY)
+          { x: 1020, y: 1070, w: 330, h: 15 }, // top right
+          { x: 800, y: 1085, w: 15, h: 235 }, // left
+          { x: 1335, y: 1085, w: 15, h: 235 }, // right
+          { x: 800, y: 1305, w: 550, h: 15 } // bottom
+        ],
+        doors: [
+          { x: 580, y: 230, w: 70, h: 60, from: 'Command Center', to: 'Research Lab' },
+          { x: 1100, y: 230, w: 80, h: 60, from: 'Research Lab', to: 'Medical Bay' },
+          { x: 480, y: 380, w: 70, h: 170, from: 'Command Center', to: 'Central Hub' },
+          { x: 700, y: 350, w: 50, h: 150, from: 'Research Lab', to: 'Central Hub' },
+          { x: 1260, y: 580, w: 80, h: 70, from: 'Medical Bay', to: 'Armory & Workshop' },
+          { x: 300, y: 1000, w: 60, h: 70, from: 'Training Complex', to: 'Engineering Deck' },
+          { x: 730, y: 1000, w: 70, h: 70, from: 'Engineering Deck', to: 'Strategic Operations' },
+          { x: 700, y: 800, w: 50, h: 270, from: 'Central Hub', to: 'Engineering Deck' },
+          { x: 850, y: 720, w: 70, h: 90, from: 'Central Hub', to: 'Armory & Workshop' },
+          { x: 1370, y: 750, w: 80, h: 70, from: 'Armory & Workshop', to: 'Hangar Bay' },
+          { x: 480, y: 650, w: 70, h: 100, from: 'Training Complex', to: 'Central Hub' },
+          { x: 920, y: 1000, w: 100, h: 70, from: 'Armory & Workshop', to: 'Strategic Operations' }
+        ],
+        tools: [
+          // Command Center
+          { x: 150, y: 150, type: 'computer', color: '#3b82f6', size: 20 },
+          { x: 250, y: 200, type: 'monitor', color: '#06b6d4', size: 25 },
+          { x: 400, y: 250, type: 'console', color: '#8b5cf6', size: 22 },
+          { x: 320, y: 350, type: 'hologram', color: '#00d4ff', size: 30 },
+          
+          // Research Lab
+          { x: 750, y: 150, type: 'microscope', color: '#10b981', size: 18 },
+          { x: 900, y: 180, type: 'analyzer', color: '#14b8a6', size: 24 },
+          { x: 1000, y: 280, type: 'containment', color: '#06b6d4', size: 28 },
+          
+          // Medical Bay
+          { x: 1300, y: 200, type: 'medpod', color: '#ef4444', size: 35 },
+          { x: 1500, y: 300, type: 'scanner', color: '#f59e0b', size: 26 },
+          { x: 1600, y: 450, type: 'storage', color: '#eab308', size: 20 },
+          
+          // Training Complex
+          { x: 180, y: 700, type: 'dummy', color: '#f59e0b', size: 30 },
+          { x: 320, y: 850, type: 'weights', color: '#78716c', size: 22 },
+          
+          // Armory
+          { x: 1050, y: 650, type: 'weaponrack', color: '#ef4444', size: 28 },
+          { x: 1200, y: 750, type: 'workbench', color: '#a8a29e', size: 32 },
+          { x: 1100, y: 880, type: 'forge', color: '#f97316', size: 26 },
+          
+          // Hangar
+          { x: 1550, y: 800, type: 'ship', color: '#3b82f6', size: 40 },
+          
+          // Engineering
+          { x: 250, y: 1180, type: 'reactor', color: '#06b6d4', size: 35 },
+          { x: 500, y: 1200, type: 'generator', color: '#0ea5e9', size: 30 },
+          
+          // Strategic Ops
+          { x: 950, y: 1180, type: 'table', color: '#64748b', size: 40 },
+          { x: 1150, y: 1200, type: 'terminal', color: '#475569', size: 24 }
+        ],
+        npcs: [
+          { 
+            id: 'jas', 
+            name: 'Jas', 
+            x: 300, 
+            y: 250, 
+            color: '#4ade80',
+            avatar: '👤',
+            dialogs: {
+              initial: {
+                text: "Welcome back, Evince. The systems are operational. We're monitoring unusual activity near Neptune's orbit.",
+                options: [
+                  { text: "What kind of activity?", next: 'activity' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              activity: {
+                text: "Energy spikes, unusual patterns. Could be Nemesis. We need to stay alert.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          },
+          { 
+            id: 'shadow', 
+            name: 'Shadow', 
+            x: 850, 
+            y: 250, 
+            color: '#8b5cf6',
+            avatar: '🕵️',
+            dialogs: {
+              initial: {
+                text: "I've been tracking some encrypted transmissions. Something big is coming.",
+                options: [
+                  { text: "Can you decode them?", next: 'decode' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              decode: {
+                text: "Working on it. The encryption is sophisticated. Nemesis tech, definitely.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          },
+          { 
+            id: 'pank', 
+            name: 'Pank', 
+            x: 250, 
+            y: 750, 
+            color: '#f59e0b',
+            avatar: '🥊',
+            dialogs: {
+              initial: {
+                text: "Your combat skills need sharpening. Want to run some drills later?",
+                options: [
+                  { text: "Maybe later.", next: 'later' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              later: {
+                text: "Suit yourself. But don't get rusty out there.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          },
+          { 
+            id: 'tharz', 
+            name: 'Tharz', 
+            x: 1150, 
+            y: 750, 
+            color: '#ef4444',
+            avatar: '🔧',
+            dialogs: {
+              initial: {
+                text: "Check out our new gear. Got some upgrades from the last supply run.",
+                options: [
+                  { text: "What's new?", next: 'new' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              new: {
+                text: "Plasma rifles, enhanced shields. Top-tier stuff. Visit the shop.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          }
+        ],
+        questMarkers: [
+          { x: 300, y: 250 },
+          { x: 850, y: 250 },
+          { x: 250, y: 750 },
+          { x: 1150, y: 750 }
+        ]
+      },
+      nemesis: {
+        width: 2000,
+        height: 1400,
+        tileSize: 40,
+        background: '#1a1a2e',
+        rooms: [
+          // Organic alien spaceship design with curved walls
+          { x: 900, y: 600, w: 400, h: 400, name: 'Core Chamber', color: '#1a1a2e', shape: 'hexagon' },
+          { x: 600, y: 200, w: 350, h: 300, name: 'Bio Labs', color: '#2d1b2e', shape: 'organic' },
+          { x: 1150, y: 150, w: 400, h: 350, name: 'Void Observatory', color: '#1f1f3a', shape: 'organic' },
+          { x: 200, y: 400, w: 350, h: 350, name: 'Genesis Pod', color: '#252538', shape: 'circle' },
+          { x: 1600, y: 400, w: 300, h: 450, name: 'Energy Conduits', color: '#2a1f2a', shape: 'organic' },
+          { x: 400, y: 900, w: 450, h: 400, name: 'Mutation Chamber', color: '#1a1a30', shape: 'organic' },
+          { x: 1050, y: 1050, w: 500, h: 280, name: 'Neural Network', color: '#15152a', shape: 'organic' },
+          { x: 1650, y: 950, w: 270, h: 350, name: 'Warp Drive', color: '#2d1b2e', shape: 'organic' }
+        ],
+        // Hallways for alien spaceship
+        hallways: [
+          { x: 550, y: 575, w: 350, h: 60 }, // Genesis to Core
+          { x: 800, y: 500, w: 100, h: 100 }, // Bio Labs to Core
+          { x: 1150, y: 500, w: 100, h: 100 }, // Core to Observatory
+          { x: 1300, y: 550, w: 300, h: 60 }, // Observatory to Energy Conduits
+          { x: 900, y: 850, w: 100, h: 50 }, // Core to Mutation Chamber
+          { x: 850, y: 1050, w: 200, h: 80 }, // Mutation to Neural Network
+          { x: 1550, y: 1120, w: 100, h: 80 }, // Neural to Warp Drive
+          { x: 700, y: 300, w: 60, h: 200 } // Genesis Pod to Bio Labs
+        ],
+        walls: [
+          // Outer walls
+          { x: 0, y: 0, w: 2000, h: 40 },
+          { x: 0, y: 1360, w: 2000, h: 40 },
+          { x: 0, y: 0, w: 40, h: 1400 },
+          { x: 1960, y: 0, w: 40, h: 1400 },
+          
+          // Inner walls - Core Chamber (hexagon center)
+          { x: 900, y: 600, w: 150, h: 15 }, // top left
+          { x: 1150, y: 600, w: 150, h: 15 }, // top right
+          { x: 900, y: 985, w: 150, h: 15 }, // bottom left
+          { x: 1150, y: 985, w: 150, h: 15 }, // bottom right
+          { x: 900, y: 615, w: 15, h: 235 }, // left top
+          { x: 900, y: 900, w: 15, h: 85 }, // left bottom
+          { x: 1285, y: 615, w: 15, h: 235 }, // right top
+          { x: 1285, y: 900, w: 15, h: 85 }, // right bottom
+          
+          // Inner walls - Bio Labs (organic)
+          { x: 600, y: 200, w: 350, h: 15 }, // top
+          { x: 600, y: 485, w: 100, h: 15 }, // bottom left
+          { x: 760, y: 485, w: 190, h: 15 }, // bottom right
+          { x: 600, y: 215, w: 15, h: 85 }, // left top
+          { x: 600, y: 400, w: 15, h: 85 }, // left bottom
+          { x: 935, y: 215, w: 15, h: 285 }, // right top
+          { x: 935, y: 600, w: 15, h: 60 }, // right bottom
+          
+          // Inner walls - Void Observatory
+          { x: 1150, y: 150, w: 400, h: 15 }, // top
+          { x: 1150, y: 485, w: 150, h: 15 }, // bottom left
+          { x: 1400, y: 485, w: 150, h: 15 }, // bottom right
+          { x: 1150, y: 165, w: 15, h: 335 }, // left top
+          { x: 1150, y: 600, w: 15, h: 60 }, // left bottom
+          { x: 1535, y: 165, w: 15, h: 320 }, // right
+          
+          // Inner walls - Genesis Pod (circle)
+          { x: 200, y: 400, w: 150, h: 15 }, // top left
+          { x: 400, y: 400, w: 150, h: 15 }, // top right
+          { x: 200, y: 735, w: 150, h: 15 }, // bottom left
+          { x: 400, y: 735, w: 150, h: 15 }, // bottom right
+          { x: 200, y: 415, w: 15, h: 160 }, // left top
+          { x: 200, y: 635, w: 15, h: 100 }, // left bottom
+          { x: 535, y: 415, w: 15, h: 160 }, // right top
+          { x: 535, y: 635, w: 15, h: 100 }, // right bottom
+          
+          // Inner walls - Energy Conduits
+          { x: 1600, y: 400, w: 300, h: 15 }, // top
+          { x: 1600, y: 835, w: 300, h: 15 }, // bottom
+          { x: 1600, y: 415, w: 15, h: 135 }, // left top
+          { x: 1600, y: 610, w: 15, h: 225 }, // left bottom
+          { x: 1885, y: 415, w: 15, h: 420 }, // right
+          
+          // Inner walls - Mutation Chamber
+          { x: 400, y: 900, w: 450, h: 15 }, // top
+          { x: 400, y: 1285, w: 450, h: 15 }, // bottom
+          { x: 400, y: 915, w: 15, h: 135 }, // left top
+          { x: 400, y: 1130, w: 15, h: 155 }, // left bottom
+          { x: 835, y: 915, w: 15, h: 370 }, // right
+          
+          // Inner walls - Neural Network
+          { x: 1050, y: 1050, w: 200, h: 15 }, // top left
+          { x: 1350, y: 1050, w: 200, h: 15 }, // top right
+          { x: 1050, y: 1315, w: 500, h: 15 }, // bottom
+          { x: 1050, y: 1065, w: 15, h: 250 }, // left
+          { x: 1535, y: 1065, w: 15, h: 55 }, // right top
+          { x: 1535, y: 1200, w: 15, h: 115 }, // right bottom
+          
+          // Inner walls - Warp Drive
+          { x: 1650, y: 950, w: 270, h: 15 }, // top
+          { x: 1650, y: 1285, w: 270, h: 15 }, // bottom
+          { x: 1650, y: 965, w: 15, h: 155 }, // left top
+          { x: 1650, y: 1200, w: 15, h: 85 }, // left bottom
+          { x: 1905, y: 965, w: 15, h: 320 } // right
+        ],
+        doors: [
+          { x: 550, y: 575, w: 350, h: 60, from: 'Genesis Pod', to: 'Core Chamber' },
+          { x: 800, y: 500, w: 100, h: 100, from: 'Bio Labs', to: 'Core Chamber' },
+          { x: 1150, y: 500, w: 100, h: 100, from: 'Core Chamber', to: 'Void Observatory' },
+          { x: 1300, y: 550, w: 300, h: 60, from: 'Void Observatory', to: 'Energy Conduits' },
+          { x: 900, y: 850, w: 100, h: 50, from: 'Core Chamber', to: 'Mutation Chamber' },
+          { x: 850, y: 1050, w: 200, h: 80, from: 'Mutation Chamber', to: 'Neural Network' },
+          { x: 1550, y: 1120, w: 100, h: 80, from: 'Neural Network', to: 'Warp Drive' },
+          { x: 700, y: 300, w: 60, h: 200, from: 'Genesis Pod', to: 'Bio Labs' }
+        ],
+        tools: [
+          // Core Chamber - hexagonal center
+          { x: 1000, y: 700, type: 'void-crystal', color: '#a855f7', size: 50, glow: true },
+          { x: 1150, y: 800, type: 'energy-node', color: '#ec4899', size: 30, glow: true },
+          { x: 1050, y: 900, type: 'control-sphere', color: '#8b5cf6', size: 35, glow: true },
+          
+          // Bio Labs
+          { x: 700, y: 300, type: 'bio-tank', color: '#10b981', size: 40, glow: true },
+          { x: 850, y: 350, type: 'incubator', color: '#059669', size: 32, glow: true },
+          { x: 750, y: 420, type: 'gene-splicer', color: '#14b8a6', size: 28, glow: true },
+          
+          // Void Observatory
+          { x: 1300, y: 250, type: 'telescope', color: '#6366f1', size: 45, glow: true },
+          { x: 1450, y: 350, type: 'star-map', color: '#8b5cf6', size: 38, glow: true },
+          
+          // Genesis Pod
+          { x: 350, y: 550, type: 'cocoon', color: '#a855f7', size: 55, glow: true },
+          { x: 420, y: 650, type: 'biomass', color: '#9333ea', size: 35, glow: true },
+          
+          // Energy Conduits
+          { x: 1700, y: 550, type: 'conduit-1', color: '#ec4899', size: 30, glow: true },
+          { x: 1780, y: 680, type: 'conduit-2', color: '#f97316', size: 28, glow: true },
+          { x: 1720, y: 780, type: 'power-cell', color: '#f59e0b', size: 32, glow: true },
+          
+          // Mutation Chamber
+          { x: 550, y: 1050, type: 'mutation-pod', color: '#7c3aed', size: 42, glow: true },
+          { x: 700, y: 1150, type: 'catalyst', color: '#a855f7', size: 36, glow: true },
+          { x: 620, y: 1220, type: 'synthesizer', color: '#c026d3', size: 30, glow: true },
+          
+          // Neural Network
+          { x: 1200, y: 1150, type: 'brain-core', color: '#ec4899', size: 48, glow: true },
+          { x: 1380, y: 1200, type: 'synapse', color: '#f472b6', size: 25, glow: true },
+          { x: 1450, y: 1250, type: 'neural-link', color: '#db2777', size: 28, glow: true },
+          
+          // Warp Drive
+          { x: 1750, y: 1100, type: 'warp-core', color: '#06b6d4', size: 50, glow: true },
+          { x: 1800, y: 1200, type: 'stabilizer', color: '#0891b2', size: 32, glow: true }
+        ],
+        npcs: [
+          { 
+            id: 'vein', 
+            name: 'Vein', 
+            x: 1100, 
+            y: 750, 
+            color: '#a855f7',
+            avatar: '🎭',
+            dialogs: {
+              initial: {
+                text: "The Vanguard think they can stop us. They're foolish. Our plans are already in motion, Mortyx.",
+                options: [
+                  { text: "What's the next move?", next: 'plan' },
+                  { text: "Are you certain?", next: 'doubt' }
+                ]
+              },
+              plan: {
+                text: "We strike at their core. The biomechanoid integration is complete. Soon, they'll realize resistance is futile.",
+                options: [
+                  { text: "When do we deploy?", next: 'deploy' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              doubt: {
+                text: "Doubt? Mortyx, we've come too far. The void energy flows through our veins. Victory is inevitable.",
+                options: [
+                  { text: "You're right.", next: 'confidence' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              deploy: {
+                text: "Soon. Very soon. Prepare yourself, Mortyx.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              },
+              confidence: {
+                text: "Good. Now, let's continue our work.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          },
+          { 
+            id: 'radiant', 
+            name: 'Radiant', 
+            x: 1350, 
+            y: 300, 
+            color: '#ec4899',
+            avatar: '✨',
+            dialogs: {
+              initial: {
+                text: "Mortyx... I've been monitoring the energy signatures. Something magnificent is awakening.",
+                options: [
+                  { text: "Tell me more.", next: 'awakening' },
+                  { text: "Is it dangerous?", next: 'danger' }
+                ]
+              },
+              awakening: {
+                text: "The void resonates with ancient power. I can feel it calling to us. We are chosen.",
+                options: [
+                  { text: "What does it want?", next: 'purpose' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              danger: {
+                text: "Dangerous? Perhaps. But also... liberating. The old order must fall for the new to rise.",
+                options: [
+                  { text: "I understand.", next: 'understanding' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              purpose: {
+                text: "Evolution. Transformation. The merger of flesh and void. We are the future, Mortyx.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              },
+              understanding: {
+                text: "I knew you would. Together, we'll reshape everything.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          },
+          { 
+            id: 'zet', 
+            name: 'Zet', 
+            x: 620, 
+            y: 1100, 
+            color: '#ef4444',
+            avatar: '⚔️',
+            dialogs: {
+              initial: {
+                text: "The mutation chambers are operational. Our biomechanoids grow stronger by the hour.",
+                options: [
+                  { text: "Status report.", next: 'status' },
+                  { text: "End conversation", next: null }
+                ]
+              },
+              status: {
+                text: "All systems operational. Weapons charged. We're ready for anything.",
+                options: [
+                  { text: "End conversation", next: null }
+                ]
+              }
+            }
+          }
+        ],
+        questMarkers: [
+          { x: 1350, y: 300 },
+          { x: 1300, y: 1180 },
+          { x: 750, y: 1100 }
+        ]
+      }
+    };
+
+    // ==================== SHOP DATA ====================
+    const shopItems = {
+      vanguard: [
+        { id: 'v1', name: 'Energy Shield', price: 500, rarity: 'rare', desc: 'Absorbs 50 damage' },
+        { id: 'v2', name: 'Plasma Rifle', price: 800, rarity: 'epic', desc: 'High-damage ranged weapon' },
+        { id: 'v3', name: 'Med Kit', price: 150, rarity: 'common', desc: 'Restores 100 HP' },
+        { id: 'v4', name: 'EMP Grenade', price: 300, rarity: 'rare', desc: 'Disables electronics' },
+        { id: 'v5', name: 'Quantum Core', price: 1500, rarity: 'legendary', desc: 'Powers advanced tech' },
+        { id: 'v6', name: 'Stim Pack', price: 200, rarity: 'common', desc: 'Boosts speed temporarily' }
+      ],
+      nemesis: [
+        { id: 'n1', name: 'Void Armor', price: 400, rarity: 'epic', desc: 'Dark energy protection' },
+        { id: 'n2', name: 'Shadow Blade', price: 600, rarity: 'rare', desc: 'Stealth melee weapon' },
+        { id: 'n3', name: 'Dark Cell', price: 100, rarity: 'common', desc: 'Energy source' },
+        { id: 'n4', name: 'Warp Drive', price: 1200, rarity: 'legendary', desc: 'Teleportation device' },
+        { id: 'n5', name: 'Neural Spike', price: 350, rarity: 'rare', desc: 'Mind control implant' },
+        { id: 'n6', name: 'Bio Enhancer', price: 250, rarity: 'common', desc: 'Organic upgrade' }
+      ]
+    };
+
+    // ==================== CANVAS & RENDERING ====================
+    let canvas, ctx;
+    let cameraX = 0, cameraY = 0;
+
+    function initCanvas() {
+      canvas = document.getElementById('game-canvas');
+      ctx = canvas.getContext('2d');
+      
+      // Disable image smoothing for crisp pixel art
+      ctx.imageSmoothingEnabled = false;
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+    }
+
+    function resizeCanvas() {
+      const container = document.getElementById('game-area');
+      const maxWidth = Math.min(container.clientWidth - 40, 900);
+      const maxHeight = Math.min(container.clientHeight - 40, 600);
+      
+      canvas.width = maxWidth;
+      canvas.height = maxHeight;
+    }
+
+    function getCurrentMap() {
+      return maps[gameState.currentSide];
+    }
+
+    function updateCamera() {
+      const map = getCurrentMap();
+      const targetX = gameState.player.x - canvas.width / 2;
+      const targetY = gameState.player.y - canvas.height / 2;
+      
+      cameraX = Math.max(0, Math.min(map.width - canvas.width, targetX));
+      cameraY = Math.max(0, Math.min(map.height - canvas.height, targetY));
+    }
+
+    function render() {
+      const map = getCurrentMap();
+      
+      // Clear canvas
+      ctx.fillStyle = map.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw hallways with repeating tile pattern
+      if (map.hallways) {
+        const tileSize = 20; // Size of each tile block
+        
+        map.hallways.forEach(hallway => {
+          const x = hallway.x - cameraX;
+          const y = hallway.y - cameraY;
+          
+          if (x + hallway.w > 0 && x < canvas.width && y + hallway.h > 0 && y < canvas.height) {
+            // Draw repeating tiles
+            for (let tileY = 0; tileY < hallway.h; tileY += tileSize) {
+              for (let tileX = 0; tileX < hallway.w; tileX += tileSize) {
+                const tx = x + tileX;
+                const ty = y + tileY;
+                const tw = Math.min(tileSize, hallway.w - tileX);
+                const th = Math.min(tileSize, hallway.h - tileY);
+                
+                // Tile base
+                ctx.fillStyle = gameState.currentSide === 'vanguard' ? '#b8d4e0' : '#1a1a25';
+                ctx.fillRect(tx, ty, tw, th);
+                
+                // Tile border (creates grid effect)
+                ctx.strokeStyle = gameState.currentSide === 'vanguard' ? '#a0c0d0' : '#12121c';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(tx, ty, tw, th);
+                
+                // Inner detail (small square in center)
+                const centerX = tx + tw / 2;
+                const centerY = ty + th / 2;
+                const detailSize = 4;
+                ctx.fillStyle = gameState.currentSide === 'vanguard' ? '#90b8c8' : '#252530';
+                ctx.fillRect(centerX - detailSize/2, centerY - detailSize/2, detailSize, detailSize);
+              }
+            }
+          }
+        });
+      }
+      
+      // Draw rooms with placeholder images/icons
+      map.rooms.forEach(room => {
+        const x = room.x - cameraX;
+        const y = room.y - cameraY;
+        
+        if (x + room.w > 0 && x < canvas.width && y + room.h > 0 && y < canvas.height) {
+          // Shadow/depth layer (offset down-right)
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+          
+          if (room.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(x + room.w/2 + 4, y + room.h/2 + 4, room.w/2, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (room.shape === 'hexagon') {
+            drawHexagon(ctx, x + room.w/2 + 4, y + room.h/2 + 4, room.w/2.5);
+            ctx.fill();
+          } else {
+            ctx.fillRect(x + 4, y + 4, room.w, room.h);
+          }
+          
+          // Main room
+          ctx.fillStyle = room.color;
+          if (room.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(x + room.w/2, y + room.h/2, room.w/2, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (room.shape === 'hexagon') {
+            drawHexagon(ctx, x + room.w/2, y + room.h/2, room.w/2.5);
+            ctx.fill();
+          } else if (room.shape === 'organic') {
+            // Organic alien shape with curves
+            ctx.beginPath();
+            ctx.moveTo(x + 30, y);
+            ctx.bezierCurveTo(x, y, x, y + room.h/3, x, y + room.h/2);
+            ctx.bezierCurveTo(x, y + room.h*0.7, x, y + room.h, x + 30, y + room.h);
+            ctx.lineTo(x + room.w - 30, y + room.h);
+            ctx.bezierCurveTo(x + room.w, y + room.h, x + room.w, y + room.h*0.7, x + room.w, y + room.h/2);
+            ctx.bezierCurveTo(x + room.w, y + room.h/3, x + room.w, y, x + room.w - 30, y);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.fillRect(x, y, room.w, room.h);
+          }
+          
+          // Room border
+          ctx.strokeStyle = gameState.currentSide === 'vanguard' ? '#00d4ff60' : '#a855f760';
+          ctx.lineWidth = 2;
+          
+          if (room.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(x + room.w/2, y + room.h/2, room.w/2, 0, Math.PI * 2);
+            ctx.stroke();
+          } else if (room.shape === 'hexagon') {
+            drawHexagon(ctx, x + room.w/2, y + room.h/2, room.w/2.5);
+            ctx.stroke();
+          } else if (room.shape === 'organic') {
+            ctx.beginPath();
+            ctx.moveTo(x + 30, y);
+            ctx.bezierCurveTo(x, y, x, y + room.h/3, x, y + room.h/2);
+            ctx.bezierCurveTo(x, y + room.h*0.7, x, y + room.h, x + 30, y + room.h);
+            ctx.lineTo(x + room.w - 30, y + room.h);
+            ctx.bezierCurveTo(x + room.w, y + room.h, x + room.w, y + room.h*0.7, x + room.w, y + room.h/2);
+            ctx.bezierCurveTo(x + room.w, y + room.h/3, x + room.w, y, x + room.w - 30, y);
+            ctx.closePath();
+            ctx.stroke();
+          } else {
+            ctx.strokeRect(x, y, room.w, room.h);
+          }
+          
+          // Draw placeholder icon/emoji for room - centered
+          const centerX = x + room.w/2;
+          const centerY = y + room.h/2;
+          
+          // Get emoji/icon based on room name
+          const roomIcon = getRoomIcon(room.name);
+          ctx.font = `${Math.min(room.w, room.h) * 0.3}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+          ctx.fillText(roomIcon, centerX, centerY);
+          
+          // Room name with shadow - at top
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetX = 1;
+          ctx.shadowOffsetY = 1;
+          ctx.fillStyle = gameState.currentSide === 'vanguard' ? '#00d4ff' : '#a855f7';
+          ctx.font = 'bold 11px Rajdhani';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillText(room.name, x + 8, y + 18);
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+        }
+      });
+      
+      // Draw walls
+      ctx.fillStyle = gameState.currentSide === 'vanguard' ? '#1e3a5f' : '#0d0d1a';
+      map.walls.forEach(wall => {
+        const x = wall.x - cameraX;
+        const y = wall.y - cameraY;
+        ctx.fillRect(x, y, wall.w, wall.h);
+      });
+      
+      // Draw doors (simple solid color, no glow)
+      map.doors.forEach(door => {
+        const x = door.x - cameraX;
+        const y = door.y - cameraY;
+        
+        if (x + door.w > 0 && x < canvas.width && y + door.h > 0 && y < canvas.height) {
+          // Door - simple solid color
+          ctx.fillStyle = gameState.currentSide === 'vanguard' ? '#a8cdd8' : '#35354a';
+          ctx.fillRect(x, y, door.w, door.h);
+          
+          // Simple border
+          ctx.strokeStyle = gameState.currentSide === 'vanguard' ? '#7ab4c8' : '#4a4a60';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, y, door.w, door.h);
+        }
+      });
+      
+      // Draw tools/equipment
+      if (map.tools) {
+        map.tools.forEach(tool => {
+          const x = tool.x - cameraX;
+          const y = tool.y - cameraY;
+          
+          if (x + tool.size > 0 && x < canvas.width && y + tool.size > 0 && y < canvas.height) {
+            // Tool glow effect for Nemesis
+            if (tool.glow && gameState.currentSide === 'nemesis') {
+              ctx.shadowColor = tool.color;
+              ctx.shadowBlur = 15;
+            }
+            
+            // Tool body
+            ctx.fillStyle = tool.color;
+            ctx.beginPath();
+            
+            // Different shapes based on tool type
+            if (tool.type.includes('crystal') || tool.type.includes('node')) {
+              // Diamond/crystal shape
+              ctx.moveTo(x, y - tool.size/2);
+              ctx.lineTo(x + tool.size/2, y);
+              ctx.lineTo(x, y + tool.size/2);
+              ctx.lineTo(x - tool.size/2, y);
+            } else if (tool.type.includes('sphere') || tool.type.includes('cocoon')) {
+              // Circle
+              ctx.arc(x, y, tool.size/2, 0, Math.PI * 2);
+            } else if (tool.type.includes('tank') || tool.type.includes('pod')) {
+              // Rounded rectangle
+              const r = tool.size * 0.4;
+              const w = tool.size * 0.8;
+              const h = tool.size;
+              ctx.roundRect(x - w/2, y - h/2, w, h, r);
+            } else {
+              // Default rectangle
+              ctx.rect(x - tool.size/2, y - tool.size/2, tool.size, tool.size);
+            }
+            
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Inner highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            if (tool.type.includes('crystal') || tool.type.includes('node')) {
+              ctx.moveTo(x, y - tool.size/4);
+              ctx.lineTo(x + tool.size/4, y);
+              ctx.lineTo(x, y + tool.size/4);
+              ctx.lineTo(x - tool.size/4, y);
+            } else {
+              ctx.arc(x - tool.size/6, y - tool.size/6, tool.size/4, 0, Math.PI * 2);
+            }
+            ctx.fill();
+          }
+        });
+      }
+      
+      // Draw quest markers
+      const quest = gameState.quests[gameState.currentSide];
+      map.questMarkers.forEach((marker, idx) => {
+        if (gameState.currentSide === 'vanguard' && quest.talkedTo.includes(map.npcs[idx]?.id)) return;
+        if (gameState.currentSide === 'nemesis' && quest.visited.includes(idx)) return;
+        
+        const x = marker.x - cameraX;
+        const y = marker.y - cameraY - 40;
+        
+        ctx.fillStyle = '#fbbf24';
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        
+        // Exclamation mark
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('!', x, y + 3);
+        ctx.textAlign = 'left';
+      });
+      
+      // Draw NPCs with sprite images
+      map.npcs.forEach(npc => {
+        const x = npc.x - cameraX;
+        const y = npc.y - cameraY;
+        
+        if (x + 30 > 0 && x < canvas.width && y + 30 > 0 && y < canvas.height) {
+          const spriteSize = 40;
+          
+          // Shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+          ctx.beginPath();
+          ctx.ellipse(x, y + spriteSize/2 + 2, spriteSize/2, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Draw NPC sprite image
+          const npcSprite = gameState.npcSprites[npc.id];
+          
+          if (npcSprite && npcSprite.complete && npcSprite.naturalHeight !== 0) {
+            ctx.drawImage(npcSprite, x - spriteSize/2, y - spriteSize/2, spriteSize, spriteSize);
+          } else {
+            // Fallback to colored square if image not loaded
+            ctx.fillStyle = npc.color;
+            ctx.fillRect(x - spriteSize/2, y - spriteSize/2, spriteSize, spriteSize);
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - spriteSize/2, y - spriteSize/2, spriteSize, spriteSize);
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect(x - spriteSize/4, y - spriteSize/4, spriteSize/2, spriteSize/2);
+          }
+          
+          // NPC name with background
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+          ctx.fillRect(x - 30, y - spriteSize/2 - 20, 60, 14);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 10px Orbitron';
+          ctx.textAlign = 'center';
+          ctx.fillText(npc.name, x, y - spriteSize/2 - 9);
+          ctx.textAlign = 'left';
+        }
+      });
+      
+      // Draw player with sprite image
+      const px = gameState.player.x - cameraX;
+      const py = gameState.player.y - cameraY;
+      const playerSize = 40;
+      
+      // Player shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(px, py + playerSize/2 + 2, playerSize/2, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Choose sprite based on direction and side
+      let spriteImg;
+      const baseName = gameState.currentSide === 'vanguard' ? 'evince' : 'mortyx';
+      
+      if (gameState.player.direction === 'left') {
+        spriteImg = gameState.playerSprites[`${baseName}_left`];
+      } else if (gameState.player.direction === 'right') {
+        spriteImg = gameState.playerSprites[`${baseName}_right`];
+      } else {
+        // Use idle sprite when not moving or direction is 'idle'
+        spriteImg = gameState.playerSprites[`${baseName}_idle`];
+      }
+      
+      if (spriteImg && spriteImg.complete && spriteImg.naturalHeight !== 0) {
+        ctx.drawImage(spriteImg, px - playerSize/2, py - playerSize/2, playerSize, playerSize);
+      } else {
+        // Fallback to colored square if image not loaded
+        const playerGradient = ctx.createLinearGradient(
+          px - playerSize/2, 
+          py - playerSize/2, 
+          px + playerSize/2, 
+          py + playerSize/2
+        );
+        
+        if (gameState.currentSide === 'vanguard') {
+          playerGradient.addColorStop(0, '#00d4ff');
+          playerGradient.addColorStop(1, '#0066cc');
+        } else {
+          playerGradient.addColorStop(0, '#a855f7');
+          playerGradient.addColorStop(1, '#6b21a8');
+        }
+        
+        ctx.fillStyle = playerGradient;
+        ctx.fillRect(px - playerSize/2, py - playerSize/2, playerSize, playerSize);
+        
+        ctx.strokeStyle = gameState.currentSide === 'vanguard' ? '#00d4ff' : '#a855f7';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px - playerSize/2, py - playerSize/2, playerSize, playerSize);
+      }
+      
+      // Minimap placeholder is now static
+    }
+    
+    function drawHexagon(context, x, y, radius) {
+      context.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 3) * i;
+        const px = x + radius * Math.cos(angle);
+        const py = y + radius * Math.sin(angle);
+        if (i === 0) {
+          context.moveTo(px, py);
+        } else {
+          context.lineTo(px, py);
+        }
+      }
+      context.closePath();
+    }
+    
+    function getRoomIcon(roomName) {
+      const icons = {
+        // Vanguard rooms
+        'Command Center': '🎯',
+        'Research Lab': '🔬',
+        'Medical Bay': '⚕️',
+        'Training Complex': '🥋',
+        'Central Hub': '⭐',
+        'Armory & Workshop': '⚔️',
+        'Hangar Bay': '����',
+        'Engineering Deck': '���️',
+        'Strategic Operations': '📡',
+        
+        // Nemesis rooms
+        'Core Chamber': '���',
+        'Bio Labs': '🧬',
+        'Void Observatory': '🔭',
+        'Genesis Pod': '🥚',
+        'Energy Conduits': '⚡',
+        'Mutation Chamber': '🧪',
+        'Neural Network': '🧠',
+        'Warp Drive': '���'
+      };
+      
+      return icons[roomName] || '📦';
+    }
+
+    // ==================== GAME LOGIC ====================
+    function checkCollision(newX, newY) {
+      const map = getCurrentMap();
+      const p = gameState.player;
+      const halfW = p.width / 2;
+      const halfH = p.height / 2;
+      
+      // Check walls
+      for (const wall of map.walls) {
+        if (newX + halfW > wall.x && newX - halfW < wall.x + wall.w &&
+            newY + halfH > wall.y && newY - halfH < wall.y + wall.h) {
+          return true;
+        }
+      }
+      
+      // Check map bounds
+      if (newX - halfW < 40 || newX + halfW > map.width - 40 ||
+          newY - halfH < 40 || newY + halfH > map.height - 40) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    function checkNPCProximity() {
+      const map = getCurrentMap();
+      const p = gameState.player;
+      
+      for (const npc of map.npcs) {
+        const dist = Math.sqrt((p.x - npc.x) ** 2 + (p.y - npc.y) ** 2);
+        if (dist < 50) {
+          return npc;
+        }
+      }
+      return null;
+    }
+
+    function checkQuestProgress() {
+      const map = getCurrentMap();
+      const quest = gameState.quests[gameState.currentSide];
+      
+      if (gameState.currentSide === 'nemesis') {
+        // Check area visits
+        map.questMarkers.forEach((marker, idx) => {
+          if (quest.visited.includes(idx)) return;
+          
+          const dist = Math.sqrt((gameState.player.x - marker.x) ** 2 + (gameState.player.y - marker.y) ** 2);
+          if (dist < 60) {
+            quest.visited.push(idx);
+            quest.progress = quest.visited.length;
+            playSound('quest');
+            updateQuestUI();
+            addCurrency(50);
+          }
+        });
+      }
+    }
+
+    function updatePlayer() {
+      if (gameState.paused || gameState.dialogOpen || gameState.inventoryOpen || gameState.shopOpen) return;
+      
+      const p = gameState.player;
+      let newX = p.x;
+      let newY = p.y;
+      let moved = false;
+      let horizontalMove = false;
+      
+      if (gameState.keys.up) { newY -= p.speed; moved = true; }
+      if (gameState.keys.down) { newY += p.speed; moved = true; }
+      if (gameState.keys.left) { 
+        newX -= p.speed; 
+        moved = true; 
+        horizontalMove = true;
+        p.direction = 'left';
+      }
+      if (gameState.keys.right) { 
+        newX += p.speed; 
+        moved = true; 
+        horizontalMove = true;
+        p.direction = 'right';
+      }
+      
+      if (moved) {
+        if (!checkCollision(newX, p.y)) {
+          p.x = newX;
+        }
+        if (!checkCollision(p.x, newY)) {
+          p.y = newY;
+        }
+        
+        // Occasional step sound
+        if (Math.random() < 0.1) {
+          playSound('step');
+        }
+        
+        checkQuestProgress();
+      } else {
+        // Not moving, set to idle
+        p.direction = 'idle';
+      }
+      
+      updateCamera();
+    }
+
+    function gameLoop() {
+      updatePlayer();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // ==================== UI FUNCTIONS ====================
+    function updateUI() {
+      const side = gameState.currentSide;
+      const isVanguard = side === 'vanguard';
+      
+      // Update player info
+      document.getElementById('player-name').textContent = isVanguard ? 'EVINCE' : 'MORTYX';
+      document.getElementById('player-faction').textContent = isVanguard ? 'VANGUARD' : 'NEMESIS';
+      document.getElementById('player-faction').className = `text-xs font-semibold ${isVanguard ? 'text-cyan-600' : 'text-purple-600'}`;
+      
+      // Update avatar gradient
+      const avatar = document.getElementById('player-avatar');
+      avatar.className = `w-12 h-12 rounded-full flex items-center justify-center border-2 border-white/50 ${isVanguard ? 'bg-gradient-to-br from-cyan-400 to-blue-500' : 'bg-gradient-to-br from-purple-400 to-pink-500'}`;
+      
+      // Update currency
+      document.getElementById('currency-amount').textContent = gameState.currency[side].toLocaleString();
+      document.getElementById('currency-label').textContent = isVanguard ? 'CREDITS' : 'VOID SHARDS';
+      
+      updateQuestUI();
+    }
+
+    function updateQuestUI() {
+      const quest = gameState.quests[gameState.currentSide];
+      document.getElementById('quest-title').textContent = quest.title;
+      document.getElementById('quest-objective').textContent = quest.objective;
+      document.getElementById('quest-progress').style.width = `${(quest.progress / quest.total) * 100}%`;
+      document.getElementById('quest-progress-text').textContent = `${quest.progress}/${quest.total} ${gameState.currentSide === 'vanguard' ? 'NPCs talked' : 'areas explored'}`;
+    }
+
+    function addCurrency(amount) {
+      gameState.currency[gameState.currentSide] += amount;
+      const amountEl = document.getElementById('currency-amount');
+      amountEl.textContent = gameState.currency[gameState.currentSide].toLocaleString();
+      amountEl.classList.add('coin-animation');
+      playSound('coin');
+      setTimeout(() => amountEl.classList.remove('coin-animation'), 500);
+    }
+
+    let currentNPC = null;
+    let currentDialogNode = 'initial';
+
+    function showDialog(npc) {
+      gameState.dialogOpen = true;
+      currentNPC = npc;
+      currentDialogNode = 'initial';
+      
+      updateDialogDisplay();
+    }
+
+    function updateDialogDisplay() {
+      const dialogBox = document.getElementById('dialog-box');
+      const dialogNode = currentNPC.dialogs[currentDialogNode];
+      
+      document.getElementById('dialog-name').textContent = currentNPC.name;
+      document.getElementById('dialog-text').textContent = dialogNode.text;
+      
+      // Update portrait
+      const portrait = document.getElementById('dialog-portrait');
+      const portraitContent = document.getElementById('dialog-portrait-content');
+      portrait.style.background = `linear-gradient(135deg, ${currentNPC.color}, ${currentNPC.color}cc)`;
+      portraitContent.textContent = currentNPC.avatar || '👤';
+      
+      // Update panel style based on side
+      const panel = dialogBox.querySelector('.glass-panel');
+      const isVanguard = gameState.currentSide === 'vanguard';
+      panel.className = `p-5 flex-1 ${isVanguard ? 'glass-panel' : 'glass-panel-dark'}`;
+      
+      // Update text colors for dark mode
+      document.getElementById('dialog-name').className = `font-orbitron text-base font-bold mb-1 ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+      document.getElementById('dialog-text').className = `text-sm leading-relaxed ${isVanguard ? 'text-gray-700' : 'text-gray-300'}`;
+      
+      // Generate options
+      const optionsContainer = document.getElementById('dialog-options');
+      optionsContainer.innerHTML = '';
+      
+      dialogNode.options.forEach((option, idx) => {
+        const button = document.createElement('button');
+        button.className = `w-full px-4 py-2 rounded text-sm font-medium text-left transition-opacity simple-button ${
+          isVanguard 
+            ? 'bg-cyan-500 text-white hover:bg-cyan-600' 
+            : 'bg-purple-600 text-white hover:bg-purple-700'
+        }`;
+        button.textContent = option.text;
+        button.onclick = () => selectDialogOption(option.next);
+        optionsContainer.appendChild(button);
+      });
+      
+      dialogBox.classList.remove('hidden');
+      playSound('dialog');
+      
+      // Update quest progress for Vanguard
+      if (gameState.currentSide === 'vanguard' && currentDialogNode === 'initial') {
+        const quest = gameState.quests.vanguard;
+        if (!quest.talkedTo.includes(currentNPC.id)) {
+          quest.talkedTo.push(currentNPC.id);
+          quest.progress = quest.talkedTo.length;
+          updateQuestUI();
+          playSound('quest');
+          addCurrency(100);
+        }
+      }
+    }
+
+    function selectDialogOption(nextNode) {
+      playSound('click');
+      
+      if (nextNode === null) {
+        closeDialog();
+      } else {
+        currentDialogNode = nextNode;
+        updateDialogDisplay();
+      }
+    }
+
+    function closeDialog() {
+      gameState.dialogOpen = false;
+      currentNPC = null;
+      currentDialogNode = 'initial';
+      document.getElementById('dialog-box').classList.add('hidden');
+      playSound('menu');
+    }
+
+    function toggleInventory() {
+      gameState.inventoryOpen = !gameState.inventoryOpen;
+      const panel = document.getElementById('inventory-panel');
+      
+      if (gameState.inventoryOpen) {
+        generateInventoryUI();
+        panel.classList.remove('hidden');
+        playSound('menu');
+      } else {
+        panel.classList.add('hidden');
+        playSound('click');
+      }
+    }
+
+    function generateInventoryUI() {
+      const grid = document.getElementById('inventory-grid');
+      grid.innerHTML = '';
+      
+      for (let i = 0; i < 24; i++) {
+        const slot = document.createElement('div');
+        const item = gameState.inventory[i];
+        
+        slot.className = `w-12 h-12 rounded-lg border-2 flex items-center justify-center cursor-glow ${
+          item ? `rarity-${item.rarity}` : 'border-gray-300 bg-white/30'
+        }`;
+        
+        if (item) {
+          slot.innerHTML = `<span class="text-2xl">${getItemIcon(item.id)}</span>`;
+          slot.title = `${item.name}\n${item.desc}`;
+        }
+        
+        slot.addEventListener('mouseenter', () => playSound('hover'));
+        grid.appendChild(slot);
+      }
+    }
+
+    function toggleShop() {
+      gameState.shopOpen = !gameState.shopOpen;
+      const panel = document.getElementById('shop-panel');
+      
+      if (gameState.shopOpen) {
+        generateShopUI();
+        panel.classList.remove('hidden');
+        playSound('menu');
+      } else {
+        panel.classList.add('hidden');
+        playSound('click');
+      }
+    }
+
+    function generateShopUI() {
+      const isVanguard = gameState.currentSide === 'vanguard';
+      const items = shopItems[gameState.currentSide];
+      
+      document.getElementById('shop-title').textContent = isVanguard ? 'VANGUARD ARMORY' : 'NEMESIS MARKET';
+      
+      const container = document.getElementById('shop-items');
+      container.innerHTML = '';
+      
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `glass-panel${isVanguard ? '' : '-dark'} p-3 rounded-xl cursor-glow rarity-${item.rarity}`;
+        
+        card.innerHTML = `
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-2xl">${getItemIcon(item.id)}</span>
+            <div>
+              <p class="font-semibold text-sm ${isVanguard ? 'text-gray-800' : 'text-gray-200'}">${item.name}</p>
+              <p class="text-xs ${isVanguard ? 'text-gray-500' : 'text-gray-400'} capitalize">${item.rarity}</p>
+            </div>
+          </div>
+          <p class="text-xs ${isVanguard ? 'text-gray-600' : 'text-gray-300'} mb-2">${item.desc}</p>
+          <button onclick="buyItem('${item.id}')" class="w-full py-1 rounded-lg text-sm font-semibold ${
+            gameState.currency[gameState.currentSide] >= item.price 
+              ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:opacity-90' 
+              : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+          } transition-opacity">
+            ${item.price} ${isVanguard ? 'Credits' : 'Shards'}
+          </button>
+        `;
+        
+        card.addEventListener('mouseenter', () => playSound('hover'));
+        container.appendChild(card);
+      });
+    }
+
+    function getItemIcon(id) {
+      const icons = {
+        'v1': '🛡️', 'v2': '🔫', 'v3': '💊', 'v4': '💣', 'v5': '⚡', 'v6': '��',
+        'n1': '🖤', 'n2': '🗡️', 'n3': '🔮', 'n4': '🌀', 'n5': '🧠', 'n6': '🧬'
+      };
+      return icons[id] || '📦';
+    }
+
+    function buyItem(itemId) {
+      const items = shopItems[gameState.currentSide];
+      const item = items.find(i => i.id === itemId);
+      
+      if (!item || gameState.currency[gameState.currentSide] < item.price) {
+        return;
+      }
+      
+      if (gameState.inventory.length >= 24) {
+        return;
+      }
+      
+      gameState.currency[gameState.currentSide] -= item.price;
+      gameState.inventory.push({ ...item });
+      
+      playSound('coin');
+      updateUI();
+      generateShopUI();
+    }
+
+    function togglePause() {
+      gameState.paused = !gameState.paused;
+      const menu = document.getElementById('pause-menu');
+      
+      if (gameState.paused) {
+        menu.classList.remove('hidden');
+        playSound('menu');
+      } else {
+        menu.classList.add('hidden');
+        playSound('click');
+      }
+    }
+
+    function switchSide() {
+      const overlay = document.getElementById('transition-overlay');
+      const transitionText = document.getElementById('transition-text');
+      const gameContainer = document.getElementById('game-container');
+      
+      overlay.classList.add('active');
+      playSound('transition');
+      
+      transitionText.textContent = gameState.currentSide === 'vanguard' 
+        ? 'SWITCHING TO NEMESIS...' 
+        : 'SWITCHING TO VANGUARD...';
+      
+      setTimeout(() => {
+        gameState.currentSide = gameState.currentSide === 'vanguard' ? 'nemesis' : 'vanguard';
+        
+        // Reset player position based on side
+        if (gameState.currentSide === 'vanguard') {
+          gameState.player.x = 300;
+          gameState.player.y = 250;
+        } else {
+          gameState.player.x = 1100;
+          gameState.player.y = 800;
+        }
+        
+        // Update background
+        const isVanguard = gameState.currentSide === 'vanguard';
+        document.body.className = `h-full font-rajdhani overflow-hidden ${
+          isVanguard 
+            ? 'bg-gradient-to-br from-slate-100 via-cyan-50 to-purple-50' 
+            : 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800'
+        }`;
+        
+        // Update quest panel style
+        const questPanel = document.getElementById('quest-panel');
+        questPanel.className = `absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 w-48 ${
+          isVanguard ? 'glass-panel' : 'glass-panel-dark'
+        }`;
+        
+        // Update quest text colors
+        document.getElementById('quest-title').className = `font-semibold mb-1 text-sm ${isVanguard ? 'text-cyan-700' : 'text-purple-400'}`;
+        document.getElementById('quest-objective').className = `text-xs mb-2 ${isVanguard ? 'text-gray-600' : 'text-gray-400'}`;
+        document.getElementById('quest-progress-text').className = `text-xs mt-1 ${isVanguard ? 'text-gray-500' : 'text-gray-400'}`;
+        
+        const questHeaderText = questPanel.querySelector('.font-orbitron');
+        if (questHeaderText) {
+          questHeaderText.className = `font-orbitron text-xs font-bold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        }
+        
+        // Update top panels
+        document.getElementById('player-info-panel').className = `p-3 pointer-events-auto ${isVanguard ? 'glass-panel' : 'glass-panel-dark'}`;
+        document.getElementById('player-name').className = `font-orbitron text-xs font-bold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        
+        document.getElementById('currency-panel').className = `p-3 pointer-events-auto ${isVanguard ? 'glass-panel' : 'glass-panel-dark'}`;
+        document.getElementById('currency-amount').className = `font-orbitron text-sm font-bold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        document.getElementById('currency-label').className = `text-xs font-semibold ${isVanguard ? 'text-gray-500' : 'text-gray-400'}`;
+        
+        if (isVanguard) {
+          document.getElementById('currency-icon').className = 'w-7 h-7 rounded bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center';
+          document.getElementById('currency-symbol').className = 'text-xs font-bold text-amber-900';
+          document.getElementById('currency-symbol').textContent = 'C';
+        } else {
+          document.getElementById('currency-icon').className = 'w-7 h-7 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center';
+          document.getElementById('currency-symbol').className = 'text-xs font-bold text-purple-100';
+          document.getElementById('currency-symbol').textContent = 'V';
+        }
+        
+        document.getElementById('switch-side-btn').className = `px-4 py-2 pointer-events-auto simple-button cursor-pointer flex items-center gap-2 ${isVanguard ? 'glass-panel' : 'glass-panel-dark'}`;
+        document.getElementById('switch-icon').className = `w-4 h-4 ${isVanguard ? 'text-purple-600' : 'text-purple-400'}`;
+        document.getElementById('switch-text').className = `font-semibold text-xs ${isVanguard ? 'text-gray-700' : 'text-gray-300'}`;
+        
+        // Update minimap placeholder
+        document.getElementById('mini-map').className = `absolute top-20 right-4 z-30 p-2 ${isVanguard ? 'glass-panel' : 'glass-panel-dark'}`;
+        document.getElementById('minimap-label').className = `text-xs font-rajdhani mb-1 text-center font-semibold ${isVanguard ? 'text-gray-600' : 'text-gray-400'}`;
+        document.getElementById('minimap-container').className = `w-28 h-28 rounded overflow-hidden border flex items-center justify-center ${isVanguard ? 'bg-gray-200 border-gray-300' : 'bg-gray-800 border-gray-700'}`;
+        document.getElementById('minimap-container').querySelector('span').className = `text-xs font-semibold ${isVanguard ? 'text-gray-400' : 'text-gray-600'}`;
+        
+        // Update controls panel
+        document.getElementById('controls-panel').className = `absolute bottom-4 right-4 z-30 p-3 text-xs ${isVanguard ? 'glass-panel text-gray-600' : 'glass-panel-dark text-gray-400'}`;
+        document.getElementById('control-move').className = `font-semibold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        document.getElementById('control-interact').className = `font-semibold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        document.getElementById('control-inventory').className = `font-semibold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        document.getElementById('control-shop').className = `font-semibold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        document.getElementById('control-pause').className = `font-semibold ${isVanguard ? 'text-gray-800' : 'text-gray-200'}`;
+        
+        updateUI();
+        gameContainer.classList.add('screen-shake');
+        setTimeout(() => gameContainer.classList.remove('screen-shake'), 300);
+        
+        setTimeout(() => {
+          overlay.classList.remove('active');
+        }, 500);
+      }, 1000);
+    }
+
+    // ==================== INPUT HANDLING ====================
+    function handleKeyDown(e) {
+      initAudio();
+      
+      const key = e.key.toLowerCase();
+      
+      if (key === 'w' || key === 'arrowup') gameState.keys.up = true;
+      if (key === 's' || key === 'arrowdown') gameState.keys.down = true;
+      if (key === 'a' || key === 'arrowleft') gameState.keys.left = true;
+      if (key === 'd' || key === 'arrowright') gameState.keys.right = true;
+      
+      if (key === 'e') {
+        const npc = checkNPCProximity();
+        if (npc && !gameState.dialogOpen) {
+          showDialog(npc);
+        }
+      }
+      
+      if (key === 'escape') {
+        if (gameState.dialogOpen) {
+          closeDialog();
+        } else if (gameState.inventoryOpen) {
+          toggleInventory();
+        } else if (gameState.shopOpen) {
+          toggleShop();
+        } else {
+          togglePause();
+        }
+      }
+      
+      if (key === 'i' && !gameState.dialogOpen && !gameState.paused) {
+        if (gameState.shopOpen) toggleShop();
+        toggleInventory();
+      }
+      
+      if (key === 'b' && !gameState.dialogOpen && !gameState.paused) {
+        if (gameState.inventoryOpen) toggleInventory();
+        toggleShop();
+      }
+    }
+
+    function handleKeyUp(e) {
+      const key = e.key.toLowerCase();
+      
+      if (key === 'w' || key === 'arrowup') gameState.keys.up = false;
+      if (key === 's' || key === 'arrowdown') gameState.keys.down = false;
+      if (key === 'a' || key === 'arrowleft') gameState.keys.left = false;
+      if (key === 'd' || key === 'arrowright') gameState.keys.right = false;
+    }
+
+    // ==================== LOADING & INITIALIZATION ====================
+    const loadingTips = [
+      "TIP: Press E to interact with NPCs",
+      "TIP: Use WASD or Arrow keys to move",
+      "TIP: Press I to open your inventory",
+      "TIP: Press B to open the shop",
+      "TIP: Press ESC to pause the game",
+      "TIP: Complete quests to earn currency",
+      "TIP: Each faction has unique items",
+      "TIP: Explore both sides of the conflict"
+    ];
+
+    let loadingProgress = 0;
+    let tipIndex = 0;
+
+    function updateLoading() {
+      loadingProgress += Math.random() * 15;
+      if (loadingProgress > 100) loadingProgress = 100;
+      
+      document.getElementById('loading-bar').style.width = `${loadingProgress}%`;
+      
+      const texts = [
+        'Initializing systems...',
+        'Loading map data...',
+        'Syncing neural network...',
+        'Preparing biomechanoids...',
+        'Calibrating weapons...',
+        'Ready to deploy!'
+      ];
+      
+      const textIndex = Math.min(Math.floor(loadingProgress / 20), texts.length - 1);
+      document.getElementById('loading-text').textContent = texts[textIndex];
+      
+      if (loadingProgress < 100) {
+        setTimeout(updateLoading, 200);
+      } else {
+        setTimeout(startGame, 500);
+      }
+    }
+
+    function rotateTips() {
+      tipIndex = (tipIndex + 1) % loadingTips.length;
+      document.getElementById('loading-tip').textContent = loadingTips[tipIndex];
+    }
+
+    function startGame() {
+      document.getElementById('loading-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('game-container').classList.remove('hidden');
+        initCanvas();
+        updateUI();
+        gameLoop();
+      }, 500);
+    }
+
+    function init() {
+      updateUIFromConfig();
+      
+      // Load all sprite images
+      loadSprites();
+      
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('keyup', handleKeyUp);
+      
+      // Add hover sounds to buttons
+      document.querySelectorAll('.cursor-glow, button').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          initAudio();
+          playSound('hover');
+        });
+        el.addEventListener('click', () => playSound('click'));
+      });
+      
+      // Start loading
+      setInterval(rotateTips, 3000);
+      setTimeout(updateLoading, 500);
+    }
+
+    // Initialize on load
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c16327310ab7d66',t:'MTc2ODk5MjA2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
