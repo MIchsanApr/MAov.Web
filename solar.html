@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penjelajah Tata Surya</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0c0c1e 0%, #1a1a2e 50%, #16213e 100%);
+      color: #ffffff;
+      height: 100%;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    .glass-panel:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(100, 150, 255, 0.4);
+      box-shadow: 0 12px 40px rgba(100, 150, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    #header {
+      padding: 30px;
+      text-align: center;
+      pointer-events: auto;
+    }
+    
+    #main-title {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 50%, #1e88e5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 20px rgba(100, 181, 246, 0.3);
+      letter-spacing: -0.5px;
+    }
+    
+    #subtitle {
+      font-size: 18px;
+      margin: 10px 0 0 0;
+      opacity: 0.85;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+    
+    #info-panel {
+      position: absolute;
+      top: 140px;
+      right: 25px;
+      padding: 25px;
+      min-width: 300px;
+      max-width: 340px;
+      pointer-events: auto;
+    }
+    
+    #info-panel h3 {
+      margin: 0 0 20px 0;
+      font-size: 22px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      border-bottom: 1px solid rgba(100, 150, 255, 0.3);
+      padding-bottom: 12px;
+    }
+    
+    .info-item {
+      margin: 15px 0;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      opacity: 0.9;
+      color: #64b5f6;
+      display: inline-block;
+      min-width: 80px;
+    }
+    
+    .info-value {
+      margin-left: 12px;
+      font-weight: 400;
+    }
+    
+    #controls-panel {
+      position: absolute;
+      bottom: 25px;
+      left: 25px;
+      padding: 18px;
+      pointer-events: auto;
+      min-width: 200px;
+    }
+    
+    #controls-panel h3 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .control-item {
+      margin: 8px 0;
+      font-size: 12px;
+      opacity: 0.9;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border-left: 2px solid rgba(100, 150, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .control-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-left-color: #64b5f6;
+      transform: translateX(5px);
+    }
+    
+    #speed-control, #zoom-control {
+      position: absolute;
+      left: 25px;
+      padding: 20px;
+      pointer-events: auto;
+      min-width: 220px;
+    }
+    
+    #speed-control {
+      top: 140px;
+    }
+    
+    #zoom-control {
+      top: 300px;
+    }
+    
+    #speed-control h4, #zoom-control h4 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    #speed-slider, #zoom-slider {
+      width: 100%;
+      margin: 15px 0;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+      transition: all 0.3s ease;
+    }
+    
+    #speed-slider::-webkit-slider-thumb, #zoom-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(100, 150, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    #speed-slider::-webkit-slider-thumb:hover, #zoom-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 6px 20px rgba(100, 150, 255, 0.6);
+    }
+    
+    #speed-value, #zoom-value {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #64b5f6;
+      background: rgba(100, 150, 255, 0.1);
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(100, 150, 255, 0.2);
+    }
+    
+    #planet-selector {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      padding: 15px 20px;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    #planet-selector h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      min-width: 80px;
+      text-align: center;
+    }
+    
+    .nav-btn {
+      background: linear-gradient(135deg, rgba(100, 150, 255, 0.8), rgba(66, 165, 245, 0.8));
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(100, 150, 255, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .nav-btn:hover {
+      background: linear-gradient(135deg, rgba(100, 150, 255, 1), rgba(66, 165, 245, 1));
+      transform: scale(1.15) rotate(5deg);
+      box-shadow: 0 8px 25px rgba(100, 150, 255, 0.5);
+    }
+    
+    .nav-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .nav-btn:disabled {
+      background: rgba(100, 100, 100, 0.3);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    #current-planet {
+      min-width: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .planet-icon {
+      width: 32px;
+      height: 32px;
+      transition: all 0.4s ease;
+      filter: drop-shadow(0 4px 12px rgba(100, 150, 255, 0.3));
+    }
+    
+    .planet-icon:hover {
+      transform: scale(1.05) rotate(5deg);
+      filter: drop-shadow(0 6px 20px rgba(100, 150, 255, 0.5));
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+      50% { box-shadow: 0 12px 40px rgba(100, 150, 255, 0.2); }
+    }
+    
+    .glass-panel {
+      animation: glow 4s ease-in-out infinite;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div id="canvas-container">
+   <canvas id="space-canvas"></canvas>
+   <div id="ui-overlay">
+    <div id="header">
+     <h1 id="main-title">The Solar System</h1>
+     <p id="subtitle">M..</p>
+    </div>
+    <div id="info-panel" class="glass-panel floating">
+     <h3 id="info-title">Informasi Benda Langit</h3>
+     <div class="info-item"><span class="info-label">Nama:</span> <span class="info-value" id="info-name">-</span>
+     </div>
+     <div class="info-item"><span class="info-label">Diameter:</span> <span class="info-value" id="info-diameter">-</span>
+     </div>
+     <div class="info-item"><span class="info-label">Jarak dari Matahari:</span> <span class="info-value" id="info-distance">-</span>
+     </div>
+     <div class="info-item"><span class="info-label">Periode Orbit:</span> <span class="info-value" id="info-period">-</span>
+     </div>
+     <div class="info-item"><span class="info-label">Fakta Menarik:</span> <span class="info-value" id="info-fact">-</span>
+     </div>
+    </div>
+    <div id="speed-control" class="glass-panel">
+     <h4 id="speed-title">Kecepatan Simulasi</h4><input type="range" id="speed-slider" min="0" max="7000" value="50">
+     <div id="speed-value">
+      1x
+     </div>
+    </div>
+    <div id="zoom-control" class="glass-panel">
+     <h4 id="zoom-title">Zoom Kamera</h4><input type="range" id="zoom-slider" min="3" max="3000" value="100">
+     <div id="zoom-value">
+      1.0x
+     </div>
+    </div>
+    <div id="planet-selector" class="glass-panel"><button class="nav-btn" id="prev-planet">◀</button>
+     <div id="current-planet">
+      <svg class="planet-icon" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>
+        <radialgradient id="sunGradient" cx="0.3" cy="0.3">
+         <stop offset="0%" stop-color="#FFD700" />
+         <stop offset="70%" stop-color="#FFA500" />
+         <stop offset="100%" stop-color="#FF6347" />
+        </radialgradient>
+       </defs> <circle cx="50" cy="50" r="45" fill="url(#sunGradient)" stroke="#FFD700" stroke-width="2" /> <circle cx="35" cy="35" r="3" fill="#FFFF99" opacity="0.8" /> <circle cx="60" cy="40" r="2" fill="#FFFF99" opacity="0.6" /> <circle cx="45" cy="65" r="2.5" fill="#FFFF99" opacity="0.7" />
+      </svg>
+     </div>
+     <h4 id="planet-name">Matahari</h4><button class="nav-btn" id="next-planet">▶</button>
+    </div>
+    <div id="controls-panel" class="glass-panel">
+     <h3 id="controls-title">Kontrol</h3>
+     <div class="control-item" id="mouse-control">
+      🖱️ Seret mouse untuk memutar kamera
+     </div>
+     <div class="control-item" id="zoom-control-text">
+      🔍 Gunakan slider zoom untuk memperbesar
+     </div>
+     <div class="control-item" id="speed-control-text">
+      ⚡ Geser slider untuk mengubah kecepatan
+     </div>
+     <div class="control-item">
+      🪐 Gunakan ◀ ▶ untuk memilih planet
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#000000",
+      panel_color: "#141428",
+      accent_color: "#6496ff",
+      button_sun_color: "#ffa500",
+      button_mercury_color: "#8c7853",
+      button_venus_color: "#ffc649",
+      button_earth_color: "#4169e1",
+      button_moon_color: "#c0c0c0",
+      button_mars_color: "#cd5c5c",
+      button_jupiter_color: "#d8ca9d",
+      button_saturn_color: "#fab981",
+      button_uranus_color: "#4fd0e7",
+      button_neptune_color: "#4b70dd",
+      text_color: "#ffffff",
+      font_family: "Segoe UI",
+      font_size: 16,
+      main_title: "Penjelajah Tata Surya",
+      subtitle: "Jelajahi keajaiban tata surya kita",
+      info_title: "Informasi Benda Langit",
+      controls_title: "Kontrol",
+      mouse_control_text: "🖱️ Seret mouse untuk memutar kamera",
+      zoom_control_text: "🔍 Scroll untuk zoom in/out",
+      speed_control_text: "⚡ Geser slider untuk mengubah kecepatan"
+    };
+
+    const canvas = document.getElementById('space-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let camera = { x: 0, y: 0, zoom: 1, rotation: 0 };
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let simulationSpeed = 1;
+    let time = 0;
+    
+    const planetOrder = ['sun', 'mercury', 'venus', 'earth', 'moon', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+    let currentPlanetIndex = 0;
+    let followingPlanet = true;
+    
+    const celestialData = {
+      sun: {
+        name: "Matahari",
+        diameter: "1.392.700 km",
+        distance: "0 km (pusat tata surya)",
+        period: "-",
+        fact: "Matahari mengandung 99,86% massa seluruh tata surya dan menghasilkan energi melalui fusi nuklir.",
+        color: "#FDB813",
+        radius: 150,
+        orbitRadius: 0,
+        orbitSpeed: 0,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="sunGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="70%" stop-color="#FFA500"/>
+              <stop offset="100%" stop-color="#FF6347"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="45" fill="url(#sunGradient)" stroke="#FFD700" stroke-width="2"/>
+          <circle cx="35" cy="35" r="3" fill="#FFFF99" opacity="0.8"/>
+          <circle cx="60" cy="40" r="2" fill="#FFFF99" opacity="0.6"/>
+          <circle cx="45" cy="65" r="2.5" fill="#FFFF99" opacity="0.7"/>
+        </svg>`
+      },
+      mercury: {
+        name: "Merkurius",
+        diameter: "4.879 km",
+        distance: "57,9 juta km",
+        period: "88 hari",
+        fact: "Merkurius adalah planet terdekat dengan Matahari dan memiliki suhu ekstrem dari -173°C hingga 427°C!",
+        color: "#8C7853",
+        radius: 2.6,
+        orbitRadius: 200,
+        orbitSpeed: 0.08,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="mercuryGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#B8860B"/>
+              <stop offset="100%" stop-color="#8C7853"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="40" fill="url(#mercuryGradient)" stroke="#8C7853" stroke-width="1"/>
+          <circle cx="35" cy="30" r="4" fill="#696969" opacity="0.6"/>
+          <circle cx="60" cy="45" r="3" fill="#696969" opacity="0.5"/>
+          <circle cx="40" cy="65" r="5" fill="#696969" opacity="0.4"/>
+        </svg>`
+      },
+      venus: {
+        name: "Venus",
+        diameter: "12.104 km",
+        distance: "108,2 juta km",
+        period: "225 hari",
+        fact: "Venus adalah planet terpanas di tata surya dengan suhu 462°C karena efek rumah kaca ekstrem!",
+        color: "#FFC649",
+        radius: 6.5,
+        orbitRadius: 280,
+        orbitSpeed: 0.035,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="venusGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#FFC649"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="42" fill="url(#venusGradient)" stroke="#FFC649" stroke-width="1"/>
+          <path d="M20 40 Q50 20 80 45" stroke="#FFB347" stroke-width="2" fill="none" opacity="0.7"/>
+          <path d="M15 60 Q50 80 85 55" stroke="#FFB347" stroke-width="2" fill="none" opacity="0.6"/>
+        </svg>`
+      },
+      earth: {
+        name: "Bumi",
+        diameter: "12.742 km",
+        distance: "149,6 juta km",
+        period: "365,25 hari",
+        fact: "Bumi adalah satu-satunya planet yang diketahui memiliki kehidupan dan 71% permukaannya tertutup air.",
+        color: "#4169E1",
+        radius: 6.9,
+        orbitRadius: 350,
+        orbitSpeed: 0.02,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="earthGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#87CEEB"/>
+              <stop offset="100%" stop-color="#4169E1"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="42" fill="url(#earthGradient)" stroke="#4169E1" stroke-width="1"/>
+          <path d="M20 30 Q35 25 45 35 Q55 45 70 40 Q80 35 85 45" fill="#228B22" opacity="0.8"/>
+          <path d="M15 60 Q30 55 40 65 Q50 75 65 70 Q75 65 85 70" fill="#228B22" opacity="0.7"/>
+          <circle cx="30" cy="40" r="3" fill="#FFFFFF" opacity="0.6"/>
+        </svg>`
+      },
+      moon: {
+        name: "Bulan",
+        diameter: "3.474 km",
+        distance: "384.400 km dari Bumi",
+        period: "27,3 hari",
+        fact: "Bulan selalu menunjukkan wajah yang sama ke Bumi karena rotasi sinkron dengan orbitnya.",
+        color: "#C0C0C0",
+        radius: 1.9,
+        orbitRadius: 20,
+        orbitSpeed: 0.08,
+        parent: "earth",
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="moonGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#F5F5F5"/>
+              <stop offset="100%" stop-color="#C0C0C0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="38" fill="url(#moonGradient)" stroke="#C0C0C0" stroke-width="1"/>
+          <circle cx="35" cy="35" r="4" fill="#A9A9A9" opacity="0.7"/>
+          <circle cx="60" cy="30" r="3" fill="#A9A9A9" opacity="0.6"/>
+          <circle cx="40" cy="60" r="5" fill="#A9A9A9" opacity="0.5"/>
+          <circle cx="65" cy="65" r="3" fill="#A9A9A9" opacity="0.6"/>
+        </svg>`
+      },
+      mars: {
+        name: "Mars",
+        diameter: "6.779 km",
+        distance: "227,9 juta km",
+        period: "687 hari",
+        fact: "Mars memiliki gunung tertinggi di tata surya, Olympus Mons, setinggi 21 km!",
+        color: "#CD5C5C",
+        radius: 3.7,
+        orbitRadius: 450,
+        orbitSpeed: 0.01,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="marsGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#FF6347"/>
+              <stop offset="100%" stop-color="#CD5C5C"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="40" fill="url(#marsGradient)" stroke="#CD5C5C" stroke-width="1"/>
+          <circle cx="35" cy="35" r="3" fill="#8B0000" opacity="0.6"/>
+          <circle cx="65" cy="40" r="4" fill="#8B0000" opacity="0.5"/>
+          <circle cx="45" cy="65" r="2" fill="#8B0000" opacity="0.7"/>
+          <path d="M30 55 Q40 50 50 55" stroke="#8B0000" stroke-width="2" fill="none" opacity="0.4"/>
+        </svg>`
+      },
+      jupiter: {
+        name: "Jupiter",
+        diameter: "139.820 km",
+        distance: "778,5 juta km",
+        period: "4.333 hari (11,9 tahun)",
+        fact: "Jupiter adalah planet terbesar dan memiliki lebih dari 80 bulan! Badai Bintik Merah sudah berlangsung 400 tahun.",
+        color: "#D8CA9D",
+        radius: 75.6,
+        orbitRadius: 600,
+        orbitSpeed: 0.005,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="jupiterGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#F4A460"/>
+              <stop offset="100%" stop-color="#D8CA9D"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="44" fill="url(#jupiterGradient)" stroke="#D8CA9D" stroke-width="1"/>
+          <ellipse cx="50" cy="35" rx="35" ry="3" fill="#CD853F" opacity="0.6"/>
+          <ellipse cx="50" cy="50" rx="38" ry="4" fill="#CD853F" opacity="0.5"/>
+          <ellipse cx="50" cy="65" rx="32" ry="3" fill="#CD853F" opacity="0.7"/>
+          <circle cx="65" cy="45" r="6" fill="#DC143C" opacity="0.8"/>
+        </svg>`
+      },
+      saturn: {
+        name: "Saturnus",
+        diameter: "116.460 km",
+        distance: "1,43 miliar km",
+        period: "10.747 hari (29,4 tahun)",
+        fact: "Saturnus terkenal dengan cincinnya yang spektakuler dan memiliki kepadatan lebih rendah dari air!",
+        color: "#FAB981",
+        radius: 63.0,
+        orbitRadius: 750,
+        orbitSpeed: 0.003,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="saturnGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#FFE4B5"/>
+              <stop offset="100%" stop-color="#FAB981"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="50" cy="50" rx="45" ry="8" fill="none" stroke="#D2B48C" stroke-width="2" opacity="0.6"/>
+          <ellipse cx="50" cy="50" rx="38" ry="6" fill="none" stroke="#D2B48C" stroke-width="1.5" opacity="0.4"/>
+          <circle cx="50" cy="50" r="25" fill="url(#saturnGradient)" stroke="#FAB981" stroke-width="1"/>
+          <ellipse cx="50" cy="45" rx="20" ry="2" fill="#DEB887" opacity="0.5"/>
+          <ellipse cx="50" cy="55" rx="18" ry="2" fill="#DEB887" opacity="0.4"/>
+        </svg>`
+      },
+      uranus: {
+        name: "Uranus",
+        diameter: "50.724 km",
+        distance: "2,87 miliar km",
+        period: "30.589 hari (83,7 tahun)",
+        fact: "Uranus berotasi miring 98° sehingga kutubnya menghadap Matahari! Planet ini berwarna biru karena metana.",
+        color: "#4FD0E7",
+        radius: 27.4,
+        orbitRadius: 900,
+        orbitSpeed: 0.002,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="uranusGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#87CEEB"/>
+              <stop offset="100%" stop-color="#4FD0E7"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="38" fill="url(#uranusGradient)" stroke="#4FD0E7" stroke-width="1"/>
+          <ellipse cx="50" cy="50" rx="8" ry="42" fill="none" stroke="#40E0D0" stroke-width="1.5" opacity="0.6"/>
+          <ellipse cx="50" cy="50" rx="6" ry="35" fill="none" stroke="#40E0D0" stroke-width="1" opacity="0.4"/>
+          <circle cx="45" cy="40" r="2" fill="#B0E0E6" opacity="0.7"/>
+          <circle cx="60" cy="55" r="1.5" fill="#B0E0E6" opacity="0.6"/>
+        </svg>`
+      },
+      neptune: {
+        name: "Neptunus",
+        diameter: "49.244 km",
+        distance: "4,5 miliar km",
+        period: "59.800 hari (164 tahun)",
+        fact: "Neptunus memiliki angin terkencang di tata surya hingga 2.100 km/jam dan warna biru gelap yang menawan!",
+        color: "#4B70DD",
+        radius: 26.6,
+        orbitRadius: 1050,
+        orbitSpeed: 0.001,
+        svg: `<svg class="planet-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="neptuneGradient" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#6495ED"/>
+              <stop offset="100%" stop-color="#4B70DD"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="38" fill="url(#neptuneGradient)" stroke="#4B70DD" stroke-width="1"/>
+          <path d="M20 40 Q35 35 50 40 Q65 45 80 40" stroke="#1E90FF" stroke-width="2" fill="none" opacity="0.6"/>
+          <path d="M25 60 Q40 55 55 60 Q70 65 85 60" stroke="#1E90FF" stroke-width="2" fill="none" opacity="0.5"/>
+          <circle cx="40" cy="35" r="3" fill="#87CEFA" opacity="0.7"/>
+          <circle cx="65" cy="50" r="2" fill="#87CEFA" opacity="0.6"/>
+        </svg>`
+      }
+    };
+    
+    let selectedBody = "sun";
+    
+    function resizeCanvas() {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    
+    function updateInfo(bodyKey) {
+      const body = celestialData[bodyKey];
+      document.getElementById('info-name').textContent = body.name;
+      document.getElementById('info-diameter').textContent = body.diameter;
+      document.getElementById('info-distance').textContent = body.distance;
+      document.getElementById('info-period').textContent = body.period;
+      document.getElementById('info-fact').textContent = body.fact;
+    }
+    
+    // Static background stars removed - only moving stars now for full realism!
+    
+    // Moving stars that follow world coordinates
+    function drawMovingStars() {
+      ctx.fillStyle = '#FFFFFF';
+      
+      // Layer 1: Slow moving stars (far)
+      for (let i = 0; i < 80; i++) {
+        const worldX = (i * 2345.6) % 4000 - 2000 + Math.sin(time * 0.001 + i) * 50;
+        const worldY = (i * 6789.1) % 4000 - 2000 + Math.cos(time * 0.001 + i) * 30;
+        const pos = worldToScreen(worldX * 0.1, worldY * 0.1);
+        
+        if (pos.x > -10 && pos.x < width + 10 && pos.y > -10 && pos.y < height + 10) {
+          const size = 0.5 + (i % 3) * 0.3;
+          const twinkle = 0.4 + Math.sin(time * 0.01 + i) * 0.3;
+          ctx.globalAlpha = twinkle;
+          ctx.fillRect(pos.x, pos.y, size, size);
+        }
+      }
+      
+      // Layer 2: Medium moving stars
+      for (let i = 0; i < 60; i++) {
+        const worldX = (i * 3456.7) % 3000 - 1500 + Math.sin(time * 0.002 + i) * 100;
+        const worldY = (i * 7890.2) % 3000 - 1500 + Math.cos(time * 0.002 + i) * 80;
+        const pos = worldToScreen(worldX * 0.3, worldY * 0.3);
+        
+        if (pos.x > -10 && pos.x < width + 10 && pos.y > -10 && pos.y < height + 10) {
+          const size = 0.8 + (i % 4) * 0.2;
+          const twinkle = 0.5 + Math.sin(time * 0.015 + i) * 0.4;
+          ctx.globalAlpha = twinkle;
+          ctx.fillRect(pos.x, pos.y, size, size);
+        }
+      }
+      
+      // Layer 3: Fast moving stars (close)
+      for (let i = 0; i < 40; i++) {
+        const worldX = (i * 4567.8) % 2000 - 1000 + Math.sin(time * 0.005 + i) * 200;
+        const worldY = (i * 8901.3) % 2000 - 1000 + Math.cos(time * 0.005 + i) * 150;
+        const pos = worldToScreen(worldX * 0.8, worldY * 0.8);
+        
+        if (pos.x > -10 && pos.x < width + 10 && pos.y > -10 && pos.y < height + 10) {
+          const size = 1.0 + (i % 3) * 0.4;
+          const twinkle = 0.6 + Math.sin(time * 0.02 + i) * 0.3;
+          ctx.globalAlpha = twinkle;
+          ctx.fillRect(pos.x, pos.y, size, size);
+        }
+      }
+      
+      ctx.globalAlpha = 1;
+    }
+    
+    function worldToScreen(x, y) {
+      const screenX = (x - camera.x) * camera.zoom + width / 2;
+      const screenY = (y - camera.y) * camera.zoom + height / 2;
+      return { x: screenX, y: screenY };
+    }
+    
+    function drawOrbit(radius) {
+      ctx.strokeStyle = 'rgba(100, 150, 255, 0.2)';
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      const center = worldToScreen(0, 0);
+      ctx.arc(center.x, center.y, radius * camera.zoom, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    
+    function drawCelestialBody(body, x, y) {
+      const pos = worldToScreen(x, y);
+      const radius = body.radius * camera.zoom;
+      
+      // Calculate rotation based on time for spinning effect
+      const rotationSpeed = body.name === "Matahari" ? 0.02 : 0.05;
+      const rotation = time * rotationSpeed;
+      
+      ctx.save();
+      ctx.translate(pos.x, pos.y);
+      ctx.rotate(rotation);
+      
+      // Create realistic 3D sphere effect with multiple gradients
+      const shadowGradient = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, 0, 0, 0, radius);
+      
+      if (body.name === "Matahari") {
+        // Sun with bright white realistic glow
+        ctx.fillStyle = '#FFFFF1';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Corona glow
+        const coronaGradient = ctx.createRadialGradient(0, 0, radius * 0.8, 0, 0, radius * 1.8);
+        coronaGradient.addColorStop(0, 'rgba(255, 255, 255, 2)');
+        coronaGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.5)');
+        coronaGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
+        coronaGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = coronaGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (body.name === "Bumi") {
+        // Earth with continents and clouds
+        shadowGradient.addColorStop(0, '#87CEEB');
+        shadowGradient.addColorStop(0.4, '#4169E1');
+        shadowGradient.addColorStop(0.7, '#1E90FF');
+        shadowGradient.addColorStop(1, '#000080');
+        
+        ctx.fillStyle = shadowGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Continents (rotating)
+        ctx.fillStyle = 'rgba(34, 139, 34, 0.8)';
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2 - rotation * 0.5;
+          const continentX = Math.cos(angle) * radius * 0.6;
+          const continentY = Math.sin(angle) * radius * 0.3;
+          ctx.beginPath();
+          ctx.ellipse(continentX, continentY, radius * 0.3, radius * 0.15, angle, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+     
+      } else if (body.name === "Mars") {
+        // Mars with polar caps and surface features
+        shadowGradient.addColorStop(0, '#FF6347');
+        shadowGradient.addColorStop(0.4, '#CD5C5C');
+        shadowGradient.addColorStop(0.7, '#A0522D');
+        shadowGradient.addColorStop(1, '#8B0000');
+        
+        ctx.fillStyle = shadowGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Surface features (rotating)
+        ctx.fillStyle = 'rgba(139, 0, 0, 0.6)';
+        for (let i = 0; i < 5; i++) {
+          const angle = (i / 5) * Math.PI * 2 - rotation * 0.7;
+          const featureX = Math.cos(angle) * radius * 0.3;
+          const featureY = Math.sin(angle) * radius * 0.3;
+          ctx.beginPath();
+          ctx.arc(featureX, featureY, radius * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        // Polar caps
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.beginPath();
+        ctx.arc(0, -radius * 0.8, radius * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, radius * 0.8, radius * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (body.name === "Jupiter") {
+        // Jupiter with bands and Great Red Spot
+        shadowGradient.addColorStop(0, '#F4A460');
+        shadowGradient.addColorStop(0.4, '#D2B48C');
+     
+        shadowGradient.addColorStop(1, '#8B4513');
+        
+        ctx.fillStyle = shadowGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Atmospheric bands (horizontal stripes that rotate with planet)
+      
+        
+        // Great Red Spot (positioned on the surface, not floating outside)
+        const spotAngle = rotation * 0.8;
+        const spotX = Math.cos(spotAngle) * radius * 0.4;
+        const spotY = Math.sin(spotAngle) * radius * 0.4;
+        ctx.fillStyle = 'rgba(220, 20, 60, 0.9)';
+        ctx.beginPath();
+        ctx.arc(spotX, spotY, radius * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (body.name === "Saturnus") {
+        // Saturn with rings from top view
+        shadowGradient.addColorStop(0, '#FFE4B5');
+        shadowGradient.addColorStop(0.4, '#F0E68C');
+        shadowGradient.addColorStop(0.7, '#DEB887');
+        shadowGradient.addColorStop(1, '#D2B48C');
+        
+        // Draw rings first (full circles from top view)
+        for (let i = 0; i < 4; i++) {
+          const ringRadius = radius * (1.4 + i * 0.15);
+          const ringOpacity = 0.4 - i * 0.08;
+          ctx.strokeStyle = `rgba(210, 180, 140, ${ringOpacity})`;
+          ctx.lineWidth = radius * 0.03;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        
+        ctx.fillStyle = shadowGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+      
+      } else {
+        // Other planets with basic 3D shading
+        const colors = {
+          "Merkurius": ['#B8860B', '#8C7853', '#696969'],
+          "Venus": ['#FFD700', '#FFC649', '#DAA520'],
+          "Bulan": ['#F5F5F5', '#C0C0C0', '#A9A9A9'],
+          "Uranus": ['#87CEEB', '#4FD0E7', '#40E0D0'],
+          "Neptunus": ['#6495ED', '#4B70DD', '#1E90FF']
+        };
+        
+        const planetColors = colors[body.name] || [body.color, body.color, body.color];
+        shadowGradient.addColorStop(0, planetColors[0]);
+        shadowGradient.addColorStop(0.5, planetColors[1]);
+        shadowGradient.addColorStop(1, planetColors[2]);
+        
+        ctx.fillStyle = shadowGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Surface features for rocky planets
+        if (body.name === "Merkurius" || body.name === "Bulan") {
+          ctx.fillStyle = `rgba(105, 105, 105, 0.4)`;
+          for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2 - rotation;
+            const craterX = Math.cos(angle) * radius * (0.2 + (i % 3) * 0.15);
+            const craterY = Math.sin(angle) * radius * (0.2 + (i % 3) * 0.15);
+            const craterSize = radius * (0.04 + (i % 3) * 0.02);
+            ctx.beginPath();
+            ctx.arc(craterX, craterY, craterSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      
+      // No terminator shading - keep planets bright and clear
+      
+      ctx.restore();
+    }
+    
+    function calculatePosition(body, time) {
+      if (body.orbitRadius === 0) {
+        return { x: 0, y: 0 };
+      }
+      
+      if (body.parent) {
+        const parentBody = celestialData[body.parent];
+        const parentPos = calculatePosition(parentBody, time);
+        const angle = time * body.orbitSpeed;
+        return {
+          x: parentPos.x + Math.cos(angle) * body.orbitRadius,
+          y: parentPos.y + Math.sin(angle) * body.orbitRadius
+        };
+      }
+      
+      const angle = time * body.orbitSpeed;
+      return {
+        x: Math.cos(angle) * body.orbitRadius,
+        y: Math.sin(angle) * body.orbitRadius
+      };
+    }
+    
+    function updatePlanetSelector() {
+      const currentPlanet = planetOrder[currentPlanetIndex];
+      const planetData = celestialData[currentPlanet];
+      
+      document.getElementById('current-planet').innerHTML = planetData.svg;
+      document.getElementById('planet-name').textContent = planetData.name;
+      
+      document.getElementById('prev-planet').disabled = currentPlanetIndex === 0;
+      document.getElementById('next-planet').disabled = currentPlanetIndex === planetOrder.length - 1;
+      
+      updateInfo(currentPlanet);
+    }
+    
+    function focusOnPlanet(planetKey) {
+      const planetData = celestialData[planetKey];
+      const pos = calculatePosition(planetData, time);
+      
+      camera.x = pos.x;
+      camera.y = pos.y;
+      
+      // Zoom level stays the same - no automatic zoom changes
+    }
+    
+    function animate() {
+      ctx.fillStyle = defaultConfig.background_color || '#000000';
+      ctx.fillRect(0, 0, width, height);
+      
+      drawMovingStars();
+      
+      time += simulationSpeed * 0.016;
+      
+      if (followingPlanet) {
+        const currentPlanet = planetOrder[currentPlanetIndex];
+        const planetData = celestialData[currentPlanet];
+        const pos = calculatePosition(planetData, time);
+        
+        camera.x = pos.x;
+        camera.y = pos.y;
+      }
+      
+      drawOrbit(celestialData.mercury.orbitRadius);
+      drawOrbit(celestialData.venus.orbitRadius);
+      drawOrbit(celestialData.earth.orbitRadius);
+      drawOrbit(celestialData.mars.orbitRadius);
+      drawOrbit(celestialData.jupiter.orbitRadius);
+      drawOrbit(celestialData.saturn.orbitRadius);
+      drawOrbit(celestialData.uranus.orbitRadius);
+      drawOrbit(celestialData.neptune.orbitRadius);
+      
+      const sunPos = calculatePosition(celestialData.sun, time);
+      drawCelestialBody(celestialData.sun, sunPos.x, sunPos.y);
+      
+      const mercuryPos = calculatePosition(celestialData.mercury, time);
+      drawCelestialBody(celestialData.mercury, mercuryPos.x, mercuryPos.y);
+      
+      const venusPos = calculatePosition(celestialData.venus, time);
+      drawCelestialBody(celestialData.venus, venusPos.x, venusPos.y);
+      
+      const earthPos = calculatePosition(celestialData.earth, time);
+      drawCelestialBody(celestialData.earth, earthPos.x, earthPos.y);
+      
+      const moonPos = calculatePosition(celestialData.moon, time);
+      drawCelestialBody(celestialData.moon, moonPos.x, moonPos.y);
+      
+      const marsPos = calculatePosition(celestialData.mars, time);
+      drawCelestialBody(celestialData.mars, marsPos.x, marsPos.y);
+      
+      const jupiterPos = calculatePosition(celestialData.jupiter, time);
+      drawCelestialBody(celestialData.jupiter, jupiterPos.x, jupiterPos.y);
+      
+      const saturnPos = calculatePosition(celestialData.saturn, time);
+      drawCelestialBody(celestialData.saturn, saturnPos.x, saturnPos.y);
+      
+      const uranusPos = calculatePosition(celestialData.uranus, time);
+      drawCelestialBody(celestialData.uranus, uranusPos.x, uranusPos.y);
+      
+      const neptunePos = calculatePosition(celestialData.neptune, time);
+      drawCelestialBody(celestialData.neptune, neptunePos.x, neptunePos.y);
+      
+      requestAnimationFrame(animate);
+    }
+    
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      followingPlanet = false;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+    
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        camera.x -= dx / camera.zoom;
+        camera.y -= dy / camera.zoom;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+      }
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+    
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      followingPlanet = false;
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      camera.zoom *= zoomFactor;
+      camera.zoom = Math.max(0.3, Math.min(3, camera.zoom));
+      document.getElementById('zoom-slider').value = camera.zoom * 100;
+      document.getElementById('zoom-value').textContent = camera.zoom.toFixed(1) + 'x';
+    });
+    
+    document.getElementById('speed-slider').addEventListener('input', (e) => {
+      const value = parseInt(e.target.value);
+      simulationSpeed = value / 10;
+      document.getElementById('speed-value').textContent = simulationSpeed.toFixed(1) + 'x';
+    });
+    
+    document.getElementById('zoom-slider').addEventListener('input', (e) => {
+      const value = parseInt(e.target.value);
+      camera.zoom = value / 100;
+      document.getElementById('zoom-value').textContent = camera.zoom.toFixed(1) + 'x';
+      followingPlanet = false;
+    });
+    
+    document.getElementById('prev-planet').addEventListener('click', () => {
+      if (currentPlanetIndex > 0) {
+        currentPlanetIndex--;
+        followingPlanet = true;
+        updatePlanetSelector();
+        focusOnPlanet(planetOrder[currentPlanetIndex]);
+      }
+    });
+    
+    document.getElementById('next-planet').addEventListener('click', () => {
+      if (currentPlanetIndex < planetOrder.length - 1) {
+        currentPlanetIndex++;
+        followingPlanet = true;
+        updatePlanetSelector();
+        focusOnPlanet(planetOrder[currentPlanetIndex]);
+      }
+    });
+    
+    async function onConfigChange(config) {
+      const baseFont = 'Arial, sans-serif';
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontSize = config.font_size || defaultConfig.font_size;
+      
+      document.body.style.fontFamily = `${customFont}, ${baseFont}`;
+      document.body.style.background = config.background_color || defaultConfig.background_color;
+      document.body.style.color = config.text_color || defaultConfig.text_color;
+      
+      document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+      document.getElementById('main-title').style.fontSize = `${baseFontSize * 2}px`;
+      document.getElementById('main-title').style.color = config.text_color || defaultConfig.text_color;
+      
+      document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+      document.getElementById('subtitle').style.fontSize = `${baseFontSize}px`;
+      document.getElementById('subtitle').style.color = config.text_color || defaultConfig.text_color;
+      
+      document.getElementById('info-title').textContent = config.info_title || defaultConfig.info_title;
+      document.getElementById('info-title').style.fontSize = `${baseFontSize * 1.25}px`;
+      document.getElementById('info-title').style.color = config.text_color || defaultConfig.text_color;
+      
+      document.getElementById('controls-title').textContent = config.controls_title || defaultConfig.controls_title;
+      document.getElementById('controls-title').style.fontSize = `${baseFontSize * 1.125}px`;
+      document.getElementById('controls-title').style.color = config.text_color || defaultConfig.text_color;
+      
+      document.getElementById('mouse-control').textContent = config.mouse_control_text || defaultConfig.mouse_control_text;
+      document.getElementById('mouse-control').style.fontSize = `${baseFontSize * 0.8125}px`;
+      
+      document.getElementById('zoom-control-text').textContent = config.zoom_control_text || defaultConfig.zoom_control_text;
+      document.getElementById('zoom-control-text').style.fontSize = `${baseFontSize * 0.8125}px`;
+      
+      document.getElementById('speed-control-text').textContent = config.speed_control_text || defaultConfig.speed_control_text;
+      document.getElementById('speed-control-text').style.fontSize = `${baseFontSize * 0.8125}px`;
+      
+      const infoPanels = document.querySelectorAll('#info-panel, #controls-panel, #speed-control, #zoom-control, #planet-selector');
+      infoPanels.forEach(panel => {
+        panel.style.background = `${config.panel_color || defaultConfig.panel_color}e6`;
+        panel.style.borderColor = `${config.accent_color || defaultConfig.accent_color}4d`;
+      });
+      
+      const navButtons = document.querySelectorAll('.nav-btn');
+      navButtons.forEach(btn => {
+        if (!btn.disabled) {
+          btn.style.background = `${config.accent_color || defaultConfig.accent_color}cc`;
+        }
+      });
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.panel_color || defaultConfig.panel_color,
+              set: (value) => {
+                config.panel_color = value;
+                window.elementSdk.setConfig({ panel_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.button_earth_color || defaultConfig.button_earth_color,
+              set: (value) => {
+                config.button_earth_color = value;
+                window.elementSdk.setConfig({ button_earth_color: value });
+              }
+            },
+            {
+              get: () => config.button_mars_color || defaultConfig.button_mars_color,
+              set: (value) => {
+                config.button_mars_color = value;
+                window.elementSdk.setConfig({ button_mars_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["main_title", config.main_title || defaultConfig.main_title],
+          ["subtitle", config.subtitle || defaultConfig.subtitle],
+          ["info_title", config.info_title || defaultConfig.info_title],
+          ["controls_title", config.controls_title || defaultConfig.controls_title],
+          ["mouse_control_text", config.mouse_control_text || defaultConfig.mouse_control_text],
+          ["zoom_control_text", config.zoom_control_text || defaultConfig.zoom_control_text],
+          ["speed_control_text", config.speed_control_text || defaultConfig.speed_control_text]
+        ])
+      });
+    }
+    
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    updatePlanetSelector();
+    animate();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99ac0aa2c5a7d8ca',t:'MTc2MjUxMDIzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

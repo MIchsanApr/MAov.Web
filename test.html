@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashes of Vengeance - Matchmaking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'Rajdhani', sans-serif;
+    }
+    
+    .font-orbitron {
+      font-family: 'Orbitron', monospace;
+    }
+    
+    .bg-grid {
+      background-image: 
+        linear-gradient(rgba(0, 255, 200, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 200, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    
+    .noise-overlay {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+    
+    .scanline {
+      background: linear-gradient(
+        transparent 50%,
+        rgba(0, 255, 200, 0.02) 50%
+      );
+      background-size: 100% 4px;
+      animation: scanline 8s linear infinite;
+    }
+    
+    @keyframes scanline {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.95); }
+    }
+    
+    @keyframes countPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    @keyframes networkJump {
+      0%, 100% { height: 100%; }
+      50% { height: 70%; }
+    }
+    
+    .network-bar {
+      width: 3px;
+      background: currentColor;
+      transition: all 0.3s ease;
+    }
+    
+    .network-bar-animate {
+      animation: networkJump 2s ease-in-out infinite;
+    }
+    
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .slide-in {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    .slide-out {
+      animation: slideOut 0.3s ease-in forwards;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    .fade-out {
+      animation: fadeOut 0.3s ease-in forwards;
+    }
+    
+    .count-pulse {
+      animation: countPulse 0.3s ease-out;
+    }
+    
+    .corner-accent {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: rgba(0, 255, 200, 0.5);
+    }
+    
+    .corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+    .corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+    .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+    
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-item:hover::after,
+    .nav-item.active::after {
+      width: 100%;
+    }
+    
+    .player-slot {
+      position: relative;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+    
+    .player-slot-empty::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.95) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .player-slot-empty::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(to left, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+      background-size: 100% 100%;
+      background-position: left top, right top;
+      background-repeat: no-repeat;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0) 100%);
+      mask-image: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    .player-slot:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 255, 200, 0.2);
+    }
+    
+    .player-slot::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, transparent 50%, rgba(0, 255, 200, 0.2) 50%);
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+    
+    .player-slot::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, rgba(0, 255, 200, 0.2) 50%, transparent 50%);
+      clip-path: polygon(0 0, 0 100%, 100% 100%);
+    }
+    
+    .valorant-card-center::before {
+      background: linear-gradient(135deg, transparent 50%, rgba(0, 255, 200, 0.4) 50%);
+    }
+    
+    .valorant-card-center::after {
+      background: linear-gradient(135deg, rgba(0, 255, 200, 0.4) 50%, transparent 50%);
+    }
+    
+    .player-slot-filled {
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 80px), 50% 100%, 0 calc(100% - 80px));
+    }
+    
+    .player-slot-filled::after {
+      display: none;
+    }
+    
+    .valorant-accent-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 200, 0.6) 50%, transparent 100%);
+      width: 100%;
+    }
+    
+    .rank-badge {
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(135deg, #00ffc8 0%, #00d4ff 100%);
+      position: relative;
+    }
+    
+    .rank-placeholder {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, rgba(0, 255, 200, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+      border: 2px solid rgba(0, 255, 200, 0.3);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+    
+    .kick-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(220, 38, 38, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+    }
+    
+    .kick-btn:hover {
+      background: rgba(220, 38, 38, 0.3);
+      border-color: #dc2626;
+      transform: scale(1.15);
+    }
+    
+    .btn-modern {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-modern::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-modern:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn-modern:active {
+      transform: scale(0.95);
+    }
+    
+    .friend-item {
+      transition: all 0.2s ease;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      position: relative;
+    }
+    
+    .friend-item:hover {
+      background: rgba(0, 255, 200, 0.1);
+      transform: translateX(5px);
+    }
+    
+    .friend-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: rgba(0, 255, 200, 0.15);
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+    
+    .friend-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 10px;
+      height: 10px;
+      background: rgba(0, 255, 200, 0.15);
+      clip-path: polygon(0 0, 0 100%, 100% 100%);
+    }
+    
+    #friendlist-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #friendlist-panel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    #friendlist-panel::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 200, 0.3);
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-black text-white overflow-hidden">
+  <div id="app" class="h-full w-full relative"><!-- Background layers -->
+   <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-gray-950 via-black to-gray-900"></div>
+    <div class="absolute inset-0 bg-grid"></div>
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="absolute inset-0 scanline pointer-events-none"></div>
+   </div><!-- Background Banner -->
+   <div id="bg-banner" class="absolute inset-0 opacity-20 bg-cover bg-center transition-all duration-1000"></div><!-- Main container -->
+   <div class="relative h-full w-full flex flex-col"><!-- Top Navigation Bar -->
+    <header class="flex-shrink-0 px-8 py-4 flex items-center justify-between border-b border-gray-800/50 bg-black/40 backdrop-blur-sm"><!-- Logo -->
+     <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3">
+       <svg class="w-10 h-10" viewbox="0 0 40 40" fill="none"><path d="M20 2L38 20L20 38L2 20L20 2Z" stroke="url(#logo-grad)" stroke-width="2" fill="none" /> <path d="M20 8L32 20L20 32L8 20L20 8Z" fill="url(#logo-grad)" opacity="0.3" /> <path d="M20 14L26 20L20 26L14 20L20 14Z" fill="url(#logo-grad)" /> <defs>
+         <lineargradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00ffc8" />
+          <stop offset="100%" stop-color="#00d4ff" />
+         </lineargradient>
+        </defs>
+       </svg>
+       <div>
+        <h1 id="game-title" class="font-orbitron text-lg font-bold tracking-wider bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">ASHES OF VENGEANCE</h1>
+        <p class="text-xs text-gray-500 tracking-widest">BIOMECHANOID WARFARE</p>
+       </div>
+      </div>
+     </div><!-- Navigation -->
+     <nav class="flex items-center gap-8"><button class="nav-item active font-orbitron text-sm tracking-wider text-white transition-colors px-2 py-1">PLAY</button> <button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1" onclick="window.location.reload()">DECKS</button> <button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1">ARMORY</button> <button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1" onclick="window.location.hash='#dominators'; window.location.reload()">DOMINATORS</button>
+     </nav><!-- Player Info -->
+     <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded">
+       <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-glow"></div><span class="text-xs text-gray-400">PARTY: <span id="party-count">1</span>/5</span>
+      </div>
+      <div class="flex items-center gap-3">
+       <div class="text-right">
+        <p id="player-name" class="font-orbitron text-sm text-white">Zuraa?!</p>
+        <p class="text-xs text-emerald-400">ONLINE</p>
+       </div>
+       <div class="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/50 rounded flex items-center justify-center"><span class="font-orbitron text-sm text-cyan-400">Z</span>
+       </div>
+      </div>
+     </div>
+    </header><!-- Matchmaking Timer (hidden by default) -->
+    <div id="matchmaking-timer" class="hidden absolute top-[72px] left-1/2 transform -translate-x-1/2 z-40">
+     <div class="bg-black/30 backdrop-blur-xl rounded-b-2xl px-12 py-6 shadow-2xl">
+      <div class="flex items-center justify-center gap-3 mb-2">
+       <div class="w-1.5 h-1.5 rounded-full bg-white/60 pulse-glow"></div>
+       <p class="font-orbitron text-xs text-white/60 tracking-[0.3em]">SEARCHING</p>
+       <div class="w-1.5 h-1.5 rounded-full bg-white/60 pulse-glow"></div>
+      </div>
+      <div class="font-orbitron text-5xl font-black text-center text-white" id="timer-display">
+       00:00
+      </div>
+     </div>
+    </div><!-- Notification Toast -->
+    <div id="notification-toast" class="hidden absolute top-32 left-1/2 transform -translate-x-1/2 z-50">
+     <div class="bg-black/95 backdrop-blur-md px-8 py-4 relative" style="clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));">
+      <div style="position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: linear-gradient(135deg, transparent 50%, rgba(0, 255, 200, 0.3) 50%);"></div>
+      <div style="position: absolute; bottom: 0; left: 0; width: 12px; height: 12px; background: linear-gradient(135deg, rgba(0, 255, 200, 0.3) 50%, transparent 50%);"></div>
+      <p id="notification-text" class="font-orbitron text-sm text-white"></p>
+     </div>
+    </div><!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center px-8 py-6 overflow-hidden relative"><!-- Party Slots -->
+     <div class="flex items-center justify-center gap-4 w-full max-w-7xl mx-auto"><!-- Slot 1 (Left) -->
+      <div class="player-slot player-slot-empty w-44 h-96 bg-black/40 backdrop-blur-sm border border-gray-700/30 relative overflow-hidden" id="slot-1">
+       <div class="h-full flex flex-col items-center justify-center relative z-10">
+        <div class="text-gray-600 text-4xl mb-2">
+         +
+        </div>
+        <p class="text-xs text-gray-600 tracking-wider font-orbitron">EMPTY</p>
+       </div>
+      </div><!-- Slot 2 (Left) -->
+      <div class="player-slot player-slot-empty w-44 h-96 bg-black/40 backdrop-blur-sm border border-gray-700/30 relative overflow-hidden" id="slot-2">
+       <div class="h-full flex flex-col items-center justify-center relative z-10">
+        <div class="text-gray-600 text-4xl mb-2">
+         +
+        </div>
+        <p class="text-xs text-gray-600 tracking-wider font-orbitron">EMPTY</p>
+       </div>
+      </div><!-- Center Slot (Player) -->
+      <div class="player-slot player-slot-filled w-52 h-[26rem] bg-black/60 backdrop-blur-sm border-2 border-cyan-500/50 relative overflow-hidden valorant-card-center" id="slot-center">
+       <div id="player-banner" class="absolute inset-0 opacity-30 bg-cover bg-center"></div>
+       <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+       <div class="absolute top-2 left-2 flex items-end gap-0.5 h-4 z-10">
+        <div class="network-bar" style="height: 25%; color: #10b981;"></div>
+        <div class="network-bar" style="height: 50%; color: #10b981;"></div>
+        <div class="network-bar" style="height: 75%; color: #10b981;"></div>
+        <div class="network-bar" style="height: 100%; color: #10b981;"></div>
+       </div>
+       <div class="relative h-full flex flex-col p-4">
+        <div class="flex-1 flex items-center justify-center">
+         <div class="w-24 h-24 bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border-2 border-cyan-500 rounded-full flex items-center justify-center"><span id="player-initials" class="font-orbitron text-2xl font-bold text-cyan-400">Z</span>
+         </div>
+        </div>
+        <div class="text-center">
+         <p id="player-username" class="font-orbitron text-base font-bold text-white mb-1">Zuraa?!</p>
+         <p class="text-xs text-gray-400 mb-3">LEVEL 47 • VANGUARD GUILD</p>
+         <div class="flex justify-center gap-1 mb-3">
+          <div class="w-8 h-8 rounded-full bg-gray-800 border border-cyan-500/50"></div>
+          <div class="w-8 h-8 rounded-full bg-gray-800 border border-purple-500/50"></div>
+          <div class="w-8 h-8 rounded-full bg-gray-800 border border-orange-500/50"></div>
+         </div><!-- Rank Badge -->
+         <div class="flex justify-center mt-2">
+          <div style="clip-path: polygon(50% 0%, 100% 100%, 0% 100%); width: 60px; height: 60px; background: linear-gradient(135deg, #00ffc8 0%, #00d4ffdd 100%);"></div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Slot 3 (Right) -->
+      <div class="player-slot player-slot-empty w-44 h-96 bg-black/40 backdrop-blur-sm border border-gray-700/30 relative overflow-hidden" id="slot-3">
+       <div class="h-full flex flex-col items-center justify-center relative z-10">
+        <div class="text-gray-600 text-4xl mb-2">
+         +
+        </div>
+        <p class="text-xs text-gray-600 tracking-wider font-orbitron">EMPTY</p>
+       </div>
+      </div><!-- Slot 4 (Right) -->
+      <div class="player-slot player-slot-empty w-44 h-96 bg-black/40 backdrop-blur-sm border border-gray-700/30 relative overflow-hidden" id="slot-4">
+       <div class="h-full flex flex-col items-center justify-center relative z-10">
+        <div class="text-gray-600 text-4xl mb-2">
+         +
+        </div>
+        <p class="text-xs text-gray-600 tracking-wider font-orbitron">EMPTY</p>
+       </div>
+      </div>
+     </div>
+    </main><!-- Bottom Action Bar -->
+    <footer class="flex-shrink-0 px-8 py-6 border-t border-gray-800/50 bg-black/40 backdrop-blur-sm">
+     <div class="flex items-center justify-center gap-6"><!-- Left: Leave Party --> <button id="leave-btn" class="w-12 h-12 bg-white/90 border-2 border-white rounded-full flex items-center justify-center hover:bg-white hover:shadow-lg hover:shadow-white/30 transition-all btn-modern" title="Leave Party">
+       <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+       </svg></button> <!-- Center: Play Button --> <button id="play-btn" class="px-20 py-5 bg-gradient-to-r from-cyan-600 to-emerald-600 border-2 border-cyan-400 text-white font-orbitron text-xl font-bold tracking-wider hover:from-cyan-500 hover:to-emerald-500 transition-all shadow-lg shadow-cyan-500/50 btn-modern relative overflow-hidden rounded-lg"> <span id="play-btn-text" class="relative z-10">START MATCH</span> </button> <!-- Right: Random Invite --> <button id="random-invite-btn" class="w-12 h-12 bg-white/90 border-2 border-white rounded-full flex items-center justify-center hover:bg-white hover:shadow-lg hover:shadow-white/30 transition-all btn-modern" title="Random Invite">
+       <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+       </svg></button>
+     </div>
+    </footer>
+   </div><!-- Friend List Panel (Right Side) -->
+   <div id="friendlist-container" class="absolute right-0 top-0 h-full w-96 pointer-events-none z-40">
+    <div id="friendlist-panel" class="absolute right-0 top-0 h-full w-full bg-black/95 backdrop-blur-md border-l border-gray-800 transform translate-x-full transition-transform duration-300 pointer-events-auto overflow-y-auto">
+     <div class="p-6"><!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+       <h2 class="font-orbitron text-xl font-bold text-white">FRIEND LIST</h2><button id="close-friendlist" class="text-gray-400 hover:text-white transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg></button>
+      </div><!-- Search and Add -->
+      <div class="mb-4 space-y-2"><button class="w-full px-4 py-2 bg-cyan-900/30 border border-cyan-500/50 text-cyan-400 font-orbitron text-sm tracking-wider hover:bg-cyan-900/50 transition-all rounded"> + ADD FRIEND </button> <button class="w-full px-4 py-2 bg-gray-900/50 border border-gray-700/50 text-gray-400 font-orbitron text-sm tracking-wider hover:bg-gray-900/70 transition-all rounded"> 🔍 SEARCH FRIEND </button>
+      </div>
+      <div class="border-t border-gray-800 pt-4">
+       <p class="text-xs text-gray-500 mb-3 tracking-wider">ONLINE • <span id="online-count">0</span></p>
+       <div id="friends-online" class="space-y-2 mb-6"><!-- Online friends will be rendered here -->
+       </div>
+       <p class="text-xs text-gray-500 mb-3 tracking-wider">OFFLINE — <span id="offline-count">0</span></p>
+       <div id="friends-offline" class="space-y-2"><!-- Offline friends will be rendered here -->
+       </div>
+      </div>
+     </div>
+    </div><!-- Minimize Button --> <button id="toggle-friendlist" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/90 backdrop-blur-md border border-gray-800 px-2 py-8 pointer-events-auto hover:bg-cyan-900/30 transition-all">
+     <svg id="toggle-icon" class="w-5 h-5 text-cyan-400 transform rotate-180" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+     </svg></button>
+   </div><!-- Friend Profile Card Modal -->
+   <div id="profile-modal" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-gradient-to-br from-gray-900 to-black border-2 border-cyan-500/50 p-6 w-96 relative" style="clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));">
+     <div style="position: absolute; top: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(135deg, transparent 50%, rgba(0, 255, 200, 0.3) 50%);"></div>
+     <div style="position: absolute; bottom: 0; left: 0; width: 30px; height: 30px; background: linear-gradient(135deg, rgba(0, 255, 200, 0.3) 50%, transparent 50%);"></div><button id="close-profile" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+     <div class="text-center mb-6">
+      <div class="w-24 h-24 mx-auto bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border-2 border-cyan-500 rounded-full flex items-center justify-center mb-4"><span id="profile-pic" class="font-orbitron text-3xl font-bold text-cyan-400">AA</span>
+      </div>
+      <h3 id="profile-username" class="font-orbitron text-2xl font-bold text-white mb-1">USERNAME</h3>
+      <p id="profile-guild" class="text-sm text-gray-400 mb-1">GUILD NAME</p>
+      <p id="profile-level" class="text-xs text-cyan-400">LEVEL 42</p>
+     </div>
+     <div class="mb-6">
+      <p class="text-xs text-gray-500 mb-3 tracking-wider text-center">FAVORITE CHARACTERS</p>
+      <div class="flex justify-center gap-2">
+       <div id="fav-char-1" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-cyan-500/50"></div>
+       <div id="fav-char-2" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-purple-500/50"></div>
+       <div id="fav-char-3" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-orange-500/50"></div>
+      </div>
+     </div><button id="invite-from-profile" class="w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 border border-cyan-400 text-white font-orbitron text-sm font-bold tracking-wider hover:from-cyan-500 hover:to-emerald-500 transition-all rounded"> INVITE TO PARTY </button>
+    </div>
+   </div>
+  </div><!-- Audio Elements -->
+  <audio id="bg-ambient" loop><source src="ambient.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bg-matchmaking" loop><source src="matchmaking.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sound-tick" src="tick.mp3"></audio>
+  <audio id="sound-click" src="click.mp3"></audio>
+  <audio id="sound-invite" src="invite.mp3"></audio>
+  <audio id="sound-join" src="join.mp3"></audio>
+  <script>
+    const defaultConfig = {
+      game_title: 'ASHES OF VENGEANCE',
+      player_name: 'Zuraa?!',
+      primary_color: '#0a0a0a',
+      accent_color: '#00ffc8',
+      text_color: '#ffffff',
+      secondary_color: '#1f1f1f',
+      muted_color: '#6b7280'
+    };
+
+    // Audio system
+    const bgAmbient = document.getElementById('bg-ambient');
+    const bgMatchmaking = document.getElementById('bg-matchmaking');
+    const soundTick = document.getElementById('sound-tick');
+    const soundClick = document.getElementById('sound-click');
+    const soundInvite = document.getElementById('sound-invite');
+    const soundJoin = document.getElementById('sound-join');
+
+    function playSound(sound) {
+      if (sound && sound.src) {
+        const clone = sound.cloneNode();
+        clone.volume = 0.3;
+        clone.play().catch(() => {});
+      }
+    }
+
+    // Background banners
+    const banners = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+    ];
+
+    const usernames = [
+      'SHADOW_STRIKER', 'NEON_PHANTOM', 'VOID_WALKER', 'CYBER_BLADE',
+      'STEEL_VORTEX', 'PLASMA_RUSH', 'QUANTUM_EDGE', 'GHOST_PROTOCOL',
+      'NOVA_SENTINEL', 'DARK_PULSE', 'ZERO_GRAVITY', 'STORM_BREAKER'
+    ];
+
+    const guilds = [
+      'VANGUARD GUILD', 'SHADOW SYNDICATE', 'CYBER LEGION', 'PHANTOM CORPS',
+      'VOID HUNTERS', 'STEEL BATTALION', 'NEON WARRIORS', 'QUANTUM FORCE'
+    ];
+
+    const ranks = [
+      { name: 'IRON', color: '#71717a' },
+      { name: 'BRONZE', color: '#cd7f32' },
+      { name: 'SILVER', color: '#c0c0c0' },
+      { name: 'GOLD', color: '#ffd700' },
+      { name: 'PLATINUM', color: '#e5e4e2' },
+      { name: 'DIAMOND', color: '#00ffc8' },
+      { name: 'IMMORTAL', color: '#a855f7' },
+      { name: 'RADIANT', color: '#ff6b6b' }
+    ];
+
+    // Friend list data
+    let friends = [];
+    function generateFriends() {
+      const count = Math.floor(Math.random() * 8) + 8;
+      friends = [];
+      const usedNames = new Set();
+      
+      for (let i = 0; i < count; i++) {
+        let username;
+        do {
+          username = usernames[Math.floor(Math.random() * usernames.length)];
+        } while (usedNames.has(username));
+        usedNames.add(username);
+        
+        friends.push({
+          id: i,
+          username: username,
+          initials: username.split('_').map(w => w[0]).join(''),
+          guild: guilds[Math.floor(Math.random() * guilds.length)],
+          level: Math.floor(Math.random() * 80) + 20,
+          online: Math.random() > 0.4,
+          banner: banners[Math.floor(Math.random() * banners.length)]
+        });
+      }
+    }
+
+    // Party management
+    let partyMembers = [];
+    let matchmakingActive = false;
+    let matchmakingSeconds = 0;
+    let matchmakingInterval = null;
+    let friendListOpen = false;
+
+    function renderFriendList() {
+      const onlineContainer = document.getElementById('friends-online');
+      const offlineContainer = document.getElementById('friends-offline');
+      
+      const onlineFriends = friends.filter(f => f.online);
+      const offlineFriends = friends.filter(f => !f.online);
+      
+      document.getElementById('online-count').textContent = onlineFriends.length;
+      document.getElementById('offline-count').textContent = offlineFriends.length;
+      
+      onlineContainer.innerHTML = onlineFriends.map(friend => `
+        <div class="friend-item p-3 bg-gray-900/50 border border-gray-800 rounded cursor-pointer relative">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border border-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="font-orbitron text-xs font-bold text-cyan-400">${friend.initials}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-orbitron text-sm text-white truncate">${friend.username}</p>
+              <p class="text-xs text-emerald-400">Online</p>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-glow flex-shrink-0"></div>
+          </div>
+          <div class="mt-2 flex gap-2">
+            <button class="flex-1 px-2 py-1 bg-cyan-900/30 border border-cyan-500/50 text-cyan-400 text-xs font-orbitron hover:bg-cyan-900/50 transition-all rounded btn-modern" onclick="inviteFriend(${friend.id})">
+              INVITE
+            </button>
+            <button class="flex-1 px-2 py-1 bg-purple-900/30 border border-purple-500/50 text-purple-400 text-xs font-orbitron hover:bg-purple-900/50 transition-all rounded btn-modern" onclick="textFriend(${friend.id})">
+              TEXT
+            </button>
+            <button class="px-2 py-1 bg-gray-900/30 border border-gray-700/50 text-gray-400 text-xs font-orbitron hover:bg-gray-900/50 transition-all rounded btn-modern" onclick="viewProfile(${friend.id})">
+              👤
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      offlineContainer.innerHTML = offlineFriends.map(friend => `
+        <div class="friend-item p-3 bg-gray-900/30 border border-gray-800/50 rounded opacity-50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-gray-700/30 to-gray-800/30 border border-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="font-orbitron text-xs font-bold text-gray-500">${friend.initials}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-orbitron text-sm text-gray-500 truncate">${friend.username}</p>
+              <p class="text-xs text-gray-600">Offline</p>
+            </div>
+            <div class="w-2 h-2 rounded-full bg-gray-700 flex-shrink-0"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPartySlots() {
+      const slots = ['slot-1', 'slot-2', 'slot-3', 'slot-4'];
+      
+      slots.forEach((slotId, index) => {
+        const slot = document.getElementById(slotId);
+        const member = partyMembers[index];
+        
+        if (member) {
+          const rank = member.rank || ranks[Math.floor(Math.random() * ranks.length)];
+          member.rank = rank;
+          
+          // Network quality (random)
+          const networkQualities = [
+            { bars: 4, color: '#10b981', label: 'Excellent', animate: false },
+            { bars: 3, color: '#10b981', label: 'Good', animate: false },
+            { bars: 2, color: '#eab308', label: 'Fair', animate: true },
+            { bars: 1, color: '#ef4444', label: 'Poor', animate: true }
+          ];
+          const network = networkQualities[Math.floor(Math.random() * networkQualities.length)];
+          
+          const networkBarsHTML = Array.from({length: 4}, (_, i) => {
+            const barHeight = 25 + (i * 25); // 25%, 50%, 75%, 100%
+            const isActive = i < network.bars;
+            const color = isActive ? network.color : '#4b5563';
+            const animClass = isActive && network.animate ? 'network-bar-animate' : '';
+            const delay = isActive && network.animate ? `animation-delay: ${i * 0.15}s;` : '';
+            return `<div class="network-bar ${animClass}" style="height: ${barHeight}%; color: ${color}; ${delay}"></div>`;
+          }).join('');
+          
+          slot.innerHTML = `
+            <div class="kick-btn" onclick="kickMember(${index})" title="Kick player">
+              <svg class="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+                <path d="M2 2L10 10M10 2L2 10" stroke-width="2" stroke-linecap="square"/>
+              </svg>
+            </div>
+            <div class="absolute top-2 left-2 flex items-end gap-0.5 h-4 z-10">
+              ${networkBarsHTML}
+            </div>
+            <div class="absolute inset-0 opacity-30 bg-cover bg-center" style="background: ${member.banner};"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+            <div class="relative h-full flex flex-col p-3">
+              <div class="flex-1 flex items-center justify-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border-2 border-cyan-500 rounded-full flex items-center justify-center">
+                  <span class="font-orbitron text-xl font-bold text-cyan-400">${member.initials}</span>
+                </div>
+              </div>
+              <div class="text-center">
+                <p class="font-orbitron text-sm font-bold text-white mb-1">${member.username}</p>
+                <p class="text-xs text-gray-400 mb-2">LVL ${member.level} • ${member.guild}</p>
+                <div class="flex justify-center gap-1 mb-2">
+                  <div class="w-6 h-6 rounded-full bg-gray-800 border border-cyan-500/50"></div>
+                  <div class="w-6 h-6 rounded-full bg-gray-800 border border-purple-500/50"></div>
+                  <div class="w-6 h-6 rounded-full bg-gray-800 border border-orange-500/50"></div>
+                </div>
+                <div class="flex justify-center">
+                  <div style="clip-path: polygon(50% 0%, 100% 100%, 0% 100%); width: 50px; height: 50px; background: linear-gradient(135deg, ${rank.color} 0%, ${rank.color}dd 100%);"></div>
+                </div>
+              </div>
+            </div>
+          `;
+          slot.classList.remove('bg-black/40', 'border-gray-700/30', 'player-slot-empty');
+          slot.classList.add('bg-black/60', 'border-cyan-500/30', 'player-slot-filled');
+        } else {
+          slot.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center relative z-10">
+              <div class="text-gray-600 text-4xl mb-2">+</div>
+              <p class="text-xs text-gray-600 tracking-wider font-orbitron">EMPTY</p>
+            </div>
+          `;
+          slot.classList.remove('bg-black/60', 'border-cyan-500/30', 'player-slot-filled');
+          slot.classList.add('bg-black/40', 'border-gray-700/30', 'player-slot-empty');
+        }
+      });
+      
+      document.getElementById('party-count').textContent = partyMembers.length + 1;
+    }
+
+    window.kickMember = function(index) {
+      playSound(soundClick);
+      const member = partyMembers[index];
+      partyMembers.splice(index, 1);
+      renderPartySlots();
+      showNotification(`${member.username} HAS BEEN KICKED`);
+    };
+
+    function showNotification(message) {
+      const toast = document.getElementById('notification-toast');
+      const text = document.getElementById('notification-text');
+      
+      text.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('fade-in');
+      
+      setTimeout(() => {
+        toast.classList.remove('fade-in');
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('fade-out');
+        }, 300);
+      }, 3000);
+    }
+
+    window.textFriend = function(friendId) {
+      playSound(soundClick);
+      const friend = friends.find(f => f.id === friendId);
+      showNotification(`TEXT MESSAGE SYSTEM COMING SOON`);
+    };
+
+    window.inviteFriend = function(friendId) {
+      playSound(soundInvite);
+      const friend = friends.find(f => f.id === friendId);
+      
+      if (partyMembers.length >= 4) {
+        showNotification('PARTY IS FULL');
+        return;
+      }
+      
+      if (partyMembers.some(m => m.id === friendId)) {
+        showNotification('ALREADY IN PARTY');
+        return;
+      }
+      
+      showNotification(`INVITING ${friend.username}...`);
+      
+      const delay = Math.random() * 4000 + 1000;
+      setTimeout(() => {
+        const accepted = Math.random() > 0.5;
+        
+        if (accepted) {
+          partyMembers.push(friend);
+          renderPartySlots();
+          playSound(soundJoin);
+          showNotification(`${friend.username} JOINED THE PARTY`);
+        } else {
+          showNotification('Sorry, I\'m not available now.');
+        }
+      }, delay);
+    };
+
+    window.viewProfile = function(friendId) {
+      playSound(soundClick);
+      const friend = friends.find(f => f.id === friendId);
+      const modal = document.getElementById('profile-modal');
+      
+      document.getElementById('profile-pic').textContent = friend.initials;
+      document.getElementById('profile-username').textContent = friend.username;
+      document.getElementById('profile-guild').textContent = friend.guild;
+      document.getElementById('profile-level').textContent = `LEVEL ${friend.level}`;
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('fade-in');
+      
+      document.getElementById('invite-from-profile').onclick = () => {
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('fade-out');
+        }, 300);
+        inviteFriend(friendId);
+      };
+    };
+
+    // Friend list toggle
+    document.getElementById('toggle-friendlist').addEventListener('click', () => {
+      playSound(soundClick);
+      friendListOpen = !friendListOpen;
+      const panel = document.getElementById('friendlist-panel');
+      const icon = document.getElementById('toggle-icon');
+      
+      if (friendListOpen) {
+        panel.style.transform = 'translateX(0)';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        panel.style.transform = 'translateX(100%)';
+        icon.style.transform = 'rotate(180deg)';
+      }
+    });
+
+    document.getElementById('close-friendlist').addEventListener('click', () => {
+      playSound(soundClick);
+      friendListOpen = false;
+      document.getElementById('friendlist-panel').style.transform = 'translateX(100%)';
+      document.getElementById('toggle-icon').style.transform = 'rotate(180deg)';
+    });
+
+    document.getElementById('close-profile').addEventListener('click', () => {
+      playSound(soundClick);
+      const modal = document.getElementById('profile-modal');
+      modal.classList.add('fade-out');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('fade-out');
+      }, 300);
+    });
+
+    // Matchmaking
+    document.getElementById('play-btn').addEventListener('click', () => {
+      playSound(soundClick);
+      matchmakingActive = !matchmakingActive;
+      
+      const timer = document.getElementById('matchmaking-timer');
+      const btn = document.getElementById('play-btn');
+      const btnText = document.getElementById('play-btn-text');
+      
+      if (matchmakingActive) {
+        timer.classList.remove('hidden');
+        timer.classList.add('fade-in');
+        btnText.textContent = 'CANCEL';
+        btn.classList.remove('from-cyan-600', 'to-emerald-600', 'border-cyan-400');
+        btn.classList.add('from-red-600', 'to-orange-600', 'border-red-400');
+        
+        bgAmbient.pause();
+        bgMatchmaking.volume = 0.2;
+        bgMatchmaking.play().catch(() => {});
+        
+        matchmakingSeconds = 0;
+        matchmakingInterval = setInterval(() => {
+          matchmakingSeconds++;
+          const minutes = Math.floor(matchmakingSeconds / 60);
+          const seconds = matchmakingSeconds % 60;
+          const display = document.getElementById('timer-display');
+          display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+          playSound(soundTick);
+        }, 1000);
+      } else {
+        timer.classList.add('fade-out');
+        setTimeout(() => {
+          timer.classList.add('hidden');
+          timer.classList.remove('fade-out');
+        }, 300);
+        btnText.textContent = 'START MATCH';
+        btn.classList.remove('from-red-600', 'to-orange-600', 'border-red-400');
+        btn.classList.add('from-cyan-600', 'to-emerald-600', 'border-cyan-400');
+        
+        bgMatchmaking.pause();
+        bgAmbient.volume = 0.1;
+        bgAmbient.play().catch(() => {});
+        
+        clearInterval(matchmakingInterval);
+      }
+    });
+
+    // Leave party
+    document.getElementById('leave-btn').addEventListener('click', () => {
+      playSound(soundClick);
+      if (partyMembers.length > 0) {
+        partyMembers = [];
+        renderPartySlots();
+        showNotification('LEFT THE PARTY');
+      }
+    });
+
+    // Random invite
+    document.getElementById('random-invite-btn').addEventListener('click', () => {
+      playSound(soundClick);
+      const onlineFriends = friends.filter(f => f.online && !partyMembers.some(m => m.id === f.id));
+      if (onlineFriends.length > 0 && partyMembers.length < 4) {
+        const randomFriend = onlineFriends[Math.floor(Math.random() * onlineFriends.length)];
+        inviteFriend(randomFriend.id);
+      } else if (partyMembers.length >= 4) {
+        showNotification('PARTY IS FULL');
+      } else {
+        showNotification('NO FRIENDS AVAILABLE');
+      }
+    });
+
+    async function onConfigChange(config) {
+      document.getElementById('game-title').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('player-name').textContent = config.player_name || defaultConfig.player_name;
+      document.getElementById('player-username').textContent = config.player_name || defaultConfig.player_name;
+      
+      const initials = (config.player_name || defaultConfig.player_name)
+        .split('_')
+        .map(w => w[0])
+        .join('')
+        .substring(0, 2);
+      document.getElementById('player-initials').textContent = initials;
+      
+      const randomBanner = banners[Math.floor(Math.random() * banners.length)];
+      document.getElementById('player-banner').style.background = randomBanner;
+      document.getElementById('bg-banner').style.background = randomBanner;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              window.elementSdk.setConfig({ accent_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_color || defaultConfig.secondary_color,
+            set: (value) => {
+              config.secondary_color = value;
+              window.elementSdk.setConfig({ secondary_color: value });
+            }
+          },
+          {
+            get: () => config.muted_color || defaultConfig.muted_color,
+            set: (value) => {
+              config.muted_color = value;
+              window.elementSdk.setConfig({ muted_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['game_title', config.game_title || defaultConfig.game_title],
+        ['player_name', config.player_name || defaultConfig.player_name]
+      ]);
+    }
+
+    // Initialize
+    generateFriends();
+    renderFriendList();
+    renderPartySlots();
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    } else {
+      onConfigChange(defaultConfig);
+    }
+
+    // Start ambient music
+    bgAmbient.volume = 0.1;
+    bgAmbient.play().catch(() => {});
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bfcae0f637c6cfa',t:'MTc2ODcyNDQ5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

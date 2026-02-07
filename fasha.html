@@ -1,0 +1,2610 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aqila's Retro Profile 🎮</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0F172A;
+      --primary-cyan: #22D3EE;
+      --accent-purple: #A855F7;
+      --accent-pink: #F472B6;
+      --highlight-yellow: #FACC15;
+      --text-light: #E5E7EB;
+    }
+
+    body {
+      font-family: 'VT323', monospace;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+
+    .pixel-font {
+      font-family: 'Press Start 2P', cursive;
+    }
+
+    .retro-font {
+      font-family: 'VT323', monospace;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .progress-container {
+      width: 80%;
+      max-width: 500px;
+      height: 40px;
+      border: 4px solid var(--primary-cyan);
+      background: #1a1a2e;
+      position: relative;
+      image-rendering: pixelated;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-cyan), var(--accent-purple));
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Starfield Background */
+    .starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Pixel Border Effect */
+    .pixel-border {
+      border: 4px solid var(--primary-cyan);
+      box-shadow: 
+        0 0 0 8px var(--bg-dark),
+        0 0 0 12px var(--primary-cyan),
+        0 0 30px rgba(34, 211, 238, 0.5);
+      image-rendering: pixelated;
+    }
+
+    /* Retro Button */
+    .retro-btn {
+      font-family: 'Press Start 2P', cursive;
+      padding: 15px 30px;
+      background: var(--primary-cyan);
+      color: var(--bg-dark);
+      border: 4px solid var(--bg-dark);
+      box-shadow: 6px 6px 0 var(--accent-purple);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .retro-btn:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 var(--accent-purple);
+    }
+
+    .retro-btn:active {
+      transform: translate(6px, 6px);
+      box-shadow: 0 0 0 var(--accent-purple);
+    }
+
+    /* Glitch Effect */
+    .glitch {
+      position: relative;
+      animation: glitch 5s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { 
+        text-shadow: none;
+      }
+      92% {
+        text-shadow: 
+          -2px 0 var(--accent-pink),
+          2px 0 var(--primary-cyan);
+      }
+      94% {
+        text-shadow: 
+          2px 0 var(--accent-pink),
+          -2px 0 var(--primary-cyan);
+      }
+    }
+
+    /* Enhanced Glitch Effect */
+    .glitch-intense {
+      position: relative;
+      animation: glitchIntense 3s infinite;
+    }
+
+    @keyframes glitchIntense {
+      0%, 88%, 100% {
+        transform: translate(0);
+        text-shadow: none;
+      }
+      89% {
+        transform: translate(-2px, 2px);
+        text-shadow: 
+          3px 0 var(--accent-pink),
+          -3px 0 var(--primary-cyan);
+      }
+      90% {
+        transform: translate(2px, -2px);
+        text-shadow: 
+          -3px 0 var(--accent-pink),
+          3px 0 var(--primary-cyan);
+      }
+      91% {
+        transform: translate(-2px, -2px);
+        text-shadow: 
+          2px 2px var(--accent-pink),
+          -2px -2px var(--primary-cyan);
+      }
+    }
+
+    /* Glitch Scanline */
+    .glitch-scanline {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glitch-scanline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        transparent 0%,
+        rgba(34, 211, 238, 0.1) 50%,
+        transparent 100%
+      );
+      animation: scanline 3s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    /* RGB Split Effect */
+    .rgb-split {
+      position: relative;
+      animation: rgbSplit 4s infinite;
+    }
+
+    @keyframes rgbSplit {
+      0%, 95%, 100% {
+        text-shadow: none;
+      }
+      96% {
+        text-shadow: 
+          -2px 0 rgba(255, 0, 0, 0.7),
+          2px 0 rgba(0, 255, 255, 0.7);
+      }
+      97% {
+        text-shadow: 
+          2px 0 rgba(255, 0, 0, 0.7),
+          -2px 0 rgba(0, 255, 255, 0.7);
+      }
+    }
+
+    /* Pixel Avatar */
+    .pixel-avatar {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary-cyan), var(--accent-purple));
+      border: 6px solid var(--text-light);
+      box-shadow: 0 0 40px rgba(34, 211, 238, 0.6);
+      image-rendering: pixelated;
+      position: relative;
+    }
+
+    /* Progress Bar RPG Style */
+    .skill-bar {
+      height: 30px;
+      background: #1a1a2e;
+      border: 3px solid var(--primary-cyan);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-cyan), var(--accent-purple));
+      transition: width 1s ease-out;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Card Hover Effect */
+    .project-card {
+      background: rgba(26, 26, 46, 0.8);
+      border: 3px solid var(--primary-cyan);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .project-card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(34, 211, 238, 0.4);
+      border-color: var(--accent-purple);
+    }
+
+    /* Glassmorphism Effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 8px 32px 0 rgba(34, 211, 238, 0.2),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 
+        0 20px 40px rgba(34, 211, 238, 0.4),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(34, 211, 238, 0.3);
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Typing Animation */
+    .typing {
+      border-right: 4px solid var(--highlight-yellow);
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { border-color: transparent; }
+      51%, 100% { border-color: var(--highlight-yellow); }
+    }
+
+    /* Fade In Animation */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Bounce Animation */
+    .bounce {
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-20px); }
+      60% { transform: translateY(-10px); }
+    }
+
+    /* Float Animation */
+    .float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* Pulse Animation */
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+
+    /* Shake Animation */
+    .shake:hover {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    /* Slide In From Left */
+    .slide-in-left {
+      opacity: 0;
+      animation: slideInLeft 1s ease-out forwards;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Slide In From Right */
+    .slide-in-right {
+      opacity: 0;
+      animation: slideInRight 1s ease-out forwards;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Rotate Animation */
+    .rotate {
+      animation: rotate 4s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Neon Glow Animation */
+    .neon-glow {
+      animation: neonGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes neonGlow {
+      0%, 100% {
+        text-shadow: 
+          0 0 5px var(--primary-cyan),
+          0 0 10px var(--primary-cyan),
+          0 0 20px var(--primary-cyan);
+      }
+      50% {
+        text-shadow: 
+          0 0 10px var(--primary-cyan),
+          0 0 20px var(--primary-cyan),
+          0 0 40px var(--primary-cyan),
+          0 0 60px var(--accent-purple);
+      }
+    }
+
+    /* Scale Up Animation */
+    .scale-up {
+      animation: scaleUp 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes scaleUp {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Rainbow Text Animation */
+    .rainbow-text {
+      background: linear-gradient(
+        90deg,
+        var(--primary-cyan),
+        var(--accent-purple),
+        var(--accent-pink),
+        var(--highlight-yellow),
+        var(--primary-cyan)
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbow 3s linear infinite;
+    }
+
+    @keyframes rainbow {
+      to { background-position: 200% center; }
+    }
+
+    /* Timeline Pixel Line */
+    .timeline-line {
+      width: 4px;
+      background: linear-gradient(180deg, var(--primary-cyan), var(--accent-purple));
+      box-shadow: 0 0 10px var(--primary-cyan);
+    }
+
+    .timeline-dot {
+      width: 20px;
+      height: 20px;
+      background: var(--highlight-yellow);
+      border: 4px solid var(--bg-dark);
+      box-shadow: 0 0 0 3px var(--primary-cyan);
+    }
+
+    /* Micro Interactions */
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
+    }
+
+    .hover-glow {
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .hover-glow:hover {
+      box-shadow: 
+        0 0 20px rgba(34, 211, 238, 0.6),
+        inset 0 0 10px rgba(34, 211, 238, 0.2);
+      border-color: var(--primary-cyan);
+    }
+
+    .hover-rotate {
+      transition: transform 0.3s ease;
+    }
+
+    .hover-rotate:hover {
+      transform: rotate(5deg) scale(1.1);
+    }
+
+    .click-scale {
+      transition: transform 0.1s ease;
+    }
+
+    .click-scale:active {
+      transform: scale(0.95);
+    }
+
+    /* Particle Effect */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--primary-cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particleFade 1s ease-out forwards;
+    }
+
+    @keyframes particleFade {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0);
+      }
+    }
+
+    /* Ripple Effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ripple::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(34, 211, 238, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s, opacity 0.6s;
+      opacity: 0;
+    }
+
+    .ripple:hover::after {
+      width: 300px;
+      height: 300px;
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .pixel-font {
+        font-size: 10px;
+      }
+      
+      .retro-btn {
+        font-size: 10px;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full"><!-- Loading Screen -->
+  <div id="loading-screen">
+   <h1 class="pixel-font text-3xl md:text-5xl mb-8 glitch" style="color: var(--primary-cyan);">LOADING</h1>
+   <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+   </div>
+   <p class="retro-font text-2xl mt-4" id="loading-text" style="color: var(--text-light);">Loading Aqila's World...</p>
+  </div><!-- Starfield -->
+  <div class="starfield" id="starfield"></div><!-- Space Game Layer -->
+  <div id="space-game" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"><!-- Player Ship (follows cursor) -->
+   <div id="player-ship" style="position: absolute; width: 40px; height: 40px; pointer-events: none; transition: transform 0.1s ease-out; display: none;">
+    <svg width="40" height="40" viewbox="0 0 40 40"><defs>
+      <lineargradient id="shipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#22D3EE;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+      </lineargradient>
+     </defs> <polygon points="20,5 25,25 20,20 15,25" fill="url(#shipGrad)" stroke="#22D3EE" stroke-width="2" /> <circle cx="20" cy="15" r="3" fill="#FACC15" opacity="0.8" /> <!-- Engine flames --> <polygon points="15,25 17,32 20,28 23,32 25,25" fill="#F472B6" opacity="0.7">
+      <animate attributename="opacity" values="0.7;1;0.7" dur="0.3s" repeatcount="indefinite" />
+     </polygon>
+    </svg>
+   </div><!-- Bullets Container -->
+   <div id="bullets-container"></div><!-- Enemies Container -->
+   <div id="enemies-container"></div><!-- Score Display -->
+   <div id="game-score" style="position: fixed; top: 20px; right: 20px; font-family: 'Press Start 2P', cursive; font-size: 14px; color: #22D3EE; text-shadow: 0 0 10px #22D3EE; display: none; pointer-events: none; z-index: 10;">
+    SCORE: <span id="score-value">0</span>
+   </div><!-- Game Instructions -->
+   <div id="game-instructions" style="position: fixed; top: 60px; right: 20px; font-family: 'VT323', monospace; font-size: 18px; color: #A855F7; display: none; pointer-events: none; z-index: 10; text-align: right;">
+    Right Click to SHOOT!<br><span style="font-size: 14px; color: #FACC15;">Move mouse to fly</span>
+   </div>
+  </div><!-- Main Content -->
+  <div id="main-content" class="w-full h-full overflow-auto" style="display: none;"><!-- Hero Section -->
+   <section class="min-h-screen flex flex-col justify-center items-center text-center px-6 py-20 relative glitch-scanline">
+    <div class="fade-in" style="animation-delay: 0.2s;">
+     <div class="mb-8 bounce flex flex-col items-center gap-3">
+      <svg width="40" height="40" viewbox="0 0 40 40" class="pulse hover-rotate"><polygon points="10,5 30,20 10,35" fill="var(--highlight-yellow)" /> <polygon points="10,5 30,20 10,35" fill="none" stroke="var(--primary-cyan)" stroke-width="2" />
+      </svg><span class="pixel-font text-sm md:text-base rgb-split" style="color: var(--highlight-yellow);">PRESS START</span>
+     </div>
+     <h1 id="hero-name" class="pixel-font text-4xl md:text-6xl lg:text-7xl mb-6 glitch-intense neon-glow" style="color: var(--primary-cyan);">AQILA FASHA RAMADHAN</h1>
+     <div class="retro-font text-2xl md:text-4xl mb-12 typing pulse" id="hero-subtitle" style="color: var(--text-light);">
+      YouTuber | Video Editor | Gamer | Programmer
+     </div><button id="cta-button" class="retro-btn shake click-scale ripple">START GAME</button>
+    </div>
+   </section><!-- About Me Section -->
+   <section class="py-20 px-6 relative">
+    <div class="max-w-6xl mx-auto">
+     <h2 id="about-title" class="pixel-font text-3xl md:text-5xl mb-12 text-center rainbow-text" style="color: var(--accent-purple);">[ ABOUT ME ]</h2>
+     <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="flex justify-center slide-in-left" style="animation-delay: 0.3s;">
+       <div class="pixel-avatar float"></div>
+      </div>
+      <div class="space-y-6 slide-in-right" style="animation-delay: 0.5s;">
+       <p id="about-desc" class="retro-font text-2xl leading-relaxed" style="color: var(--text-light);">Halo! Gue Aqila, seorang content creator dan video editor yang passionate banget sama dunia digital. Terinspirasi dari MiawAug, gue pengen bikin konten yang fun, kreatif, dan menghibur!</p>
+       <p class="retro-font text-2xl leading-relaxed" style="color: var(--text-light);">Selain editing dan gaming, gue juga lagi belajar programming buat bikin website dan game sederhana. Goal gue adalah jadi YouTuber sukses yang bisa inspire banyak orang! 🚀</p>
+       <div class="flex flex-wrap gap-4 mt-8"><span class="glass-panel px-6 py-3 text-xl scale-up rounded-xl flex items-center gap-2 hover-lift click-scale" style="color: var(--primary-cyan); animation-delay: 0.7s;">
+         <svg width="20" height="20" viewbox="0 0 20 20" class="hover-rotate"><rect x="2" y="4" width="16" height="10" rx="1" fill="none" stroke="var(--primary-cyan)" stroke-width="2" /> <polygon points="8,8 8,12 12,10" fill="var(--primary-cyan)" />
+         </svg> Video Editor </span> <span class="glass-panel px-6 py-3 text-xl scale-up rounded-xl flex items-center gap-2 hover-lift click-scale" style="color: var(--accent-pink); animation-delay: 0.9s;">
+         <svg width="20" height="20" viewbox="0 0 20 20" class="hover-rotate"><rect x="3" y="6" width="14" height="8" rx="2" fill="none" stroke="var(--accent-pink)" stroke-width="2" /> <circle cx="7" cy="10" r="1.5" fill="var(--accent-pink)" />
+         </svg> Gamer </span> <span class="glass-panel px-6 py-3 text-xl scale-up rounded-xl flex items-center gap-2 hover-lift click-scale" style="color: var(--highlight-yellow); animation-delay: 1.1s;">
+         <svg width="20" height="20" viewbox="0 0 20 20" class="hover-rotate"><rect x="3" y="3" width="14" height="14" rx="1" fill="none" stroke="var(--highlight-yellow)" stroke-width="2" /> <line x1="6" y1="7" x2="10" y2="7" stroke="var(--highlight-yellow)" stroke-width="1.5" /> <line x1="6" y1="10" x2="14" y2="10" stroke="var(--highlight-yellow)" stroke-width="1.5" />
+         </svg> Programmer </span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Skills Section -->
+   <section class="py-20 px-6" style="background: rgba(26, 26, 46, 0.5);">
+    <div class="max-w-4xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center neon-glow" style="color: var(--primary-cyan);">[ SKILL STATS ]</h2>
+     <div class="space-y-8">
+      <div>
+       <div class="flex justify-between mb-2"><span class="retro-font text-2xl" style="color: var(--text-light);">Video Editing</span> <span class="retro-font text-2xl" style="color: var(--highlight-yellow);">90%</span>
+       </div>
+       <div class="skill-bar">
+        <div class="skill-fill" data-width="90"></div>
+       </div>
+      </div>
+      <div>
+       <div class="flex justify-between mb-2"><span class="retro-font text-2xl" style="color: var(--text-light);">Gaming</span> <span class="retro-font text-2xl" style="color: var(--highlight-yellow);">85%</span>
+       </div>
+       <div class="skill-bar">
+        <div class="skill-fill" data-width="85"></div>
+       </div>
+      </div>
+      <div>
+       <div class="flex justify-between mb-2"><span class="retro-font text-2xl" style="color: var(--text-light);">Content Creation</span> <span class="retro-font text-2xl" style="color: var(--highlight-yellow);">88%</span>
+       </div>
+       <div class="skill-bar">
+        <div class="skill-fill" data-width="88"></div>
+       </div>
+      </div>
+      <div>
+       <div class="flex justify-between mb-2"><span class="retro-font text-2xl" style="color: var(--text-light);">Programming</span> <span class="retro-font text-2xl" style="color: var(--highlight-yellow);">70%</span>
+       </div>
+       <div class="skill-bar">
+        <div class="skill-fill" data-width="70"></div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Portfolio Section -->
+   <section class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center rainbow-text" style="color: var(--accent-purple);">[ MY PROJECTS ]</h2>
+     <div class="grid md:grid-cols-3 gap-8">
+      <div class="project-card p-6 rounded-lg fade-in glass-card hover-glow click-scale" style="animation-delay: 0.2s;">
+       <div class="mb-4 float flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><defs>
+          <lineargradient id="videoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:var(--primary-cyan);stop-opacity:1" />
+           <stop offset="100%" style="stop-color:var(--accent-purple);stop-opacity:1" />
+          </lineargradient>
+         </defs> <rect x="10" y="20" width="80" height="50" rx="5" fill="url(#videoGrad)" opacity="0.3" /> <rect x="15" y="25" width="70" height="40" rx="3" fill="none" stroke="var(--primary-cyan)" stroke-width="3" /> <polygon points="40,40 40,60 60,50" fill="var(--primary-cyan)" /> <circle cx="75" cy="15" r="8" fill="var(--accent-pink)" opacity="0.8" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-4 glitch" style="color: var(--primary-cyan);">Video Edits</h3>
+       <p class="retro-font text-xl" style="color: var(--text-light);">Montage gaming, tutorial, dan konten kreatif lainnya</p>
+      </div>
+      <div class="project-card p-6 rounded-lg fade-in glass-card hover-glow click-scale" style="animation-delay: 0.4s;">
+       <div class="mb-4 float flex justify-center" style="animation-delay: 0.5s;">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="hover-rotate"><defs>
+          <lineargradient id="gameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:var(--accent-purple);stop-opacity:1" />
+           <stop offset="100%" style="stop-color:var(--accent-pink);stop-opacity:1" />
+          </lineargradient>
+         </defs> <rect x="15" y="30" width="70" height="40" rx="8" fill="url(#gameGrad)" opacity="0.3" /> <rect x="20" y="35" width="60" height="30" rx="5" fill="none" stroke="var(--accent-purple)" stroke-width="3" /> <circle cx="35" cy="50" r="8" fill="none" stroke="var(--primary-cyan)" stroke-width="3" /> <line x1="65" y1="42" x2="65" y2="50" stroke="var(--primary-cyan)" stroke-width="3" /> <line x1="61" y1="46" x2="69" y2="46" stroke="var(--primary-cyan)" stroke-width="3" /> <rect x="75" y="42" width="8" height="8" fill="var(--accent-pink)" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-4 rgb-split" style="color: var(--primary-cyan);">Gaming Content</h3>
+       <p class="retro-font text-xl" style="color: var(--text-light);">Gameplay highlights dan funny moments</p>
+      </div>
+      <div class="project-card p-6 rounded-lg fade-in glass-card hover-glow click-scale" style="animation-delay: 0.6s;">
+       <div class="mb-4 float flex justify-center" style="animation-delay: 1s;">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="hover-rotate"><defs>
+          <lineargradient id="codeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:var(--highlight-yellow);stop-opacity:1" />
+           <stop offset="100%" style="stop-color:var(--primary-cyan);stop-opacity:1" />
+          </lineargradient>
+         </defs> <rect x="20" y="15" width="60" height="70" rx="5" fill="url(#codeGrad)" opacity="0.3" /> <rect x="25" y="20" width="50" height="60" rx="3" fill="none" stroke="var(--highlight-yellow)" stroke-width="3" /> <line x1="30" y1="30" x2="50" y2="30" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="30" y1="40" x2="60" y2="40" stroke="var(--accent-pink)" stroke-width="2" /> <line x1="30" y1="50" x2="55" y2="50" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="30" y1="60" x2="65" y2="60" stroke="var(--accent-purple)" stroke-width="2" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-4 glitch-intense" style="color: var(--primary-cyan);">Mini Projects</h3>
+       <p class="retro-font text-xl" style="color: var(--text-light);">Website sederhana dan eksperimen coding</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- YouTube Dream Section -->
+   <section class="py-20 px-6" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(34, 211, 238, 0.2));">
+    <div class="max-w-4xl mx-auto text-center">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-8 pulse" style="color: var(--highlight-yellow);">[ YOUTUBE DREAM ]</h2>
+     <div class="mb-8 scale-up" style="animation-delay: 0.3s;"><span class="retro-font text-3xl" style="color: var(--text-light);">Inspired by</span>
+      <h3 class="pixel-font text-4xl mt-2 neon-glow" style="color: var(--accent-pink);">MiawAug</h3>
+     </div>
+     <blockquote id="dream-quote" class="retro-font text-3xl italic mb-12 leading-relaxed fade-in" style="color: var(--text-light); animation-delay: 0.6s;">
+      "Mulai dari nol, konsisten terus, suatu saat pasti sampai di puncak! 🚀"
+     </blockquote><button class="retro-btn shake click-scale ripple">WATCH MY FUTURE CHANNEL</button>
+    </div>
+   </section><!-- Gaming Zone -->
+   <section class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center neon-glow" style="color: var(--primary-cyan);">[ GAMING ZONE ]</h2>
+     <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass-panel p-8 rounded-2xl slide-in-left" style="animation-delay: 0.2s;">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--accent-purple);">Favorite Games</h3>
+       <ul class="retro-font text-2xl space-y-4" style="color: var(--text-light);">
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.4s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--primary-cyan)" stroke-width="2" /> <circle cx="12" cy="12" r="3" fill="var(--accent-pink)" />
+         </svg> FPS Games</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.6s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><path d="M12 2 L15 8 L22 9 L17 14 L18 21 L12 18 L6 21 L7 14 L2 9 L9 8 Z" fill="var(--highlight-yellow)" />
+         </svg> RPG Adventures</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.8s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="8" rx="2" stroke="var(--accent-purple)" stroke-width="2" /> <circle cx="8" cy="14" r="2" fill="var(--primary-cyan)" /> <circle cx="16" cy="14" r="2" fill="var(--primary-cyan)" />
+         </svg> Racing Simulators</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 1s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" fill="var(--accent-pink)" opacity="0.6" /> <rect x="13" y="3" width="8" height="8" fill="var(--primary-cyan)" opacity="0.6" /> <rect x="3" y="13" width="8" height="8" fill="var(--primary-cyan)" opacity="0.6" /> <rect x="13" y="13" width="8" height="8" fill="var(--accent-pink)" opacity="0.6" />
+         </svg> Puzzle Games</li>
+       </ul>
+      </div>
+      <div class="glass-panel p-8 rounded-2xl slide-in-right" style="animation-delay: 0.2s;">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--accent-pink);">Fun Facts</h3>
+       <ul class="retro-font text-2xl space-y-4" style="color: var(--text-light);">
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.4s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><rect x="6" y="8" width="12" height="10" rx="2" stroke="var(--primary-cyan)" stroke-width="2" /> <circle cx="10" cy="13" r="1.5" fill="var(--accent-pink)" /> <line x1="14" y1="11" x2="14" y2="13" stroke="var(--accent-pink)" stroke-width="2" /> <line x1="13" y1="12" x2="15" y2="12" stroke="var(--accent-pink)" stroke-width="2" />
+         </svg> Gaming sejak SD</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.6s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--highlight-yellow)" stroke-width="2" /> <path d="M12 6 L12 12 L16 14" stroke="var(--highlight-yellow)" stroke-width="2" stroke-linecap="round" />
+         </svg> Record speedrun: Top 10</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 0.8s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><path d="M12 2 L14 9 L21 9 L15 14 L17 21 L12 17 L7 21 L9 14 L3 9 L10 9 Z" fill="var(--highlight-yellow)" stroke="var(--accent-purple)" stroke-width="1" />
+         </svg> Tournament wins: 5+</li>
+        <li class="fade-in flex items-center gap-3" style="animation-delay: 1s;">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none"><rect x="5" y="7" width="14" height="12" rx="2" stroke="var(--accent-purple)" stroke-width="2" /> <line x1="12" y1="7" x2="12" y2="3" stroke="var(--accent-purple)" stroke-width="2" /> <circle cx="9" cy="13" r="1.5" fill="var(--primary-cyan)" /> <circle cx="15" cy="13" r="1.5" fill="var(--primary-cyan)" />
+         </svg> Playtime: 1000+ hours</li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </section><!-- Education Section -->
+   <section class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center glitch-intense" style="color: var(--highlight-yellow);">[ EDUCATION &amp; LEARNING ]</h2>
+     <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass-panel p-8 rounded-2xl hover-lift click-scale">
+       <div class="flex items-start gap-4 mb-6">
+        <svg width="48" height="48" viewbox="0 0 48 48" class="hover-rotate flex-shrink-0"><rect x="8" y="12" width="32" height="24" rx="2" stroke="var(--primary-cyan)" stroke-width="3" fill="none" /> <line x1="24" y1="12" x2="24" y2="6" stroke="var(--primary-cyan)" stroke-width="3" /> <circle cx="24" cy="6" r="3" fill="var(--accent-pink)" /> <line x1="14" y1="20" x2="34" y2="20" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="14" y1="26" x2="30" y2="26" stroke="var(--accent-purple)" stroke-width="2" />
+        </svg>
+        <div>
+         <h3 class="pixel-font text-2xl mb-3 rgb-split" style="color: var(--primary-cyan);">Formal Education</h3>
+         <p class="retro-font text-xl mb-2" style="color: var(--text-light);">🎓 SMP/SMA - Student</p>
+         <p class="retro-font text-lg" style="color: var(--accent-purple);">Fokus pada teknologi dan multimedia</p>
+        </div>
+       </div>
+      </div>
+      <div class="glass-panel p-8 rounded-2xl hover-lift click-scale">
+       <div class="flex items-start gap-4 mb-6">
+        <svg width="48" height="48" viewbox="0 0 48 48" class="hover-rotate flex-shrink-0"><rect x="6" y="10" width="36" height="28" rx="3" stroke="var(--accent-pink)" stroke-width="3" fill="none" /> <polygon points="20,20 20,28 28,24" fill="var(--accent-pink)" /> <circle cx="36" cy="14" r="4" fill="var(--highlight-yellow)" />
+        </svg>
+        <div>
+         <h3 class="pixel-font text-2xl mb-3 glitch" style="color: var(--accent-pink);">Online Courses</h3>
+         <p class="retro-font text-xl mb-2" style="color: var(--text-light);">📚 Self-taught Developer</p>
+         <p class="retro-font text-lg" style="color: var(--accent-purple);">YouTube, Udemy, FreeCodeCamp</p>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="mt-12 glass-panel p-8 rounded-2xl">
+      <h3 class="pixel-font text-2xl mb-6 text-center neon-glow" style="color: var(--highlight-yellow);">Currently Learning</h3>
+      <div class="grid md:grid-cols-4 gap-6">
+       <div class="text-center hover-lift">
+        <div class="mb-3 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="hover-rotate"><rect x="12" y="12" width="40" height="40" rx="4" stroke="var(--primary-cyan)" stroke-width="3" fill="none" /> <line x1="18" y1="22" x2="30" y2="22" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="18" y1="30" x2="46" y2="30" stroke="var(--accent-pink)" stroke-width="2" /> <line x1="18" y1="38" x2="40" y2="38" stroke="var(--primary-cyan)" stroke-width="2" />
+         </svg>
+        </div>
+        <p class="pixel-font text-sm" style="color: var(--primary-cyan);">HTML/CSS</p>
+       </div>
+       <div class="text-center hover-lift">
+        <div class="mb-3 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="hover-rotate"><rect x="12" y="12" width="40" height="40" rx="4" stroke="var(--highlight-yellow)" stroke-width="3" fill="none" /> <text x="32" y="42" text-anchor="middle" fill="var(--highlight-yellow)" style="font-family: monospace; font-size: 24px; font-weight: bold;">
+           JS
+          </text>
+         </svg>
+        </div>
+        <p class="pixel-font text-sm" style="color: var(--highlight-yellow);">JavaScript</p>
+       </div>
+       <div class="text-center hover-lift">
+        <div class="mb-3 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="hover-rotate"><circle cx="32" cy="32" r="20" stroke="var(--accent-purple)" stroke-width="3" fill="none" /> <path d="M32 12 L32 32 L44 38" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round" />
+         </svg>
+        </div>
+        <p class="pixel-font text-sm" style="color: var(--accent-purple);">UI/UX Design</p>
+       </div>
+       <div class="text-center hover-lift">
+        <div class="mb-3 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="hover-rotate"><rect x="16" y="20" width="32" height="24" rx="2" stroke="var(--accent-pink)" stroke-width="3" fill="none" /> <polygon points="26,28 26,36 34,32" fill="var(--accent-pink)" />
+         </svg>
+        </div>
+        <p class="pixel-font text-sm" style="color: var(--accent-pink);">Adobe Suite</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Hobbies Section -->
+   <section class="py-20 px-6" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(244, 114, 182, 0.1));">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center rainbow-text" style="color: var(--accent-purple);">[ MY HOBBIES ]</h2>
+     <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><rect x="15" y="25" width="70" height="50" rx="5" stroke="var(--primary-cyan)" stroke-width="3" fill="none" /> <rect x="10" y="30" width="80" height="40" rx="5" stroke="var(--primary-cyan)" stroke-width="2" fill="rgba(34, 211, 238, 0.1)" /> <circle cx="35" cy="50" r="8" stroke="var(--accent-pink)" stroke-width="2" fill="none" /> <line x1="65" y1="42" x2="65" y2="50" stroke="var(--accent-pink)" stroke-width="3" /> <line x1="61" y1="46" x2="69" y2="46" stroke="var(--accent-pink)" stroke-width="3" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center glitch" style="color: var(--primary-cyan);">Gaming</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Main game FPS, RPG, dan racing. Suka nge-grind achievement dan speedrun!</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><rect x="20" y="20" width="60" height="45" rx="3" stroke="var(--accent-purple)" stroke-width="3" fill="none" /> <polygon points="38,35 38,50 52,42.5" fill="var(--accent-purple)" /> <circle cx="70" cy="25" r="6" fill="var(--accent-pink)" opacity="0.8" /> <line x1="25" y1="70" x2="75" y2="70" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round" /> <line x1="35" y1="78" x2="65" y2="78" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center rgb-split" style="color: var(--accent-purple);">Video Editing</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Suka eksperimen dengan transitions, effects, dan color grading yang keren!</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><rect x="25" y="20" width="50" height="60" rx="4" stroke="var(--highlight-yellow)" stroke-width="3" fill="none" /> <line x1="35" y1="32" x2="55" y2="32" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="35" y1="42" x2="65" y2="42" stroke="var(--accent-pink)" stroke-width="2" /> <line x1="35" y1="52" x2="60" y2="52" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="35" y1="62" x2="65" y2="62" stroke="var(--accent-purple)" stroke-width="2" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center glitch-intense" style="color: var(--highlight-yellow);">Coding</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Bikin website dan game sederhana. Seneng banget kalau berhasil debug error!</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><circle cx="50" cy="45" r="25" stroke="var(--accent-pink)" stroke-width="3" fill="none" /> <circle cx="50" cy="45" r="15" stroke="var(--accent-pink)" stroke-width="2" fill="rgba(244, 114, 182, 0.2)" /> <rect x="42" y="65" width="16" height="12" rx="2" stroke="var(--accent-pink)" stroke-width="2" fill="none" /> <line x1="30" y1="77" x2="70" y2="77" stroke="var(--accent-pink)" stroke-width="3" stroke-linecap="round" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center rgb-split" style="color: var(--accent-pink);">Photography</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Suka foto-foto landscape dan momen random yang aesthetic!</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><path d="M30 60 Q30 30 50 30 Q70 30 70 60" stroke="var(--primary-cyan)" stroke-width="3" fill="none" /> <circle cx="50" cy="30" r="8" fill="var(--primary-cyan)" /> <circle cx="35" cy="50" r="5" fill="var(--accent-purple)" /> <circle cx="65" cy="50" r="5" fill="var(--accent-purple)" /> <path d="M25 70 L35 65 L45 70 L55 65 L65 70 L75 65" stroke="var(--primary-cyan)" stroke-width="2" fill="none" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center glitch" style="color: var(--primary-cyan);">Music</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Dengerin EDM, lo-fi, dan soundtrack game sambil kerja atau ngoding!</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-glow click-scale ripple">
+       <div class="mb-4 flex justify-center">
+        <svg width="80" height="80" viewbox="0 0 100 100" class="float hover-rotate"><rect x="30" y="25" width="40" height="50" rx="3" stroke="var(--accent-purple)" stroke-width="3" fill="none" /> <line x1="40" y1="35" x2="60" y2="35" stroke="var(--accent-purple)" stroke-width="2" /> <line x1="40" y1="45" x2="60" y2="45" stroke="var(--accent-purple)" stroke-width="2" /> <line x1="40" y1="55" x2="55" y2="55" stroke="var(--accent-purple)" stroke-width="2" /> <circle cx="65" cy="65" r="8" stroke="var(--highlight-yellow)" stroke-width="2" fill="none" /> <line x1="70" y1="60" x2="70" y2="70" stroke="var(--highlight-yellow)" stroke-width="2" />
+        </svg>
+       </div>
+       <h3 class="pixel-font text-xl mb-3 text-center glitch-intense" style="color: var(--accent-purple);">Learning Tech</h3>
+       <p class="retro-font text-lg text-center" style="color: var(--text-light);">Baca artikel dan nonton tutorial tentang teknologi terbaru!</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Tools & Software Section -->
+   <section class="py-20 px-6" style="background: rgba(26, 26, 46, 0.5);">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center neon-glow" style="color: var(--primary-cyan);">[ TOOLS &amp; SOFTWARE ]</h2>
+     <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass-panel p-8 rounded-2xl">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--accent-pink);">Video Editing</h3>
+       <div class="space-y-4">
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--primary-cyan);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Adobe Premiere Pro</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-purple);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Adobe After Effects</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-pink);"></div><span class="retro-font text-xl" style="color: var(--text-light);">DaVinci Resolve</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--highlight-yellow);"></div><span class="retro-font text-xl" style="color: var(--text-light);">CapCut</span>
+        </div>
+       </div>
+      </div>
+      <div class="glass-panel p-8 rounded-2xl">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--primary-cyan);">Programming</h3>
+       <div class="space-y-4">
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--primary-cyan);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Visual Studio Code</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-purple);"></div><span class="retro-font text-xl" style="color: var(--text-light);">GitHub</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-pink);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Figma</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--highlight-yellow);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Chrome DevTools</span>
+        </div>
+       </div>
+      </div>
+      <div class="glass-panel p-8 rounded-2xl">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--highlight-yellow);">Design</h3>
+       <div class="space-y-4">
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--primary-cyan);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Adobe Photoshop</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-purple);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Adobe Illustrator</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-pink);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Canva</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--highlight-yellow);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Blender (Basic)</span>
+        </div>
+       </div>
+      </div>
+      <div class="glass-panel p-8 rounded-2xl">
+       <h3 class="pixel-font text-2xl mb-6 pulse" style="color: var(--accent-purple);">Gaming Setup</h3>
+       <div class="space-y-4">
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--primary-cyan);"></div><span class="retro-font text-xl" style="color: var(--text-light);">OBS Studio</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-purple);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Discord</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--accent-pink);"></div><span class="retro-font text-xl" style="color: var(--text-light);">Steam</span>
+        </div>
+        <div class="flex items-center gap-3 hover-lift">
+         <div class="w-3 h-3 bg-current rounded-full" style="color: var(--highlight-yellow);"></div><span class="retro-font text-xl" style="color: var(--text-light);">GeForce Experience</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Goals & Achievements Section -->
+   <section class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center rainbow-text" style="color: var(--accent-purple);">[ GOALS &amp; ACHIEVEMENTS ]</h2>
+     <div class="mb-16">
+      <h3 class="pixel-font text-2xl mb-8 text-center glitch" style="color: var(--highlight-yellow);">🏆 Achievements Unlocked</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><path d="M32 8 L36 20 L48 20 L38 28 L42 40 L32 32 L22 40 L26 28 L16 20 L28 20 Z" fill="var(--highlight-yellow)" stroke="var(--accent-purple)" stroke-width="2" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--highlight-yellow);">First Video</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">Uploaded first gaming montage</p>
+       </div>
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><circle cx="32" cy="28" r="12" stroke="var(--primary-cyan)" stroke-width="3" fill="none" /> <path d="M32 40 L32 50" stroke="var(--primary-cyan)" stroke-width="3" /> <path d="M20 50 L44 50" stroke="var(--primary-cyan)" stroke-width="3" /> <path d="M24 56 L40 56" stroke="var(--primary-cyan)" stroke-width="3" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--primary-cyan);">100 Subscribers</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">Reached first milestone!</p>
+       </div>
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><rect x="16" y="16" width="32" height="32" rx="4" stroke="var(--accent-pink)" stroke-width="3" fill="none" /> <line x1="24" y1="28" x2="40" y2="28" stroke="var(--accent-pink)" stroke-width="2" /> <line x1="24" y1="36" x2="40" y2="36" stroke="var(--accent-pink)" stroke-width="2" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--accent-pink);">First Website</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">Built personal portfolio</p>
+       </div>
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><rect x="18" y="22" width="28" height="20" rx="3" stroke="var(--accent-purple)" stroke-width="3" fill="none" /> <circle cx="26" cy="32" r="4" stroke="var(--primary-cyan)" stroke-width="2" fill="none" /> <line x1="36" y1="28" x2="36" y2="32" stroke="var(--primary-cyan)" stroke-width="2" /> <line x1="34" y1="30" x2="38" y2="30" stroke="var(--primary-cyan)" stroke-width="2" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--accent-purple);">Gaming Win</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">Won local tournament</p>
+       </div>
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><circle cx="32" cy="32" r="16" stroke="var(--highlight-yellow)" stroke-width="3" fill="none" /> <path d="M32 20 L32 32 L40 36" stroke="var(--highlight-yellow)" stroke-width="3" stroke-linecap="round" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--highlight-yellow);">100+ Hours</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">Learning &amp; practicing skills</p>
+       </div>
+       <div class="glass-card p-6 rounded-2xl text-center hover-lift click-scale">
+        <div class="mb-4 flex justify-center">
+         <svg width="64" height="64" viewbox="0 0 64 64" class="pulse"><path d="M32 12 L38 24 L50 24 L40 32 L44 44 L32 36 L20 44 L24 32 L14 24 L26 24 Z" fill="var(--primary-cyan)" stroke="var(--accent-purple)" stroke-width="2" />
+         </svg>
+        </div>
+        <p class="pixel-font text-lg mb-2" style="color: var(--primary-cyan);">Creative Projects</p>
+        <p class="retro-font text-sm" style="color: var(--text-light);">10+ completed projects</p>
+       </div>
+      </div>
+     </div>
+     <div>
+      <h3 class="pixel-font text-2xl mb-8 text-center glitch-intense" style="color: var(--primary-cyan);">🎯 Future Goals</h3>
+      <div class="grid md:grid-cols-2 gap-8">
+       <div class="glass-panel p-8 rounded-2xl hover-glow">
+        <h4 class="pixel-font text-xl mb-4 rgb-split" style="color: var(--accent-pink);">Short Term (2024)</h4>
+        <ul class="space-y-3">
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--primary-cyan);">▶</span> <span style="color: var(--text-light);">Reach 1,000 YouTube subscribers</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--primary-cyan);">▶</span> <span style="color: var(--text-light);">Upload 2 videos per week consistently</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--primary-cyan);">▶</span> <span style="color: var(--text-light);">Master JavaScript fundamentals</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--primary-cyan);">▶</span> <span style="color: var(--text-light);">Build 5 interactive web projects</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--primary-cyan);">▶</span> <span style="color: var(--text-light);">Improve editing speed &amp; quality</span></li>
+        </ul>
+       </div>
+       <div class="glass-panel p-8 rounded-2xl hover-glow">
+        <h4 class="pixel-font text-xl mb-4 glitch" style="color: var(--highlight-yellow);">Long Term (2025+)</h4>
+        <ul class="space-y-3">
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--accent-purple);">★</span> <span style="color: var(--text-light);">Become full-time content creator</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--accent-purple);">★</span> <span style="color: var(--text-light);">Reach 100K YouTube subscribers</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--accent-purple);">★</span> <span style="color: var(--text-light);">Master full-stack development</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--accent-purple);">★</span> <span style="color: var(--text-light);">Create &amp; launch my own game</span></li>
+         <li class="retro-font text-lg flex items-start gap-3"><span style="color: var(--accent-purple);">★</span> <span style="color: var(--text-light);">Collaborate with big creators</span></li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Timeline Section -->
+   <section class="py-20 px-6" style="background: rgba(26, 26, 46, 0.5);">
+    <div class="max-w-4xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center rainbow-text" style="color: var(--accent-purple);">[ MY JOURNEY ]</h2>
+     <div class="relative">
+      <div class="timeline-line absolute left-1/2 transform -translate-x-1/2 h-full"></div>
+      <div class="space-y-16">
+       <div class="flex items-center">
+        <div class="w-1/2 pr-8 text-right">
+         <h3 class="pixel-font text-xl mb-2" style="color: var(--primary-cyan);">2020</h3>
+         <p class="retro-font text-xl" style="color: var(--text-light);">Mulai belajar video editing dari YouTube</p>
+        </div>
+        <div class="timeline-dot rounded-full flex-shrink-0"></div>
+        <div class="w-1/2"></div>
+       </div>
+       <div class="flex items-center">
+        <div class="w-1/2"></div>
+        <div class="timeline-dot rounded-full flex-shrink-0"></div>
+        <div class="w-1/2 pl-8">
+         <h3 class="pixel-font text-xl mb-2" style="color: var(--primary-cyan);">2021</h3>
+         <p class="retro-font text-xl" style="color: var(--text-light);">Bikin konten gaming pertama kali</p>
+        </div>
+       </div>
+       <div class="flex items-center">
+        <div class="w-1/2 pr-8 text-right">
+         <h3 class="pixel-font text-xl mb-2" style="color: var(--primary-cyan);">2022</h3>
+         <p class="retro-font text-xl" style="color: var(--text-light);">Mulai belajar programming &amp; web dev</p>
+        </div>
+        <div class="timeline-dot rounded-full flex-shrink-0"></div>
+        <div class="w-1/2"></div>
+       </div>
+       <div class="flex items-center">
+        <div class="w-1/2"></div>
+        <div class="timeline-dot rounded-full flex-shrink-0"></div>
+        <div class="w-1/2 pl-8">
+         <h3 class="pixel-font text-xl mb-2" style="color: var(--primary-cyan);">2024</h3>
+         <p class="retro-font text-xl" style="color: var(--text-light);">Target: Jadi YouTuber profesional! 🚀</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Fun Facts Section -->
+   <section class="py-20 px-6" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(34, 211, 238, 0.15));">
+    <div class="max-w-4xl mx-auto">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 text-center neon-glow" style="color: var(--highlight-yellow);">[ FUN FACTS ABOUT ME ]</h2>
+     <div class="grid md:grid-cols-2 gap-6">
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--primary-cyan);">💻</span> Bikin kode pertama kali pas umur 12 tahun</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--accent-pink);">🎮</span> Punya koleksi 50+ game di Steam library</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--accent-purple);">🎬</span> Editing video pertama butuh 3 hari selesai</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--highlight-yellow);">☕</span> Gak bisa coding tanpa musik lo-fi</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--primary-cyan);">🌙</span> Night owl - produktif paling pas malem</p>
+      </div>
+      <div class="glass-card p-6 rounded-2xl hover-lift click-scale">
+       <p class="retro-font text-xl" style="color: var(--text-light);"><span style="color: var(--accent-pink);">🎯</span> Perfeksionis - suka trial error sampe perfect</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Contact Section -->
+   <section class="py-20 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+     <h2 class="pixel-font text-3xl md:text-5xl mb-16 neon-glow" style="color: var(--highlight-yellow);">[ SAVE GAME &amp; CONTACT ]</h2>
+     <div class="space-y-6 mb-12">
+      <div class="glass-panel p-6 inline-block scale-up rounded-2xl hover-lift click-scale ripple" style="animation-delay: 0.2s;">
+       <p class="retro-font text-2xl flex items-center gap-3" style="color: var(--text-light);">
+        <svg width="28" height="28" viewbox="0 0 24 24" fill="none" class="hover-rotate"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--primary-cyan)" stroke-width="2" /> <path d="M3 7 L12 13 L21 7" stroke="var(--primary-cyan)" stroke-width="2" stroke-linecap="round" />
+        </svg> Email: <span id="contact-email" class="glitch" style="color: var(--primary-cyan);">aqila.fasha@example.com</span></p>
+      </div>
+      <div class="glass-panel p-6 inline-block scale-up rounded-2xl hover-lift click-scale ripple" style="animation-delay: 0.4s;">
+       <p class="retro-font text-2xl flex items-center gap-3" style="color: var(--text-light);">
+        <svg width="28" height="28" viewbox="0 0 24 24" fill="none" class="hover-rotate"><rect x="5" y="5" width="14" height="14" rx="4" stroke="var(--accent-pink)" stroke-width="2" /> <circle cx="12" cy="12" r="4" stroke="var(--accent-pink)" stroke-width="2" /> <circle cx="16.5" cy="7.5" r="1.5" fill="var(--accent-pink)" />
+        </svg> Instagram: <span id="contact-instagram" class="rgb-split" style="color: var(--accent-pink);">@aqilafasha</span></p>
+      </div>
+      <div class="glass-panel p-6 inline-block scale-up rounded-2xl hover-lift click-scale ripple" style="animation-delay: 0.6s;">
+       <p class="retro-font text-2xl flex items-center gap-3" style="color: var(--text-light);">
+        <svg width="28" height="28" viewbox="0 0 24 24" fill="none" class="hover-rotate"><rect x="3" y="4" width="18" height="13" rx="2" stroke="var(--accent-purple)" stroke-width="2" /> <polygon points="10,9 10,14 15,11.5" fill="var(--accent-purple)" />
+        </svg> YouTube: <span id="contact-youtube" class="glitch-intense" style="color: var(--accent-purple);">@AqilaFasha</span></p>
+      </div>
+     </div><button class="retro-btn shake pulse click-scale ripple">CONTACT ME</button>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-12 text-center border-t-4" style="border-color: var(--primary-cyan); background: rgba(15, 23, 42, 0.9);">
+    <p class="pixel-font text-sm mb-4" style="color: var(--text-light);">© 2024 AQILA FASHA RAMADHAN</p>
+    <p class="retro-font text-xl" style="color: var(--accent-purple);">Built with passion &amp; 90s nostalgia 🎮✨</p>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: '#0F172A',
+      primary_color: '#22D3EE',
+      accent_purple: '#A855F7',
+      accent_pink: '#F472B6',
+      highlight_color: '#FACC15',
+      font_family: 'VT323',
+      font_size: 16,
+      main_name: 'AQILA FASHA RAMADHAN',
+      subtitle_text: 'YouTuber | Video Editor | Gamer | Programmer',
+      cta_button: 'START GAME',
+      about_title: '[ ABOUT ME ]',
+      about_description: 'Halo! Gue Aqila, seorang content creator dan video editor yang passionate banget sama dunia digital. Terinspirasi dari MiawAug, gue pengen bikin konten yang fun, kreatif, dan menghibur!',
+      dream_quote: '"Mulai dari nol, konsisten terus, suatu saat pasti sampai di puncak! 🚀"',
+      email_text: 'aqila.fasha@example.com',
+      instagram_handle: '@aqilafasha',
+      youtube_channel: '@AqilaFasha'
+    };
+
+    async function onConfigChange(config) {
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const baseFontStack = 'monospace';
+
+      document.documentElement.style.setProperty('--bg-dark', config.background_color || defaultConfig.background_color);
+      document.documentElement.style.setProperty('--primary-cyan', config.primary_color || defaultConfig.primary_color);
+      document.documentElement.style.setProperty('--accent-purple', config.accent_purple || defaultConfig.accent_purple);
+      document.documentElement.style.setProperty('--accent-pink', config.accent_pink || defaultConfig.accent_pink);
+      document.documentElement.style.setProperty('--highlight-yellow', config.highlight_color || defaultConfig.highlight_color);
+
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.fontSize = `${baseSize}px`;
+
+      const heroName = document.getElementById('hero-name');
+      if (heroName) heroName.textContent = config.main_name || defaultConfig.main_name;
+
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      if (heroSubtitle) heroSubtitle.textContent = config.subtitle_text || defaultConfig.subtitle_text;
+
+      const ctaButton = document.getElementById('cta-button');
+      if (ctaButton) ctaButton.textContent = config.cta_button || defaultConfig.cta_button;
+
+      const aboutTitle = document.getElementById('about-title');
+      if (aboutTitle) aboutTitle.textContent = config.about_title || defaultConfig.about_title;
+
+      const aboutDesc = document.getElementById('about-desc');
+      if (aboutDesc) aboutDesc.textContent = config.about_description || defaultConfig.about_description;
+
+      const dreamQuote = document.getElementById('dream-quote');
+      if (dreamQuote) dreamQuote.textContent = config.dream_quote || defaultConfig.dream_quote;
+
+      const contactEmail = document.getElementById('contact-email');
+      if (contactEmail) contactEmail.textContent = config.email_text || defaultConfig.email_text;
+
+      const contactInstagram = document.getElementById('contact-instagram');
+      if (contactInstagram) contactInstagram.textContent = config.instagram_handle || defaultConfig.instagram_handle;
+
+      const contactYoutube = document.getElementById('contact-youtube');
+      if (contactYoutube) contactYoutube.textContent = config.youtube_channel || defaultConfig.youtube_channel;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_purple || defaultConfig.accent_purple,
+            set: (value) => {
+              config.accent_purple = value;
+              window.elementSdk.setConfig({ accent_purple: value });
+            }
+          },
+          {
+            get: () => config.accent_pink || defaultConfig.accent_pink,
+            set: (value) => {
+              config.accent_pink = value;
+              window.elementSdk.setConfig({ accent_pink: value });
+            }
+          },
+          {
+            get: () => config.highlight_color || defaultConfig.highlight_color,
+            set: (value) => {
+              config.highlight_color = value;
+              window.elementSdk.setConfig({ highlight_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['main_name', config.main_name || defaultConfig.main_name],
+        ['subtitle_text', config.subtitle_text || defaultConfig.subtitle_text],
+        ['cta_button', config.cta_button || defaultConfig.cta_button],
+        ['about_title', config.about_title || defaultConfig.about_title],
+        ['about_description', config.about_description || defaultConfig.about_description],
+        ['dream_quote', config.dream_quote || defaultConfig.dream_quote],
+        ['email_text', config.email_text || defaultConfig.email_text],
+        ['instagram_handle', config.instagram_handle || defaultConfig.instagram_handle],
+        ['youtube_channel', config.youtube_channel || defaultConfig.youtube_channel]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    // Generate Starfield
+    function createStarfield() {
+      const starfield = document.getElementById('starfield');
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = Math.random() * 3 + 1 + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        starfield.appendChild(star);
+      }
+    }
+
+    // Loading Screen Animation
+    let progress = 0;
+    const progressBar = document.getElementById('progress-bar');
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('main-content');
+    const loadingText = document.getElementById('loading-text');
+
+    const loadingMessages = [
+      'Loading Aqila\'s World...',
+      'Preparing retro vibes...',
+      'Initializing pixel art...',
+      'Loading gaming zone...',
+      'Almost there...'
+    ];
+
+    const loadingInterval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress > 100) progress = 100;
+      
+      progressBar.style.width = progress + '%';
+      
+      const messageIndex = Math.floor((progress / 100) * loadingMessages.length);
+      loadingText.textContent = loadingMessages[Math.min(messageIndex, loadingMessages.length - 1)];
+      
+      if (progress >= 100) {
+        clearInterval(loadingInterval);
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+          mainContent.style.display = 'block';
+          animateSkills();
+        }, 500);
+      }
+    }, 200);
+
+    // Animate Skills on Load
+    function animateSkills() {
+      const skillFills = document.querySelectorAll('.skill-fill');
+      skillFills.forEach(fill => {
+        const width = fill.getAttribute('data-width');
+        setTimeout(() => {
+          fill.style.width = width + '%';
+        }, 300);
+      });
+    }
+
+    // Smooth Scroll
+    document.getElementById('cta-button').addEventListener('click', () => {
+      document.querySelector('section:nth-of-type(2)').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Particle Effect on Button Click
+    function createParticles(e) {
+      const button = e.currentTarget;
+      const rect = button.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        
+        const angle = (Math.PI * 2 * i) / 8;
+        const velocity = 50 + Math.random() * 50;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        
+        button.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 1000);
+      }
+    }
+
+    // Add particle effect to all buttons
+    document.querySelectorAll('.retro-btn').forEach(btn => {
+      btn.addEventListener('click', createParticles);
+    });
+
+    // Glitch Effect on Hover for Project Cards
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        const title = this.querySelector('h3');
+        if (title) {
+          title.style.animation = 'none';
+          setTimeout(() => {
+            title.style.animation = '';
+          }, 10);
+        }
+      });
+    });
+
+    // Space Shooter Game
+    let gameActive = false;
+    let score = 0;
+    let enemies = [];
+    let bullets = [];
+    let playerShip = document.getElementById('player-ship');
+    let bulletsContainer = document.getElementById('bullets-container');
+    let enemiesContainer = document.getElementById('enemies-container');
+    let gameScore = document.getElementById('game-score');
+    let gameInstructions = document.getElementById('game-instructions');
+    let scoreValue = document.getElementById('score-value');
+
+    // Player ship follows cursor
+    let playerX = window.innerWidth / 2;
+    let playerY = window.innerHeight / 2;
+
+    document.addEventListener('mousemove', (e) => {
+      if (!gameActive) return;
+      playerX = e.clientX;
+      playerY = e.clientY;
+      playerShip.style.left = (playerX - 20) + 'px';
+      playerShip.style.top = (playerY - 20) + 'px';
+    });
+
+    // Right click to shoot
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (!gameActive) {
+        startGame();
+      } else {
+        shootBullet();
+      }
+    });
+
+    // Start game
+    function startGame() {
+      gameActive = true;
+      score = 0;
+      scoreValue.textContent = score;
+      playerShip.style.display = 'block';
+      gameScore.style.display = 'block';
+      gameInstructions.style.display = 'block';
+      
+      // Hide instructions after 3 seconds
+      setTimeout(() => {
+        gameInstructions.style.opacity = '0';
+        gameInstructions.style.transition = 'opacity 1s';
+      }, 3000);
+      
+      spawnEnemies();
+    }
+
+    // Shoot bullet
+    function shootBullet() {
+      const bullet = document.createElement('div');
+      bullet.className = 'bullet';
+      bullet.style.position = 'absolute';
+      bullet.style.left = playerX + 'px';
+      bullet.style.top = playerY + 'px';
+      bullet.style.width = '4px';
+      bullet.style.height = '12px';
+      bullet.style.background = 'linear-gradient(180deg, #FACC15, #F472B6)';
+      bullet.style.borderRadius = '2px';
+      bullet.style.boxShadow = '0 0 10px #FACC15';
+      bullet.style.pointerEvents = 'none';
+      
+      bulletsContainer.appendChild(bullet);
+      
+      bullets.push({
+        element: bullet,
+        x: playerX,
+        y: playerY,
+        speed: 8
+      });
+    }
+
+    // Boss spawned flag
+    let bossSpawned = false;
+    let bossCount = 0; // Track how many times boss has spawned
+
+    // Boss projectiles array
+    let bossProjectiles = [];
+
+    // Spawn Boss
+    function spawnBoss() {
+      bossCount++; // Increment boss difficulty
+      // Create arena borders
+      const arena = document.createElement('div');
+      arena.id = 'boss-arena';
+      arena.style.position = 'fixed';
+      arena.style.top = '150px';
+      arena.style.left = '100px';
+      arena.style.width = 'calc(100% - 200px)';
+      arena.style.height = 'calc(100% - 300px)';
+      arena.style.border = '4px solid #F472B6';
+      arena.style.boxShadow = '0 0 30px #F472B6, inset 0 0 30px rgba(244, 114, 182, 0.2)';
+      arena.style.zIndex = '0';
+      arena.style.pointerEvents = 'none';
+      arena.style.background = 'linear-gradient(45deg, transparent 48%, #F472B6 48%, #F472B6 52%, transparent 52%), linear-gradient(-45deg, transparent 48%, #F472B6 48%, #F472B6 52%, transparent 52%)';
+      arena.style.backgroundSize = '20px 20px';
+      arena.style.opacity = '0.1';
+      document.body.appendChild(arena);
+      
+      // Stop spawning regular enemies
+      const bossWarning = document.createElement('div');
+      bossWarning.style.position = 'fixed';
+      bossWarning.style.top = '40%';
+      bossWarning.style.left = '50%';
+      bossWarning.style.transform = 'translate(-50%, -50%)';
+      bossWarning.style.fontFamily = "'Press Start 2P', cursive";
+      bossWarning.style.fontSize = '48px';
+      bossWarning.style.color = '#F472B6';
+      bossWarning.style.textShadow = '0 0 30px #F472B6, 3px 0 #22D3EE, -3px 0 #FACC15';
+      bossWarning.style.zIndex = '9999';
+      bossWarning.style.pointerEvents = 'none';
+      bossWarning.style.animation = 'glitchIntense 0.3s infinite, pulse 1s infinite';
+      bossWarning.textContent = '⚠️ BOSS WARNING ⚠️';
+      document.body.appendChild(bossWarning);
+      
+      // Flash screen
+      const flash = document.createElement('div');
+      flash.style.position = 'fixed';
+      flash.style.top = '0';
+      flash.style.left = '0';
+      flash.style.width = '100%';
+      flash.style.height = '100%';
+      flash.style.background = '#F472B6';
+      flash.style.opacity = '0';
+      flash.style.pointerEvents = 'none';
+      flash.style.zIndex = '9998';
+      document.body.appendChild(flash);
+      
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          flash.style.opacity = '0.3';
+          setTimeout(() => {
+            flash.style.opacity = '0';
+          }, 200);
+        }, i * 500);
+      }
+      
+      setTimeout(() => {
+        bossWarning.remove();
+        flash.remove();
+        
+       // Create Boss
+const boss = document.createElement('div');
+boss.className = 'boss';
+boss.style.position = 'absolute';
+boss.style.width = '200px';
+boss.style.height = '200px';
+
+const startX = window.innerWidth / 2 - 100;
+const startY = -250;
+
+boss.style.left = startX + 'px';
+boss.style.top = startY + 'px';
+boss.style.pointerEvents = 'none';
+boss.style.filter = 'drop-shadow(0 0 40px #22D3EE)';
+
+boss.innerHTML = `
+<svg width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="50%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#F472B6"/>
+    </linearGradient>
+    <radialGradient id="coreGlow">
+      <stop offset="0%" stop-color="#FACC15" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#F472B6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Pulsing outer aura -->
+  <circle cx="100" cy="100" r="95" fill="url(#coreGlow)" opacity="0.25">
+    <animate attributeName="r" values="90;105;90" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Rotating neon ring -->
+  <ellipse cx="100" cy="110" rx="90" ry="22" fill="none" stroke="#22D3EE" stroke-width="3" opacity="0.6">
+    <animateTransform attributeName="transform" type="rotate" from="0 100 110" to="360 100 110" dur="5s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Main body shell -->
+  <ellipse cx="100" cy="110" rx="75" ry="35" fill="url(#metalGrad)" stroke="url(#bossGrad)" stroke-width="4"/>
+  <ellipse cx="100" cy="108" rx="65" ry="30" fill="none" stroke="#22D3EE" stroke-width="2" opacity="0.7"/>
+
+  <!-- Retro scanline detail -->
+  <g opacity="0.3">
+    <line x1="40" y1="105" x2="160" y2="105" stroke="#22D3EE"/>
+    <line x1="45" y1="110" x2="155" y2="110" stroke="#22D3EE"/>
+    <line x1="50" y1="115" x2="150" y2="115" stroke="#22D3EE"/>
+  </g>
+
+  <!-- Upper dome -->
+  <ellipse cx="100" cy="90" rx="42" ry="28" fill="url(#bossGrad)" opacity="0.6" stroke="#FACC15" stroke-width="3"/>
+  <ellipse cx="100" cy="88" rx="32" ry="20" fill="#020617" opacity="0.5"/>
+
+  <!-- Core eye -->
+  <circle cx="100" cy="90" r="16" fill="#22D3EE" stroke="#FACC15" stroke-width="3">
+    <animate attributeName="r" values="15;18;15" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="90" r="7" fill="#FACC15">
+    <animate attributeName="r" values="7;9;7" dur="0.8s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Side sensor pods -->
+  <circle cx="68" cy="95" r="9" fill="#22D3EE" opacity="0.7"/>
+  <circle cx="68" cy="95" r="4" fill="#FACC15"/>
+  <circle cx="132" cy="95" r="9" fill="#22D3EE" opacity="0.7"/>
+  <circle cx="132" cy="95" r="4" fill="#FACC15"/>
+
+  <!-- Retro window dots -->
+  <circle cx="60" cy="115" r="4" fill="#FACC15"/>
+  <circle cx="80" cy="120" r="4" fill="#FACC15"/>
+  <circle cx="100" cy="122" r="4" fill="#FACC15"/>
+  <circle cx="120" cy="120" r="4" fill="#FACC15"/>
+  <circle cx="140" cy="115" r="4" fill="#FACC15"/>
+
+  <!-- Weapon cannons -->
+  <rect x="40" y="120" width="14" height="28" rx="4" fill="#22D3EE" stroke="#FACC15" stroke-width="2"/>
+  <rect x="146" y="120" width="14" height="28" rx="4" fill="#22D3EE" stroke="#FACC15" stroke-width="2"/>
+
+  <!-- Weapon energy beams -->
+  <line x1="47" y1="148" x2="47" y2="175" stroke="#F472B6" stroke-width="4" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+  <line x1="153" y1="148" x2="153" y2="175" stroke="#F472B6" stroke-width="4" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="0.4s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Antennae with blinking tips -->
+  <line x1="78" y1="70" x2="68" y2="45" stroke="#22D3EE" stroke-width="3"/>
+  <circle cx="68" cy="45" r="5" fill="#FACC15">
+    <animate attributeName="fill" values="#FACC15;#F472B6;#FACC15" dur="1s" repeatCount="indefinite"/>
+  </circle>
+
+  <line x1="122" y1="70" x2="132" y2="45" stroke="#22D3EE" stroke-width="3"/>
+  <circle cx="132" cy="45" r="5" fill="#FACC15">
+    <animate attributeName="fill" values="#FACC15;#F472B6;#FACC15" dur="1s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Energy shield ring -->
+  <circle cx="100" cy="110" r="85" fill="none" stroke="#22D3EE" stroke-width="3" opacity="0.35" stroke-dasharray="12,6">
+    <animate attributeName="stroke-dashoffset" from="0" to="36" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.25;0.5;0.25" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
+`;
+
+        // Boss health bar
+        const healthBar = document.createElement('div');
+        healthBar.id = 'boss-health-bar';
+        healthBar.style.position = 'fixed';
+        healthBar.style.top = '100px';
+        healthBar.style.left = '50%';
+        healthBar.style.transform = 'translateX(-50%)';
+        healthBar.style.width = '400px';
+        healthBar.style.height = '30px';
+        healthBar.style.border = '4px solid #F472B6';
+        healthBar.style.background = '#1a1a2e';
+        healthBar.style.zIndex = '100';
+        healthBar.style.boxShadow = '0 0 20px #F472B6';
+        
+        const healthFill = document.createElement('div');
+        healthFill.id = 'boss-health-fill';
+        healthFill.style.width = '100%';
+        healthFill.style.height = '100%';
+        healthFill.style.background = 'linear-gradient(90deg, #F472B6, #A855F7)';
+        healthFill.style.transition = 'width 0.3s';
+        healthFill.style.boxShadow = 'inset 0 0 10px rgba(255, 255, 255, 0.5)';
+        
+        healthBar.appendChild(healthFill);
+        document.body.appendChild(healthBar);
+        
+        const healthText = document.createElement('div');
+        healthText.id = 'boss-health-text';
+        healthText.style.position = 'fixed';
+        healthText.style.top = '70px';
+        healthText.style.left = '50%';
+        healthText.style.transform = 'translateX(-50%)';
+        healthText.style.fontFamily = "'Press Start 2P', cursive";
+        healthText.style.fontSize = '20px';
+        healthText.style.color = '#F472B6';
+        healthText.style.textShadow = '0 0 10px #F472B6';
+        healthText.style.zIndex = '100';
+        healthText.textContent = '👾 ALIEN BOSS 👾';
+        document.body.appendChild(healthText);
+        
+        enemiesContainer.appendChild(boss);
+        
+        // Calculate boss stats based on difficulty (bossCount)
+        const bossHealth = 20 + (bossCount - 1) * 10; // +10 health per boss spawn
+        const bossFireRate = Math.max(30, 120 - (bossCount - 1) * 15); // Faster shooting, minimum 30 frames (0.5s)
+        
+        const bossEnemy = {
+          element: boss,
+          x: startX,
+          y: startY,
+          speedX: 3,
+          speedY: 1,
+          health: bossHealth,
+          maxHealth: bossHealth,
+          size: 200,
+          isBoss: true,
+          shootCooldown: 0,
+          shootRate: bossFireRate,
+          shieldShips: [] // Array to store shield ships
+        };
+        
+        // Create 4 shield ships orbiting the boss
+        for (let i = 0; i < 4; i++) {
+          const shieldShip = document.createElement('div');
+          shieldShip.style.position = 'absolute';
+          shieldShip.style.width = '40px';
+          shieldShip.style.height = '40px';
+          shieldShip.style.pointerEvents = 'none';
+          shieldShip.innerHTML = `
+            <svg width="40" height="40" viewBox="0 0 40 40">
+              <defs>
+                <linearGradient id="shieldGrad${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#22D3EE;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <polygon points="20,8 25,20 20,18 15,20" fill="url(#shieldGrad${i})" stroke="#22D3EE" stroke-width="2"/>
+              <circle cx="20" cy="16" r="3" fill="#FACC15" opacity="0.8"/>
+              <polygon points="15,20 17,26 20,23 23,26 25,20" fill="#A855F7" opacity="0.7">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="0.3s" repeatCount="indefinite"/>
+              </polygon>
+              <circle cx="20" cy="20" r="15" fill="none" stroke="#22D3EE" stroke-width="1" opacity="0.3"/>
+            </svg>
+          `;
+          enemiesContainer.appendChild(shieldShip);
+          
+          bossEnemy.shieldShips.push({
+            element: shieldShip,
+            angle: (Math.PI * 2 * i) / 4, // Evenly spaced around boss
+            orbitRadius: 120,
+            health: 3, // Each shield ship takes 3 hits
+            active: true
+          });
+        }
+        
+        enemies.push(bossEnemy);
+        
+      }, 2000);
+    }
+
+    // Spawn enemies
+    function spawnEnemies() {
+      if (!gameActive) return;
+      
+      // Check if we should spawn boss
+      if (score >= 250 && !bossSpawned) {
+        spawnBoss();
+        bossSpawned = true;
+        return;
+      }
+      
+      // Don't spawn regular enemies if boss is active
+      const bossActive = enemies.some(e => e.isBoss);
+      if (bossActive) {
+        return;
+      }
+      
+      const enemy = document.createElement('div');
+      enemy.className = 'enemy';
+      enemy.style.position = 'absolute';
+      
+      const enemyType = Math.random();
+      const startX = Math.random() * window.innerWidth;
+      const startY = -50;
+      
+      enemy.style.left = startX + 'px';
+      enemy.style.top = startY + 'px';
+      enemy.style.pointerEvents = 'none';
+      
+      let health = 1;
+      let size = 40;
+      
+      if (enemyType < 0.15) {
+        // Big Space Station (15% chance) - 3 hits to destroy
+        // Big Space Station (15% chance) - 3 hits to destroy
+health = 5;
+size = 120;
+enemy.style.width = size + 'px';
+enemy.style.height = size + 'px';
+
+const spaceStations = [
+  // 1 — Neon Core Station (modern sci-fi)
+  `<svg width="80" height="80" viewBox="0 0 80 80">
+    <defs>
+      <linearGradient id="stationGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#22D3EE"/>
+        <stop offset="50%" stop-color="#A855F7"/>
+        <stop offset="100%" stop-color="#F472B6"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="25" width="40" height="30" rx="3" fill="url(#stationGrad1)" opacity="0.4"/>
+    <rect x="22" y="27" width="36" height="26" rx="2" fill="none" stroke="#22D3EE" stroke-width="3"/>
+    <circle cx="40" cy="40" r="12" fill="#A855F7" opacity="0.6" stroke="#FACC15" stroke-width="2"/>
+    <circle cx="40" cy="40" r="6" fill="#FACC15" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="5" y="35" width="12" height="10" fill="#22D3EE" opacity="0.5" stroke="#22D3EE" stroke-width="2"/>
+    <rect x="63" y="35" width="12" height="10" fill="#22D3EE" opacity="0.5" stroke="#22D3EE" stroke-width="2"/>
+    <line x1="40" y1="25" x2="40" y2="10" stroke="#F472B6" stroke-width="2"/>
+    <circle cx="40" cy="10" r="3" fill="#F472B6"/>
+    <circle cx="30" cy="35" r="2" fill="#FACC15"/>
+    <circle cx="40" cy="35" r="2" fill="#FACC15"/>
+    <circle cx="50" cy="35" r="2" fill="#FACC15"/>
+    <circle cx="30" cy="45" r="2" fill="#FACC15"/>
+    <circle cx="50" cy="45" r="2" fill="#FACC15"/>
+    <polygon points="25,55 28,65 22,65" fill="#F472B6" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.3s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="40,55 43,65 37,65" fill="#F472B6" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.3s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="55,55 58,65 52,65" fill="#F472B6" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.3s" repeatCount="indefinite"/>
+    </polygon>
+  </svg>`,
+
+  // 2 — Retro Block Station
+  `<svg width="80" height="80" viewBox="0 0 80 80">
+    <rect x="18" y="28" width="44" height="24" rx="2" fill="#9CA3AF" opacity="0.5" stroke="#6B7280" stroke-width="3"/>
+    <rect x="10" y="34" width="14" height="12" fill="#D1D5DB" stroke="#6B7280" stroke-width="2"/>
+    <rect x="56" y="34" width="14" height="12" fill="#D1D5DB" stroke="#6B7280" stroke-width="2"/>
+    <circle cx="40" cy="40" r="10" fill="#FACC15" opacity="0.8"/>
+    <circle cx="40" cy="40" r="5" fill="#F472B6"/>
+    <line x1="40" y1="28" x2="40" y2="12" stroke="#6B7280" stroke-width="2"/>
+    <circle cx="40" cy="12" r="3" fill="#FACC15"/>
+    <polygon points="28,52 32,64 24,64" fill="#F472B6"/>
+    <polygon points="40,52 44,64 36,64" fill="#F472B6"/>
+    <polygon points="52,52 56,64 48,64" fill="#F472B6"/>
+  </svg>`,
+
+  // 3 — Alien Bio Station
+  `<svg width="80" height="80" viewBox="0 0 80 80">
+    <ellipse cx="40" cy="42" rx="22" ry="14" fill="#4ADE80" opacity="0.3"/>
+    <ellipse cx="40" cy="38" rx="18" ry="12" fill="#22C55E" stroke="#16A34A" stroke-width="3"/>
+    <circle cx="40" cy="38" r="10" fill="#BBF7D0" opacity="0.8"/>
+    <circle cx="40" cy="38" r="5" fill="#FACC15"/>
+    <circle cx="26" cy="36" r="2" fill="#FACC15"/>
+    <circle cx="54" cy="36" r="2" fill="#FACC15"/>
+    <rect x="8" y="36" width="12" height="8" rx="4" fill="#22C55E"/>
+    <rect x="60" y="36" width="12" height="8" rx="4" fill="#22C55E"/>
+    <line x1="40" y1="24" x2="40" y2="10" stroke="#4ADE80" stroke-width="2"/>
+    <circle cx="40" cy="10" r="3" fill="#FACC15"/>
+    <polygon points="30,54 34,66 26,66" fill="#22C55E"/>
+    <polygon points="40,54 44,66 36,66" fill="#22C55E"/>
+    <polygon points="50,54 54,66 46,66" fill="#22C55E"/>
+  </svg>`,
+
+  // 4 — Dark Tech Fortress
+  `<svg width="80" height="80" viewBox="0 0 80 80">
+    <rect x="16" y="24" width="48" height="32" rx="4" fill="#020617" stroke="#A855F7" stroke-width="3"/>
+    <rect x="22" y="30" width="36" height="20" rx="3" fill="none" stroke="#22D3EE" stroke-width="2"/>
+    <circle cx="40" cy="40" r="11" fill="#A855F7"/>
+    <circle cx="40" cy="40" r="6" fill="#F472B6"/>
+    <circle cx="28" cy="36" r="2" fill="#FACC15"/>
+    <circle cx="52" cy="36" r="2" fill="#FACC15"/>
+    <line x1="40" y1="24" x2="40" y2="8" stroke="#A855F7" stroke-width="2"/>
+    <circle cx="40" cy="8" r="3" fill="#F472B6"/>
+    <polygon points="30,56 34,70 26,70" fill="#F472B6"/>
+    <polygon points="40,56 44,70 36,70" fill="#F472B6"/>
+    <polygon points="50,56 54,70 46,70" fill="#F472B6"/>
+  </svg>`,
+
+  // 5 — Ring Station (Halo style)
+  `<svg width="80" height="80" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="24" fill="none" stroke="#22D3EE" stroke-width="6"/>
+    <circle cx="40" cy="40" r="16" fill="none" stroke="#A855F7" stroke-width="4"/>
+    <circle cx="40" cy="40" r="10" fill="#F472B6"/>
+    <circle cx="40" cy="40" r="5" fill="#FACC15"/>
+    <rect x="34" y="10" width="12" height="8" fill="#22D3EE"/>
+    <rect x="34" y="62" width="12" height="8" fill="#22D3EE"/>
+    <rect x="10" y="34" width="8" height="12" fill="#22D3EE"/>
+    <rect x="62" y="34" width="8" height="12" fill="#22D3EE"/>
+  </svg>`
+];
+
+enemy.innerHTML = spaceStations[Math.floor(Math.random() * spaceStations.length)];
+
+      } else if (enemyType < 0.5) {
+        // Alien Ship
+        health = 3;
+        size = 50;
+enemy.style.width = size + 'px';
+enemy.style.height = size + 'px';
+
+const alienShips = [
+  // 1 — Classic UFO (retro vibes)
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="20" rx="18" ry="10" fill="#A855F7" opacity="0.3"/>
+    <ellipse cx="20" cy="18" rx="15" ry="8" fill="#F472B6" stroke="#A855F7" stroke-width="2"/>
+    <circle cx="20" cy="18" r="6" fill="#22D3EE" opacity="0.6"/>
+    <circle cx="15" cy="16" r="2" fill="#FACC15"/>
+    <circle cx="25" cy="16" r="2" fill="#FACC15"/>
+  </svg>`,
+
+  // 2 — Neon Cyber Saucer
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="22" rx="18" ry="9" fill="#22D3EE" opacity="0.25"/>
+    <ellipse cx="20" cy="18" rx="14" ry="7" fill="#0EA5E9" stroke="#22D3EE" stroke-width="2"/>
+    <circle cx="20" cy="18" r="5" fill="#A5F3FC"/>
+    <circle cx="12" cy="20" r="2" fill="#22D3EE"/>
+    <circle cx="20" cy="22" r="2" fill="#22D3EE"/>
+    <circle cx="28" cy="20" r="2" fill="#22D3EE"/>
+  </svg>`,
+
+  // 3 — Retro Pixel UFO
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <rect x="6" y="20" width="28" height="8" rx="4" fill="#F472B6"/>
+    <rect x="10" y="14" width="20" height="6" rx="3" fill="#22D3EE"/>
+    <rect x="14" y="12" width="12" height="4" rx="2" fill="#A855F7"/>
+    <circle cx="12" cy="24" r="2" fill="#FACC15"/>
+    <circle cx="20" cy="24" r="2" fill="#FACC15"/>
+    <circle cx="28" cy="24" r="2" fill="#FACC15"/>
+  </svg>`,
+
+  // 4 — Sharp Modern Fighter
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,4 30,18 20,36 10,18" fill="#0F172A" stroke="#22D3EE" stroke-width="2"/>
+    <polygon points="20,10 25,18 20,26 15,18" fill="#38BDF8"/>
+    <circle cx="20" cy="18" r="3" fill="#FACC15"/>
+  </svg>`,
+
+  // 5 — Bio Alien Jelly Ship
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="22" rx="16" ry="9" fill="#4ADE80" opacity="0.3"/>
+    <ellipse cx="20" cy="18" rx="13" ry="7" fill="#22C55E" stroke="#16A34A" stroke-width="2"/>
+    <circle cx="20" cy="18" r="5" fill="#BBF7D0"/>
+    <circle cx="15" cy="17" r="2" fill="#FACC15"/>
+    <circle cx="25" cy="17" r="2" fill="#FACC15"/>
+  </svg>`,
+
+  // 6 — Dark Tech Stealth Ship
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,6 34,20 20,34 6,20" fill="#020617" stroke="#A855F7" stroke-width="2"/>
+    <circle cx="20" cy="20" r="5" fill="#A855F7"/>
+    <circle cx="14" cy="20" r="2" fill="#F472B6"/>
+    <circle cx="26" cy="20" r="2" fill="#F472B6"/>
+  </svg>`,
+
+  // 7 — Retro Saucer Classic Gray
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="22" rx="18" ry="9" fill="#9CA3AF" opacity="0.4"/>
+    <ellipse cx="20" cy="18" rx="14" ry="7" fill="#D1D5DB" stroke="#6B7280" stroke-width="2"/>
+    <circle cx="20" cy="18" r="5" fill="#F3F4F6"/>
+    <circle cx="13" cy="22" r="2" fill="#FACC15"/>
+    <circle cx="20" cy="24" r="2" fill="#FACC15"/>
+    <circle cx="27" cy="22" r="2" fill="#FACC15"/>
+  </svg>`,
+
+  // 8 — Neon Ring UFO
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="22" rx="18" ry="9" fill="#22D3EE" opacity="0.2"/>
+    <ellipse cx="20" cy="18" rx="14" ry="7" fill="#020617" stroke="#22D3EE" stroke-width="2"/>
+    <circle cx="20" cy="18" r="5" fill="#0EA5E9"/>
+    <circle cx="12" cy="22" r="2" fill="#22D3EE"/>
+    <circle cx="20" cy="24" r="2" fill="#22D3EE"/>
+    <circle cx="28" cy="22" r="2" fill="#22D3EE"/>
+  </svg>`
+];
+
+enemy.innerHTML = alienShips[Math.floor(Math.random() * alienShips.length)];
+
+      } else {
+        // Asteroid
+        enemy.style.width = size + 'px';
+enemy.style.height = size + 'px';
+
+const asteroidSVGs = [
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="18,2 30,8 36,20 28,34 12,38 4,22 8,8" fill="#4B5563" stroke="#1F2937" stroke-width="2"/>
+    <circle cx="14" cy="14" r="3" fill="#2D3748"/>
+    <circle cx="26" cy="18" r="4" fill="#2D3748"/>
+    <circle cx="20" cy="28" r="2" fill="#2D3748"/>
+    <circle cx="10" cy="24" r="2" fill="#2D3748"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,3 32,9 36,22 26,36 14,34 6,22 10,8" fill="#6B7280" stroke="#374151" stroke-width="2"/>
+    <circle cx="15" cy="15" r="3" fill="#1F2937"/>
+    <circle cx="24" cy="22" r="4" fill="#1F2937"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="18,4 34,12 32,26 20,38 8,30 4,16" fill="#4B5563" stroke="#1F2937" stroke-width="2"/>
+    <circle cx="12" cy="18" r="3" fill="#2D3748"/>
+    <circle cx="22" cy="24" r="2" fill="#2D3748"/>
+    <circle cx="28" cy="14" r="2" fill="#2D3748"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,4 34,8 38,22 28,36 12,36 4,22 8,8" fill="#52525B" stroke="#27272A" stroke-width="2"/>
+    <line x1="12" y1="12" x2="28" y2="28" stroke="#1F2937" stroke-width="2"/>
+    <line x1="22" y1="10" x2="16" y2="30" stroke="#1F2937" stroke-width="1.5"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,3 32,9 36,22 26,36 14,34 6,22 10,8" fill="#7DD3FC" stroke="#38BDF8" stroke-width="2"/>
+    <circle cx="16" cy="14" r="3" fill="#E0F2FE"/>
+    <circle cx="25" cy="22" r="4" fill="#E0F2FE"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="18,2 30,8 36,20 28,36 12,38 4,22 8,8" fill="#7C2D12" stroke="#F97316" stroke-width="2"/>
+    <circle cx="15" cy="15" r="3" fill="#FB923C"/>
+    <circle cx="25" cy="22" r="4" fill="#FB923C"/>
+    <line x1="10" y1="25" x2="30" y2="15" stroke="#FB923C" stroke-width="1.5"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,2 36,10 34,26 20,38 6,30 4,14" fill="#166534" stroke="#22C55E" stroke-width="2"/>
+    <circle cx="14" cy="18" r="3" fill="#4ADE80"/>
+    <circle cx="24" cy="24" r="4" fill="#4ADE80"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,2 30,10 34,20 30,30 20,38 10,30 6,20 10,10" fill="#7C3AED" stroke="#A78BFA" stroke-width="2"/>
+    <polygon points="20,8 26,14 24,20 20,26 16,20 14,14" fill="#C4B5FD"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="18,4 34,10 36,26 22,36 8,30 4,16" fill="#6B7280" stroke="#111827" stroke-width="2"/>
+    <rect x="16" y="14" width="8" height="8" fill="#1F2937"/>
+    <circle cx="12" cy="24" r="2" fill="#1F2937"/>
+    <circle cx="28" cy="18" r="2" fill="#1F2937"/>
+  </svg>`,
+
+  `<svg width="40" height="40" viewBox="0 0 40 40">
+    <polygon points="20,2 28,6 36,14 32,22 36,30 28,34 20,38 12,34 4,30 8,22 4,14 12,6" fill="#78350F" stroke="#F59E0B" stroke-width="2"/>
+    <circle cx="20" cy="20" r="4" fill="#FBBF24"/>
+  </svg>`
+];
+
+enemy.innerHTML = asteroidSVGs[Math.floor(Math.random() * asteroidSVGs.length)];
+
+      }
+      
+      enemiesContainer.appendChild(enemy);
+      
+      const speedX = (Math.random() - 0.5) * 2;
+      const speedY = health === 3 ? 1 + Math.random() : 2 + Math.random() * 2; // Space station moves slower
+      
+      enemies.push({
+        element: enemy,
+        x: startX,
+        y: startY,
+        speedX: speedX,
+        speedY: speedY,
+        health: health,
+        maxHealth: health,
+        size: size
+      });
+      
+      // Spawn next enemy
+      setTimeout(() => spawnEnemies(), 1000 + Math.random() * 1500);
+    }
+
+    // Shoot Boss Projectile
+    function shootBossProjectile(fromX, fromY) {
+      const projectile = document.createElement('div');
+      projectile.style.position = 'absolute';
+      projectile.style.left = fromX + 'px';
+      projectile.style.top = fromY + 'px';
+      projectile.style.width = '20px';
+      projectile.style.height = '20px';
+      projectile.style.borderRadius = '50%';
+      projectile.style.background = 'radial-gradient(circle, #FACC15, #F472B6)';
+      projectile.style.boxShadow = '0 0 20px #F472B6, 0 0 40px #FACC15';
+      projectile.style.pointerEvents = 'none';
+      
+      bulletsContainer.appendChild(projectile);
+      
+      // Calculate direction to player
+      const dx = playerX - fromX;
+      const dy = playerY - fromY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const speed = 3; // Slow projectile
+      
+      const velocityX = (dx / distance) * speed;
+      const velocityY = (dy / distance) * speed;
+      
+      bossProjectiles.push({
+        element: projectile,
+        x: fromX,
+        y: fromY,
+        velocityX: velocityX,
+        velocityY: velocityY
+      });
+    }
+
+    // Game loop
+    function gameLoop() {
+      if (!gameActive) {
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+      
+      // Update bullets
+      bullets.forEach((bullet, index) => {
+        bullet.y -= bullet.speed;
+        bullet.element.style.top = bullet.y + 'px';
+        
+        // Remove if off screen
+        if (bullet.y < -20) {
+          bullet.element.remove();
+          bullets.splice(index, 1);
+        }
+      });
+      
+      // Update boss projectiles
+      bossProjectiles.forEach((projectile, index) => {
+        projectile.x += projectile.velocityX;
+        projectile.y += projectile.velocityY;
+        projectile.element.style.left = projectile.x + 'px';
+        projectile.element.style.top = projectile.y + 'px';
+        
+        // Check collision with player
+        const dx = playerX - projectile.x;
+        const dy = playerY - projectile.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 30) {
+          // Player hit by boss projectile!
+          gameOver();
+          return;
+        }
+        
+        // Remove if off screen
+        if (projectile.x < -50 || projectile.x > window.innerWidth + 50 || 
+            projectile.y < -50 || projectile.y > window.innerHeight + 50) {
+          projectile.element.remove();
+          bossProjectiles.splice(index, 1);
+        }
+      });
+      
+      // Update enemies
+      enemies.forEach((enemy, enemyIndex) => {
+        enemy.y += enemy.speedY;
+        enemy.x += enemy.speedX;
+        enemy.element.style.top = enemy.y + 'px';
+        enemy.element.style.left = enemy.x + 'px';
+        
+        // Boss movement pattern
+        if (enemy.isBoss) {
+          const arena = document.getElementById('boss-arena');
+          if (arena) {
+            const arenaRect = arena.getBoundingClientRect();
+            const arenaLeft = 100;
+            const arenaRight = window.innerWidth - 100;
+            const arenaTop = 150;
+            const arenaBottom = window.innerHeight - 150;
+            
+            // Bounce off arena walls
+            if (enemy.x <= arenaLeft || enemy.x + enemy.size >= arenaRight) {
+              enemy.speedX *= -1;
+              enemy.x = enemy.x <= arenaLeft ? arenaLeft : arenaRight - enemy.size;
+            }
+            
+            if (enemy.y <= arenaTop || enemy.y + enemy.size >= arenaBottom) {
+              enemy.speedY *= -1;
+              enemy.y = enemy.y <= arenaTop ? arenaTop : arenaBottom - enemy.size;
+            }
+          }
+          
+          // Update shield ships orbiting the boss
+          if (enemy.shieldShips) {
+            enemy.shieldShips.forEach(shield => {
+              if (shield.active) {
+                // Rotate around boss
+                shield.angle += 0.03; // Rotation speed
+                const shieldX = enemy.x + enemy.size / 2 + Math.cos(shield.angle) * shield.orbitRadius - 20;
+                const shieldY = enemy.y + enemy.size / 2 + Math.sin(shield.angle) * shield.orbitRadius - 20;
+                shield.element.style.left = shieldX + 'px';
+                shield.element.style.top = shieldY + 'px';
+              }
+            });
+          }
+          
+          // Boss shooting pattern (uses dynamic fire rate)
+          enemy.shootCooldown--;
+          if (enemy.shootCooldown <= 0) {
+            // Shoot projectile at player
+            shootBossProjectile(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2);
+            enemy.shootCooldown = enemy.shootRate; // Use dynamic fire rate
+          }
+        } else {
+          // Bounce off sides for regular enemies
+          if (enemy.x < 0 || enemy.x > window.innerWidth - enemy.size) {
+            enemy.speedX *= -1;
+          }
+        }
+        
+        // Remove if off screen (not boss)
+        if (!enemy.isBoss && enemy.y > window.innerHeight + 50) {
+          enemy.element.remove();
+          enemies.splice(enemyIndex, 1);
+        }
+        
+        // Check collision with player ship
+        const playerDx = playerX - (enemy.x + enemy.size / 2);
+        const playerDy = playerY - (enemy.y + enemy.size / 2);
+        const playerDistance = Math.sqrt(playerDx * playerDx + playerDy * playerDy);
+        
+        const collisionRadius = enemy.isBoss ? 80 : (enemy.size === 80 ? 40 : 30);
+        
+        if (playerDistance < collisionRadius) {
+          // Player hit! Reset game with glitch effect
+          gameOver();
+          return;
+        }
+        
+        // Check collision with bullets
+        bullets.forEach((bullet, bulletIndex) => {
+          // First check shield ships if boss
+          if (enemy.isBoss && enemy.shieldShips) {
+            for (let i = 0; i < enemy.shieldShips.length; i++) {
+              const shield = enemy.shieldShips[i];
+              if (!shield.active) continue;
+              
+              const shieldCenterX = parseFloat(shield.element.style.left) + 20;
+              const shieldCenterY = parseFloat(shield.element.style.top) + 20;
+              const sdx = bullet.x - shieldCenterX;
+              const sdy = bullet.y - shieldCenterY;
+              const shieldDistance = Math.sqrt(sdx * sdx + sdy * sdy);
+              
+              if (shieldDistance < 25) {
+                // Hit shield ship!
+                shield.health--;
+                createHitEffect(shieldCenterX, shieldCenterY);
+                
+                // Remove bullet
+                bullet.element.remove();
+                bullets.splice(bulletIndex, 1);
+                
+                if (shield.health <= 0) {
+                  // Shield destroyed!
+                  createExplosion(shieldCenterX, shieldCenterY);
+                  shield.element.remove();
+                  shield.active = false;
+                  score += 25; // Points for destroying shield
+                  scoreValue.textContent = score;
+                } else {
+                  // Shield damage effect
+                  shield.element.style.filter = 'brightness(1.8)';
+                  setTimeout(() => {
+                    if (shield.element && shield.element.style) {
+                      shield.element.style.filter = 'none';
+                    }
+                  }, 100);
+                }
+                return; // Bullet consumed by shield
+              }
+            }
+          }
+          
+          const dx = bullet.x - (enemy.x + enemy.size / 2);
+          const dy = bullet.y - (enemy.y + enemy.size / 2);
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          const hitRadius = enemy.isBoss ? 80 : (enemy.size === 80 ? 35 : 25);
+          
+          if (distance < hitRadius) {
+            // Hit!
+            enemy.health--;
+            
+            // Update boss health bar
+            if (enemy.isBoss) {
+              const healthFill = document.getElementById('boss-health-fill');
+              if (healthFill) {
+                const healthPercent = (enemy.health / enemy.maxHealth) * 100;
+                healthFill.style.width = healthPercent + '%';
+              }
+            }
+            
+            // Create smaller explosion for hit
+            createHitEffect(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2);
+            
+            // Remove bullet
+            bullet.element.remove();
+            bullets.splice(bulletIndex, 1);
+            
+            if (enemy.health <= 0) {
+              // Enemy destroyed!
+              if (enemy.isBoss) {
+                // Boss defeated!
+                bossDefeated();
+              }
+              createExplosion(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2);
+              enemy.element.remove();
+              enemies.splice(enemyIndex, 1);
+              
+              // More points for space station and boss
+              const points = enemy.isBoss ? 500 : (enemy.maxHealth === 3 ? 50 : 10);
+              score += points;
+              scoreValue.textContent = score;
+            } else {
+              // Damage effect
+              enemy.element.style.filter = enemy.isBoss ? 'brightness(1.5) contrast(1.5) drop-shadow(0 0 30px #F472B6)' : 'brightness(1.5) contrast(1.5)';
+              setTimeout(() => {
+                if (enemy.element && enemy.element.style) {
+                  enemy.element.style.filter = enemy.isBoss ? 'drop-shadow(0 0 30px #F472B6)' : 'none';
+                }
+              }, 100);
+              
+              // Add shake effect
+              const originalX = enemy.x;
+              enemy.x += 5;
+              setTimeout(() => {
+                if (enemy.element) {
+                  enemy.x = originalX - 5;
+                }
+              }, 50);
+              setTimeout(() => {
+                if (enemy.element) {
+                  enemy.x = originalX;
+                }
+              }, 100);
+            }
+          }
+        });
+      });
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Create explosion effect
+    function createExplosion(x, y) {
+      for (let i = 0; i < 12; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = '6px';
+        particle.style.height = '6px';
+        particle.style.background = i % 2 === 0 ? '#FACC15' : '#F472B6';
+        particle.style.borderRadius = '50%';
+        particle.style.pointerEvents = 'none';
+        particle.style.boxShadow = '0 0 10px currentColor';
+        
+        const angle = (Math.PI * 2 * i) / 12;
+        const velocity = 40 + Math.random() * 40;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        particle.style.transition = 'all 0.6s ease-out';
+        enemiesContainer.appendChild(particle);
+        
+        setTimeout(() => {
+          particle.style.transform = `translate(${tx}px, ${ty}px)`;
+          particle.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => particle.remove(), 600);
+      }
+    }
+
+    // Create hit effect (smaller than explosion)
+    function createHitEffect(x, y) {
+      for (let i = 0; i < 6; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = '#FACC15';
+        particle.style.borderRadius = '50%';
+        particle.style.pointerEvents = 'none';
+        particle.style.boxShadow = '0 0 8px #FACC15';
+        
+        const angle = (Math.PI * 2 * i) / 6;
+        const velocity = 20 + Math.random() * 20;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        particle.style.transition = 'all 0.4s ease-out';
+        enemiesContainer.appendChild(particle);
+        
+        setTimeout(() => {
+          particle.style.transform = `translate(${tx}px, ${ty}px)`;
+          particle.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => particle.remove(), 400);
+      }
+    }
+
+    // Boss Defeated
+    function bossDefeated() {
+      // Remove health bar
+      const healthBar = document.getElementById('boss-health-bar');
+      const healthText = document.getElementById('boss-health-text');
+      const arena = document.getElementById('boss-arena');
+      if (healthBar) healthBar.remove();
+      if (healthText) healthText.remove();
+      if (arena) arena.remove();
+      
+      // Clear boss projectiles
+      bossProjectiles.forEach(p => p.element.remove());
+      bossProjectiles = [];
+      
+      // Remove all remaining shield ships
+      const defeatedBoss = enemies.find(e => e.isBoss);
+      if (defeatedBoss && defeatedBoss.shieldShips) {
+        defeatedBoss.shieldShips.forEach(shield => {
+          if (shield.element) {
+            const shieldX = parseFloat(shield.element.style.left) + 20;
+            const shieldY = parseFloat(shield.element.style.top) + 20;
+            createExplosion(shieldX, shieldY);
+            shield.element.remove();
+          }
+        });
+      }
+      
+      // Victory message
+      const victoryMsg = document.createElement('div');
+      victoryMsg.style.position = 'fixed';
+      victoryMsg.style.top = '40%';
+      victoryMsg.style.left = '50%';
+      victoryMsg.style.transform = 'translate(-50%, -50%)';
+      victoryMsg.style.fontFamily = "'Press Start 2P', cursive";
+      victoryMsg.style.fontSize = '48px';
+      victoryMsg.style.color = '#FACC15';
+      victoryMsg.style.textShadow = '0 0 30px #FACC15, 3px 0 #22D3EE, -3px 0 #F472B6';
+      victoryMsg.style.zIndex = '9999';
+      victoryMsg.style.pointerEvents = 'none';
+      victoryMsg.style.animation = 'glitchIntense 0.3s, pulse 2s infinite';
+      victoryMsg.textContent = '🎉 BOSS DEFEATED! 🎉';
+      document.body.appendChild(victoryMsg);
+      
+      // Flash effect
+      const flash = document.createElement('div');
+      flash.style.position = 'fixed';
+      flash.style.top = '0';
+      flash.style.left = '0';
+      flash.style.width = '100%';
+      flash.style.height = '100%';
+      flash.style.background = '#FACC15';
+      flash.style.opacity = '0';
+      flash.style.pointerEvents = 'none';
+      flash.style.zIndex = '9998';
+      document.body.appendChild(flash);
+      
+      flash.style.transition = 'opacity 0.2s';
+      flash.style.opacity = '0.5';
+      setTimeout(() => {
+        flash.style.opacity = '0';
+      }, 200);
+      
+      setTimeout(() => {
+        victoryMsg.remove();
+        flash.remove();
+        // Resume spawning enemies
+        bossSpawned = false;
+        setTimeout(() => spawnEnemies(), 2000);
+      }, 3000);
+    }
+
+    // Game Over with glitch effect
+    function gameOver() {
+      gameActive = false;
+      
+      // Big explosion at player position
+      createExplosion(playerX, playerY);
+      
+      // Screen glitch effect
+      const body = document.body;
+      body.style.animation = 'glitchIntense 0.3s';
+      
+      // Flash effect
+      const flash = document.createElement('div');
+      flash.style.position = 'fixed';
+      flash.style.top = '0';
+      flash.style.left = '0';
+      flash.style.width = '100%';
+      flash.style.height = '100%';
+      flash.style.background = '#F472B6';
+      flash.style.opacity = '0.7';
+      flash.style.pointerEvents = 'none';
+      flash.style.zIndex = '9998';
+      flash.style.transition = 'opacity 0.5s';
+      document.body.appendChild(flash);
+      
+      setTimeout(() => {
+        flash.style.opacity = '0';
+      }, 100);
+      
+      setTimeout(() => {
+        flash.remove();
+      }, 600);
+      
+      // Show game over message with glitch
+      const gameOverMsg = document.createElement('div');
+      gameOverMsg.style.position = 'fixed';
+      gameOverMsg.style.top = '50%';
+      gameOverMsg.style.left = '50%';
+      gameOverMsg.style.transform = 'translate(-50%, -50%)';
+      gameOverMsg.style.fontFamily = "'Press Start 2P', cursive";
+      gameOverMsg.style.fontSize = '32px';
+      gameOverMsg.style.color = '#F472B6';
+      gameOverMsg.style.textShadow = '3px 0 #22D3EE, -3px 0 #FACC15, 0 0 20px #F472B6';
+      gameOverMsg.style.zIndex = '9999';
+      gameOverMsg.style.pointerEvents = 'none';
+      gameOverMsg.style.animation = 'glitchIntense 0.5s infinite';
+      gameOverMsg.textContent = 'GAME OVER';
+      document.body.appendChild(gameOverMsg);
+      
+      const finalScore = document.createElement('div');
+      finalScore.style.position = 'fixed';
+      finalScore.style.top = '60%';
+      finalScore.style.left = '50%';
+      finalScore.style.transform = 'translate(-50%, -50%)';
+      finalScore.style.fontFamily = "'VT323', monospace";
+      finalScore.style.fontSize = '24px';
+      finalScore.style.color = '#22D3EE';
+      finalScore.style.textShadow = '0 0 10px #22D3EE';
+      finalScore.style.zIndex = '9999';
+      finalScore.style.pointerEvents = 'none';
+      finalScore.textContent = `Final Score: ${score}`;
+      document.body.appendChild(finalScore);
+      
+      const restartMsg = document.createElement('div');
+      restartMsg.style.position = 'fixed';
+      restartMsg.style.top = '70%';
+      restartMsg.style.left = '50%';
+      restartMsg.style.transform = 'translate(-50%, -50%)';
+      restartMsg.style.fontFamily = "'VT323', monospace";
+      restartMsg.style.fontSize = '20px';
+      restartMsg.style.color = '#FACC15';
+      restartMsg.style.textShadow = '0 0 10px #FACC15';
+      restartMsg.style.zIndex = '9999';
+      restartMsg.style.pointerEvents = 'none';
+      restartMsg.style.animation = 'pulse 2s infinite';
+      restartMsg.textContent = 'Right Click to Restart';
+      document.body.appendChild(restartMsg);
+      
+      // Clear game elements
+      bullets.forEach(bullet => bullet.element.remove());
+      bullets = [];
+      enemies.forEach(enemy => {
+        // Remove shield ships if boss
+        if (enemy.isBoss && enemy.shieldShips) {
+          enemy.shieldShips.forEach(shield => {
+            if (shield.element) shield.element.remove();
+          });
+        }
+        enemy.element.remove();
+      });
+      enemies = [];
+      bossProjectiles.forEach(p => p.element.remove());
+      bossProjectiles = [];
+      
+      // Remove boss UI if exists
+      const healthBar = document.getElementById('boss-health-bar');
+      const healthText = document.getElementById('boss-health-text');
+      const arena = document.getElementById('boss-arena');
+      if (healthBar) healthBar.remove();
+      if (healthText) healthText.remove();
+      if (arena) arena.remove();
+      
+      // Reset boss flag
+      bossSpawned = false;
+      
+      // Hide game UI temporarily
+      playerShip.style.display = 'none';
+      gameScore.style.display = 'none';
+      gameInstructions.style.display = 'none';
+      
+      // Remove messages after delay
+      setTimeout(() => {
+        gameOverMsg.remove();
+        finalScore.remove();
+        restartMsg.remove();
+        body.style.animation = '';
+      }, 3000);
+    }
+
+    // Initialize
+    createStarfield();
+    onConfigChange(window.elementSdk ? window.elementSdk.config : defaultConfig);
+    gameLoop();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9be452ca12f4d8a3',t:'MTc2ODQ2OTEwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

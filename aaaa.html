@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashes of Vengeance - Character Select</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'Rajdhani', sans-serif;
+    }
+    
+    .font-orbitron {
+      font-family: 'Orbitron', monospace;
+    }
+    
+    .bg-grid {
+  position: relative;
+  background-image:
+    /* grid horizontal */
+    linear-gradient(rgba(0, 255, 200, 0.03) 1px, transparent 1px),
+    /* grid vertical */
+    linear-gradient(90deg, rgba(0, 255, 200, 0.03) 1px, transparent 1px),
+    /* background image */
+    url("./bg.jpg");
+
+  background-size:
+    50px 50px,
+    50px 50px,
+    cover;
+
+  background-position:
+    top left,
+    top left,
+    center;
+
+  background-repeat:
+    repeat,
+    repeat,
+    no-repeat;
+}
+
+/* Dark overlay biar image lebih gelap & UI kebaca */
+.bg-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8); /* adjust ke 0.5–0.7 kalau mau */
+  z-index: 0;
+}
+
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  z-index: 1;
+}
+
+    
+    .noise-overlay {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+    
+    .character-card {
+      transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .character-card:not(.selected) {
+      filter: brightness(0.4) saturate(0.3);
+      transform: scale(0.98);
+    }
+    
+    .character-card.selected {
+      filter: brightness(1) saturate(1);
+      transform: scale(1);
+    }
+    
+    .glow-border {
+      box-shadow: 
+        0 0 15px rgba(255, 255, 255, 0.15),
+        0 0 30px rgba(209, 209, 209, 0.1),
+        inset 0 0 15px rgba(0, 255, 200, 0.05);
+    }
+    
+    .stat-bar {
+      background: linear-gradient(90deg, var(--stat-color), transparent);
+      box-shadow: 0 0 10px var(--stat-color);
+    }
+    
+    .nav-item {
+      position: relative;
+    }
+    
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-item:hover::after,
+    .nav-item.active::after {
+      width: 100%;
+    }
+    
+    .scanline {
+      background: linear-gradient(
+        transparent 50%,
+        rgba(0, 255, 200, 0.02) 50%
+      );
+      background-size: 100% 4px;
+      animation: scanline 8s linear infinite;
+    }
+    
+    @keyframes scanline {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .float-animation {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    .faction-emblem {
+      opacity: 0.08;
+      filter: blur(2px);
+    }
+    
+    .cyber-border {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      clip-path: polygon(
+        0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px,
+        100% calc(100% - 10px), calc(100% - 10px) 100%,
+        10px 100%, 0 calc(100% - 10px)
+      );
+    }
+    
+    .corner-accent {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: rgba(0, 255, 200, 0.5);
+    }
+    
+    .corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+    .corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+    .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+    
+    .char-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    
+    /* Scrollbar styling */
+    #character-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    #character-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+    }
+    
+    #character-container::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 200, 0.3);
+      border-radius: 4px;
+    }
+    
+    #character-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 255, 200, 0.5);
+    }
+    
+    /* Detail mode styles */
+    .detail-mode #character-container {
+      justify-content: start !important;
+      padding-left: 0 !important;
+    }
+    
+    .detail-mode .character-card:not(.selected) {
+      display: none;
+    }
+    
+    .detail-mode .character-card.selected {
+      position: fixed !important;
+      left: 12rem !important;
+      top: 50% !important;
+      transform: translateY(-50%) scale(1) !important;
+      z-index: 20;
+      width: 380px !important;
+      height: 85% !important;
+    }
+    
+    .detail-mode #detail-panel {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      right: 2rem !important;
+      width: 60% !important;
+      max-width: 900px !important;
+      height: 70%;
+      overflow-y: auto;
+    }
+    
+    /* Blur background and header in detail mode */
+    .detail-mode .bg-layers {
+      filter: blur(8px);
+      transition: filter 0.3s ease;
+    }
+    
+    .detail-mode header {
+      filter: blur(4px);
+      pointer-events: none;
+      transition: filter 0.3s ease;
+    }
+    
+    #detail-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #detail-panel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    #detail-panel::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 200, 0.3);
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <audio id="clickAudio">
+        <source src="click-sound.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung elemen audio.
+    </audio>
+<script>
+        // Membuat objek audio langsung di JS
+        const enterSound = new Audio('enter.wav');
+
+        // Mendengarkan tekanan tombol di keyboard
+        document.addEventListener("keydown", (event) => {
+            // Cek apakah tombol yang ditekan adalah "Enter"
+            if (event.key === "Enter") {
+                enterSound.currentTime = 0; // Reset ke awal
+                enterSound.play();
+                
+                // Opsional: Kasih efek visual biar seru
+                console.log("Tombol Enter ditekan!");
+            }
+        });
+    </script>
+    <script>
+        // Ambil elemen audio
+        const audio = document.getElementById("clickAudio");
+
+        // Tambahkan event listener klik ke seluruh dokumen
+        document.addEventListener("click", () => {
+            audio.currentTime = 0; // Reset durasi ke awal supaya bisa diklik berkali-kali dengan cepat
+            audio.play();
+        });
+    </script>
+ <body class="h-full bg-black text-white overflow-hidden">
+  <div id="app" class="h-full w-full relative"><!-- Background layers -->
+   <div class="bg-layers absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-gray-950 via-black to-gray-900"></div>
+    <div class="absolute inset-0 bg-grid"></div>
+    <div class="absolute inset-0 noise-overlay"></div>
+    <div class="absolute inset-0 scanline pointer-events-none"></div>
+   </div><!-- Main container -->
+   <div class="relative h-full w-full flex flex-col"><!-- Top Navigation Bar -->
+    <header class="flex-shrink-0 px-8 py-4 flex items-center justify-between border-b border-gray-800/50 bg-black/40 backdrop-blur-sm"><!-- Logo -->
+     <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3">
+       <svg class="w-10 h-10" viewbox="0 0 40 40" fill="none"><path d="M20 2L38 20L20 38L2 20L20 2Z" stroke="url(#logo-grad)" stroke-width="2" fill="none" /> <path d="M20 8L32 20L20 32L8 20L20 8Z" fill="url(#logo-grad)" opacity="0.3" /> <path d="M20 14L26 20L20 26L14 20L20 14Z" fill="url(#logo-grad)" /> <defs>
+         <lineargradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00ffc8" />
+          <stop offset="100%" stop-color="#00d4ff" />
+         </lineargradient>
+        </defs>
+       </svg>
+       <div>
+        <h1 id="game-title" class="font-orbitron text-lg font-bold tracking-wider bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">ASHES OF VENGEANCE</h1>
+        <p class="text-xs text-gray-500 tracking-widest">BIOMECHANOID WARFARE</p>
+       </div>
+      </div>
+     </div><!-- Navigation -->
+     <nav class="flex items-center gap-8"><button id="sound-toggle" class="sound-toggle" aria-label="Toggle Sound">
+  🔊
+</button>
+
+<audio id="bg-music" src="Inst.mp3" loop></audio>
+<style>.sound-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 27px;
+  width: 48px;
+  margin-bottom: -75px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(10px);
+  color: #00ffd0;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.15);
+  transition: all 0.25s ease;
+}
+
+.sound-toggle:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.35);
+  transform: scale(1.05);
+}
+
+.sound-toggle.muted {
+  color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+</style><script>
+  const music = document.getElementById("bg-music");
+  const toggle = document.getElementById("sound-toggle");
+  let isPlaying = false;
+
+  // Prevent Enter key from triggering toggle
+  toggle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+    }
+  });
+
+  toggle.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (!isPlaying) {
+      music.volume = 0.3;
+      music.play();
+      toggle.textContent = "🔊";
+      toggle.classList.remove("muted");
+      isPlaying = true;
+    } else {
+      music.pause();
+      toggle.textContent = "🔇";
+      toggle.classList.add("muted");
+      isPlaying = false;
+    }
+  });
+</script><button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1" onmouseenter="playSound('hover')"><a href="play.html">PLAY</a></button><!-- <button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1" onmouseenter="playSound('hover')"><a href="decks.html">DECKS</a></button> <button class="nav-item font-orbitron text-sm tracking-wider text-gray-500 hover:text-gray-300 transition-colors px-2 py-1" onmouseenter="playSound('hover')"><a href="armory.html">ARMORY</a></button>--> <button class="nav-item active font-orbitron text-sm tracking-wider text-white transition-colors px-2 py-1"><a href="dominators.html">DOMINATORS</a></button>
+     </nav><!-- Player Info -->
+     <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded">
+       <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-glow"></div><span class="text-xs text-gray-400">SAFE</span>
+      </div>
+      <div class="flex items-center gap-3">
+       <div class="text-right">
+        <p id="player-name" class="font-orbitron text-sm text-white">Zuraa?!</p>
+        <p class="text-xs text-emerald-400">ONLINE</p>
+       </div>
+       <div class="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/50 rounded flex items-center justify-center"><span class="font-orbitron text-sm text-cyan-400">X7</span>
+       </div>
+      </div>
+     </div>
+    </header><!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center px-8 py-6 overflow-hidden">
+     <div class="w-full h-full flex items-center justify-start gap-2 overflow-x-hidden overflow-y-hidden px-8" id="character-container" style="scrollbar-width: thin; scrollbar-color: rgba(0, 255, 200, 0.3) rgba(0, 0, 0, 0.3);"><!-- Characters will be rendered here -->
+     </div>
+    </main><!-- Bottom Info Panel -->
+    <footer class="flex-shrink-0 px-8 py-4 border-t border-gray-800/50 bg-black/40 backdrop-blur-sm">
+     <div class="flex items-center justify-between">
+      <div class="flex items-center gap-6">
+       <div class="flex items-center gap-2"><span class="text-gray-500 text-xs">&lt;</span> <span class="font-orbitron text-xs text-gray-400">A</span>
+       </div><span class="text-gray-600">|</span>
+       <div class="flex items-center gap-2"><span class="font-orbitron text-xs text-gray-400">D</span> <span class="text-gray-500 text-xs">&gt;</span>
+       </div><span class="text-gray-500 text-xs tracking-wider">SCROLL</span>
+       
+      </div>
+      <div class="flex items-center gap-6">
+       <div class="flex items-center gap-2"><span class="font-orbitron text-xs px-2 py-1 bg-cyan-500/20 border border-cyan-500/50 text-cyan-400">ENTER</span> <span class="text-gray-500 text-xs tracking-wider">VIEW DETAILS</span>
+       </div>
+       <div class="flex items-center gap-2"><span class="font-orbitron text-xs px-2 py-1 bg-purple-500/20 border border-purple-500/50 text-purple-400">ESC</span> <span class="text-gray-500 text-xs tracking-wider">BACK</span>
+       </div>
+      </div>
+      <div class="text-right">
+        
+       <p class="text-xs text-gray-600">BUILD 2.4.7 ALPHA</p>
+      </div>
+     </div>
+    </footer>
+   </div><!-- Selected Character Detail Panel -->
+   <div id="detail-panel" class="absolute right-8 top-1/2 -translate-y-1/2 w-72 opacity-0 transition-all duration-500 pointer-events-none">
+    <div class="relative bg-black/80 backdrop-blur-md border border-cyan-500/30 p-6">
+     <div class="corner-accent corner-tl"></div>
+     <div class="corner-accent corner-tr"></div>
+     <div class="corner-accent corner-bl"></div>
+     <div class="corner-accent corner-br"></div><!-- Faction Emblem Background -->
+     <div id="faction-bg" class="absolute inset-0 flex items-center justify-center faction-emblem">
+      <svg class="w-48 h-48" viewbox="0 0 100 100" fill="currentColor"><polygon points="50,5 95,30 95,70 50,95 5,70 5,30" />
+      </svg>
+     </div>
+     <div class="relative z-10"><!-- Designation -->
+      <p id="char-designation" class="text-xs text-cyan-400 tracking-widest mb-1"></p><!-- Name -->
+      <h2 id="char-name" class="font-orbitron text-2xl font-bold text-white mb-2"></h2><!-- Level -->
+      <div class="flex items-center gap-2 mb-4">
+       <div class="h-1 flex-1 bg-gray-800 rounded overflow-hidden">
+        <div id="level-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500"></div>
+       </div><span id="level-text" class="font-orbitron text-xs text-gray-400"></span>
+      </div><!-- Lore -->
+      <p id="char-lore" class="text-sm text-gray-400 leading-relaxed mb-6"></p><!-- Stats -->
+      <div class="space-y-3 mb-6">
+       <div class="stat-row">
+        <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 tracking-wider">STRENGTH</span> <span id="stat-str" class="font-orbitron text-xs text-cyan-400"></span>
+        </div>
+        <div class="h-1 bg-gray-800 rounded overflow-hidden">
+         <div id="bar-str" class="stat-bar h-full rounded transition-all duration-500" style="--stat-color: #00ffc8;"></div>
+        </div>
+       </div>
+       <div class="stat-row">
+        <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 tracking-wider">AGILITY</span> <span id="stat-agi" class="font-orbitron text-xs text-purple-400"></span>
+        </div>
+        <div class="h-1 bg-gray-800 rounded overflow-hidden">
+         <div id="bar-agi" class="stat-bar h-full rounded transition-all duration-500" style="--stat-color: #a855f7;"></div>
+        </div>
+       </div>
+       <div class="stat-row">
+        <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 tracking-wider">POWER</span> <span id="stat-pow" class="font-orbitron text-xs text-orange-400"></span>
+        </div>
+        <div class="h-1 bg-gray-800 rounded overflow-hidden">
+         <div id="bar-pow" class="stat-bar h-full rounded transition-all duration-500" style="--stat-color: #f97316;"></div>
+        </div>
+       </div>
+       <div class="stat-row">
+        <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 tracking-wider">INTELLIGENCE</span> <span id="stat-int" class="font-orbitron text-xs text-blue-400"></span>
+        </div>
+        <div class="h-1 bg-gray-800 rounded overflow-hidden">
+         <div id="bar-int" class="stat-bar h-full rounded transition-all duration-500" style="--stat-color: #3b82f6;"></div>
+        </div>
+       </div>
+      </div><!-- Special Ability -->
+      <div class="mb-4 p-4 bg-gradient-to-r from-cyan-500/10 to-transparent border-l-2 border-cyan-500">
+       <p class="text-xs text-cyan-400 tracking-wider mb-1">SPECIAL ABILITY</p>
+       <p id="special-ability" class="text-sm text-white font-medium mb-1"></p>
+       <p id="ability-desc" class="text-xs text-gray-400"></p>
+      </div><!-- Combat Role -->
+      <div class="mb-4 p-4 bg-gradient-to-r from-purple-500/10 to-transparent border-l-2 border-purple-500">
+       <p class="text-xs text-purple-400 tracking-wider mb-2">COMBAT ROLE</p>
+       <p id="combat-role" class="text-sm text-white"></p>
+      </div><!-- Faction Info -->
+      <div class="mb-4 p-4 bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500">
+       <p class="text-xs text-orange-400 tracking-wider mb-2">FACTION</p>
+       <div class="flex items-center justify-between">
+        <p id="faction-name" class="text-sm text-white font-orbitron"></p>
+        <div id="faction-badge" class="px-2 py-1 rounded text-xs font-orbitron"></div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Sound System
+    const sounds = {
+      hover: null,
+      select: null,
+      switch: null,
+      back: null,
+      enter: null
+    };
+    
+    function playSound(soundType) {
+      if (sounds[soundType] && sounds[soundType].src) {
+        const sound = sounds[soundType].cloneNode();
+        sound.volume = 0.3;
+        sound.play().catch(e => console.log('Sound play prevented:', e));
+      }
+    }
+    
+    function initializeSounds() {
+      // Initialize audio elements - you'll need to provide these files
+      sounds.hover = new Audio('hover.mp3');
+      sounds.select = new Audio('select.mp3');
+      sounds.switch = new Audio('switch.mp3');
+      sounds.back = new Audio('back.mp3');
+      sounds.enter = new Audio('enter.mp3');
+      
+      // Preload all sounds
+      Object.values(sounds).forEach(sound => {
+        if (sound) {
+          sound.preload = 'auto';
+          sound.load();
+        }
+      });
+    }
+    
+    // Initialize sounds when page loads
+    window.addEventListener('load', initializeSounds);
+    
+    const characters = [
+      {
+        id: 'mortyx',
+        designation: 'EB-71',
+        name: 'MORTYX',
+        subtitle: 'Unstoppable Brute',
+        level: 8,
+        maxLevel: 20,
+        lore: 'A powerful biomechanoid rebuilt with a crystal core, designed to protect and dominate battle zones.',
+        stats: { str: 95, agi: 40, pow: 90, int: 60 },
+        ability: 'CRYSTAL WAVE',
+        abilityDesc: 'Releases a wide energy pulse that disrupts enemies and protects allies',
+        color: '#00ffc8',
+        faction: 'Nemesis',
+        combatRole: 'FRONTLINE TANK • Area Denial',
+        weapons: ['Plasma Shield MK-IV', 'Crystal Pulse Cannon', 'Reinforced Armor Plating'],
+        unlocks: ['Next Ability: LVL 10', 'Weapon Upgrade: LVL 12', 'Ultimate Form: LVL 15'],
+        image: 'mortyx.jpg'
+      },
+      {
+        id: 'leviathan',
+        designation: 'EB-9999',
+        name: 'LEVIATHAN',
+        subtitle: 'Liquid Shifter',
+        level: 12,
+        maxLevel: 20,
+        lore: 'A shapeshifting EB-999 with unmatched adaptability and battlefield control.',
+        stats: { str: 88, agi: 95, pow: 92, int: 70 },
+        ability: 'FLOW DOMAIN',
+        abilityDesc: 'Spreads liquid energy across the field, slowing enemies and boosting allies',
+        color: '#828282',
+        faction: 'None',
+        combatRole: 'CONTROLLER • Crowd Control',
+        weapons: ['Hydro Blades', 'Liquid Armor System', 'Tide Manipulator'],
+        unlocks: ['Shape Mastery: LVL 14', 'Flow Speed +25%: LVL 16', 'Tsunami Ultimate: LVL 18'],
+        image: 'leviathan.jpg'
+      },
+      {
+        id: 'evince',
+        designation: 'EB-18',
+        name: 'EVINCE',
+        subtitle: 'Adaptive Vanguard',
+        level: 10,
+        maxLevel: 20,
+        lore: 'An experimental biomechanoid with octopus DNA, excelling in control and strategy.',
+        stats: { str: 75, agi: 85, pow: 80, int: 90 },
+        ability: 'TENTACLE FIELD',
+        abilityDesc: 'Summons energy tendrils that immobilize and weaken enemies in a wide area',
+        color: '#a5f0d9',
+        faction: 'Vanguard',
+        combatRole: 'STRATEGIC CONTROLLER • Multi-target',
+        weapons: ['Bio-Tentacle Array', 'Neural Disruptor', 'Adaptive Camouflage'],
+        unlocks: ['Tentacle Count +2: LVL 11', 'Neural Link: LVL 13', 'Hive Mind: LVL 17'],
+        image: 'evince.jpg'
+      },
+      {
+        id: 'vein',
+        designation: 'Neurox Hive',
+        name: 'VEIN',
+        subtitle: 'Strategic Commander',
+        level: 15,
+        maxLevel: 20,
+        lore: 'A master tactician who controls the battlefield with precision and planning.',
+        stats: { str: 70, agi: 65, pow: 85, int: 95 },
+        ability: 'TACTICAL ZONE',
+        abilityDesc: 'Creates a field that lowers enemy effectiveness and boosts ally coordination',
+        color: '#ef4444',
+        faction: 'Nemesis',
+        combatRole: 'COMMANDER • Team Buffer',
+        weapons: ['Tactical Holo-Display', 'Command Override System', 'Strategic Drone Swarm'],
+        unlocks: ['Zone Radius +30%: LVL 16', 'Instant Deployment: LVL 18', 'War Master: LVL 20'],
+        image: 'vein.jpg'
+      },
+      {
+        id: 'radiant',
+        designation: 'Solaryn',
+        name: 'RADIANT',
+        subtitle: 'Solar Sentinel',
+        level: 14,
+        maxLevel: 20,
+        lore: 'A radiant warrior who channels solar energy to support and control large areas.',
+        stats: { str: 80, agi: 55, pow: 100, int: 65 },
+        ability: 'SOLAR FIELD',
+        abilityDesc: 'Emits a powerful wave of light energy that stabilizes allies and disrupts enemies',
+        color: '#f59e0b',
+        faction: 'Nemesis',
+        combatRole: 'SUPPORT ARTILLERY • Area Healer',
+        weapons: ['Solar Beam Projector', 'Photon Barrier', 'Radiance Core'],
+        unlocks: ['Solar Flare: LVL 15', 'Energy Regen +50%: LVL 17', 'Supernova: LVL 19'],
+        image: 'radiant.jpg'
+      },
+      {
+        id: 'alyra',
+        designation: 'EB-26',
+        name: 'ALYRA',
+        subtitle: 'Blossom Guardian',
+        level: 9,
+        maxLevel: 20,
+        lore: 'A biomechanoid bonded with cherry blossom DNA, combining elegance with battlefield support.',
+        stats: { str: 60, agi: 90, pow: 75, int: 85 },
+        ability: 'PETAL AURA',
+        abilityDesc: 'Releases energy petals that protect allies and weaken enemies in range',
+        color: '#ec4899',
+        faction: 'Vanguard',
+        combatRole: 'AGILE SUPPORT • Evasion Specialist',
+        weapons: ['Petal Blade Storm', 'Bio-Reactive Armor', 'Nature\'s Embrace'],
+        unlocks: ['Petal Dance: LVL 11', 'Bloom Burst: LVL 14', 'Sakura Spirit: LVL 16'],
+        image: 'alyra.jpg'
+      },
+      {
+        id: 'jas',
+        designation: 'Voltari',
+        name: 'JAS',
+        subtitle: 'Tactical Runner',
+        level: 7,
+        maxLevel: 20,
+        lore: 'A fast and clever fighter who excels in team coordination.',
+        stats: { str: 65, agi: 80, pow: 70, int: 75 },
+        ability: 'FLASH SUPPORT',
+        abilityDesc: 'Fires energy bursts that assist allies and disorient enemies',
+        color: '#ffafa2',
+        faction: 'Vanguard',
+        combatRole: 'SCOUT • Fast Response',
+        weapons: ['Burst Rifle X9', 'Speed Boosters', 'Recon Beacon'],
+        unlocks: ['Sprint Mode: LVL 9', 'Quick Deploy: LVL 12', 'Time Warp: LVL 15'],
+        image: 'jas.jpg'
+      },
+      {
+        id: 'shadow',
+        designation: 'Umbryx',
+        name: 'SHADOW',
+        subtitle: 'Stealth Operative',
+        level: 11,
+        maxLevel: 20,
+        lore: 'A silent strategist who controls space through movement and positioning.',
+        stats: { str: 70, agi: 95, pow: 78, int: 85 },
+        ability: 'BLACKOUT FIELD',
+        abilityDesc: 'Creates a shadow zone that reduces enemy accuracy and boosts ally evasion',
+        color: '#765477',
+        faction: 'Vanguard',
+        combatRole: 'ASSASSIN • Stealth Ops',
+        weapons: ['Shadow Blade', 'Cloak Generator', 'Silent Step Module'],
+        unlocks: ['Invisibility: LVL 13', 'Backstab Mastery: LVL 15', 'Phantom Form: LVL 18'],
+        image: 'shadow.jpg'
+      },
+      {
+        id: 'zet',
+        designation: 'DracoNin',
+        name: 'ZET',
+        subtitle: 'Plasma Skirmisher',
+        level: 6,
+        maxLevel: 20,
+        lore: 'A high-speed unit specializing in area control and mobility.',
+        stats: { str: 85, agi: 88, pow: 82, int: 60 },
+        ability: 'PLASMA DASH',
+        abilityDesc: 'Moves rapidly across the field, leaving energy trails that slow enemies',
+        color: '#14b8a6',
+        faction: 'Nemesis',
+        combatRole: 'SKIRMISHER • Hit & Run',
+        weapons: ['Plasma Rifle', 'Energy Dash Core', 'Trail Generator'],
+        unlocks: ['Dash Cooldown -2s: LVL 8', 'Plasma Boost: LVL 10', 'Storm Runner: LVL 13'],
+        image: 'zet.jpg'
+      },
+      {
+  id: 'zuraa',
+  designation: 'Human',
+  name: 'ZURAA',
+  subtitle: 'Unstoppable Breaker',
+  level: 11,
+  maxLevel: 20,
+  lore: 'A raw power monster with extreme stamina limits. Dominates fights through brute force, pain tolerance, and sheer will.',
+  stats: { str: 98, agi: 55, pow: 95, int: 45 },
+  ability: 'BREAK LIMIT',
+  abilityDesc: 'Temporarily boosts strength and power to insane levels, but drains stamina rapidly after use.',
+  color: '#565656',
+  faction: 'Zenic < Zenic: Clash to Peace Collaboration special >',
+  combatRole: 'BRUISER • Frontline Destroyer',
+  weapons: ['Bare Hands', 'Broken Katana', 'Reinforced Wraps'],
+  unlocks: ['Next Ability: LVL 9', 'Rage Mode: LVL 12', 'Unchained Form: LVL 15'],
+  image: 'zuraa.jpg'
+},{
+  id: 'reyven',
+  designation: 'Human',
+  name: 'REYVEN',
+  subtitle: 'Frequency Phantom',
+  level: 9,
+  maxLevel: 20,
+  lore: 'A hyper-aware tactician with extreme sensory perception. Can weaponize the smallest details in the environment to dominate enemies.',
+  stats: { str: 45, agi: 70, pow: 60, int: 98 },
+  ability: 'FREQUENCY LOCK',
+  abilityDesc: 'Detects and manipulates enemy movements by locking onto their heartbeat, footsteps, and weapon vibrations.',
+  color: '#e8e8e8',
+  faction: 'Zenic < Zenic: Clash to Peace Collaboration special >',
+  combatRole: 'CONTROL • Precision Striker',
+  weapons: ['Environmental Objects', 'Half Katana', 'Improvised Tools'],
+  unlocks: ['Next Ability: LVL 9', 'Overclocked Senses: LVL 12', 'Phantom State: LVL 15'],
+  image: 'reyven.jpg'
+},{
+        id: 'tharz',
+        designation: '???',
+        name: '< LOCKED ! >',
+        subtitle: 'Unlocked by completing the mission: The Altar on Earth.',
+        level: 0,
+        maxLevel: 20,
+        lore: '???',
+        stats: { str: 0, agi: 0, pow: 0, int: 0 },
+        ability: '???',
+        abilityDesc: '???',
+        color: '#8b5cf6',
+        faction: '???',
+        combatRole: '???',
+        weapons: ['Gravity Hammer', 'Mass Manipulator', 'Singularity Core'],
+        unlocks: ['Black Hole: LVL 15', 'Anti-Gravity: LVL 17', 'Void Master: LVL 19'],
+        image: 'locked.jpg'
+      },{
+        id: 'alt-evince',
+        designation: '???',
+        name: '< LOCKED ! >',
+        subtitle: 'Unlocked by completing the mission: Through the Breach.',
+        level: 0,
+        maxLevel: 20,
+        lore: '???',
+        stats: { str: 0, agi: 0, pow: 0, int: 0 },
+        ability: '???',
+        abilityDesc: '???',
+        color: '#8b5cf6',
+        faction: '???',
+        combatRole: '???',
+        weapons: ['Gravity Hammer', 'Mass Manipulator', 'Singularity Core'],
+        unlocks: ['Black Hole: LVL 15', 'Anti-Gravity: LVL 17', 'Void Master: LVL 19'],
+        image: 'locked.jpg'
+      }
+
+    ];
+
+    let selectedIndex = 2;
+    let isDetailMode = false;
+    
+    const defaultConfig = {
+      game_title: 'ASHES OF VENGEANCE',
+      player_name: 'COMMANDER_X7',
+      selected_character: 2,
+      primary_color: '#0a0a0a',
+      accent_color: '#00ffc8',
+      text_color: '#ffffff',
+      secondary_color: '#1f1f1f',
+      muted_color: '#6b7280'
+    };
+
+    function generatePlaceholderImage(character) {
+      // Create a placeholder with character color theme
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, 600);
+      gradient.addColorStop(0, character.color + '40');
+      gradient.addColorStop(0.5, '#1a1a2e');
+      gradient.addColorStop(1, '#0a0a0a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 400, 600);
+      
+      // Center text
+      ctx.fillStyle = character.color + '60';
+      ctx.font = 'bold 48px Orbitron, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(character.name, 200, 250);
+      
+      ctx.font = '24px Orbitron, monospace';
+      ctx.fillStyle = character.color + '40';
+      ctx.fillText(character.designation, 200, 300);
+      
+      ctx.fillStyle = character.color + '30';
+      ctx.fillText('CHARACTER IMAGE', 200, 350);
+      
+      return canvas.toDataURL();
+    }
+
+    function renderCharacters(config) {
+      const container = document.getElementById('character-container');
+      const appContainer = document.getElementById('app');
+      
+      // Toggle detail mode styling
+      if (isDetailMode) {
+        appContainer.classList.add('detail-mode');
+      } else {
+        appContainer.classList.remove('detail-mode');
+      }
+      
+      container.innerHTML = '';
+      
+      characters.forEach((char, index) => {
+        const isSelected = index === selectedIndex;
+        const card = document.createElement('div');
+        card.className = `character-card relative cursor-pointer flex-shrink-0 ${isSelected ? 'selected' : ''}`;
+        
+        if (isDetailMode) {
+          card.style.width = isSelected ? '380px' : '220px';
+          card.style.height = '85%';
+        } else {
+          card.style.width = isSelected ? '320px' : '220px';
+          card.style.height = '85%';
+        }
+        
+        card.style.minHeight = '550px';
+        card.style.maxHeight = '750px';
+        
+        card.innerHTML = `
+          <div class="relative h-full ${isSelected ? 'glow-border' : ''}" style="background: linear-gradient(180deg, rgba(${hexToRgb(char.color)}, 0.1) 0%, transparent 50%, rgba(0,0,0,0.8) 100%);">
+            <!-- Border frame -->
+            <div class="absolute inset-0 border ${isSelected ? 'border-cyan-500/50' : 'border-gray-800/50'}">
+              <div class="corner-accent corner-tl" style="border-color: ${isSelected ? char.color : 'rgba(100,100,100,0.3)'}"></div>
+              <div class="corner-accent corner-tr" style="border-color: ${isSelected ? char.color : 'rgba(100,100,100,0.3)'}"></div>
+              <div class="corner-accent corner-bl" style="border-color: ${isSelected ? char.color : 'rgba(100,100,100,0.3)'}"></div>
+              <div class="corner-accent corner-br" style="border-color: ${isSelected ? char.color : 'rgba(100,100,100,0.3)'}"></div>
+            </div>
+            
+            <!-- Character Image -->
+            <div class="absolute inset-0 overflow-hidden">
+              <img src="${char.image}" alt="${char.name}" loading="lazy" class="char-image" 
+                   onerror="this.src='${generatePlaceholderImage(char)}'; this.alt='${char.name} - Image not found';"
+                   style="filter: ${isSelected ? 'brightness(1)' : 'brightness(0.7)'};">
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+            </div>
+            
+            <!-- Name plate -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/95 to-transparent" style="padding-bottom: 1.5rem;">
+              <p class="text-xs tracking-widest mb-1" style="color: ${char.color}">${char.designation}</p>
+              <h3 class="font-orbitron text-lg font-bold text-white mb-2">${char.name}</h3>
+              <p class="text-xs text-gray-400 mb-3">${char.subtitle}</p>
+              <div class="flex items-center gap-2">
+                <div class="h-1 flex-1 bg-gray-800 rounded overflow-hidden">
+                  <div class="h-full rounded" style="width: ${(char.level / char.maxLevel) * 100}%; background: ${char.color};"></div>
+                </div>
+                <span class="font-orbitron text-xs text-gray-400">${char.level}/${char.maxLevel}</span>
+              </div>
+            </div>
+          </div>
+          
+        `;
+        
+        card.addEventListener('click', () => {
+          if (!isDetailMode) {
+            playSound('select');
+            selectedIndex = index;
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ selected_character: index });
+            }
+            renderCharacters(config);
+            updateDetailPanel(char);
+            scrollToSelected();
+          }
+        });
+        
+        card.addEventListener('mouseenter', () => {
+          if (!isDetailMode) {
+            playSound('hover');
+          }
+        });
+        
+        container.appendChild(card);
+      });
+      
+      if (!isDetailMode) {
+        updateDetailPanel(characters[selectedIndex]);
+        scrollToSelected();
+      } else {
+        updateDetailPanel(characters[selectedIndex]);
+      }
+    }
+    
+    function scrollToSelected() {
+      if (isDetailMode) return;
+      
+      const container = document.getElementById('character-container');
+      const cards = container.querySelectorAll('.character-card');
+      const selectedCard = cards[selectedIndex];
+      
+      if (selectedCard) {
+        const containerRect = container.getBoundingClientRect();
+        const cardRect = selectedCard.getBoundingClientRect();
+        const scrollLeft = selectedCard.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+        
+        container.scrollTo({
+          left: scrollLeft,
+          behavior: 'auto'
+        });
+      }
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? 
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+        '0, 255, 200';
+    }
+
+    function updateDetailPanel(char) {
+      const panel = document.getElementById('detail-panel');
+      
+      if (isDetailMode) {
+        panel.style.opacity = '1';
+        panel.style.pointerEvents = 'auto';
+      } else {
+        panel.style.opacity = '0';
+        panel.style.pointerEvents = 'none';
+      }
+      
+      document.getElementById('char-designation').textContent = char.designation;
+      document.getElementById('char-name').textContent = char.name;
+      document.getElementById('char-lore').textContent = char.lore;
+      document.getElementById('level-bar').style.width = `${(char.level / char.maxLevel) * 100}%`;
+      document.getElementById('level-text').textContent = `LVL ${char.level}/${char.maxLevel}`;
+      
+      document.getElementById('stat-str').textContent = char.stats.str;
+      document.getElementById('stat-agi').textContent = char.stats.agi;
+      document.getElementById('stat-pow').textContent = char.stats.pow;
+      document.getElementById('stat-int').textContent = char.stats.int;
+      
+      document.getElementById('bar-str').style.width = `${char.stats.str}%`;
+      document.getElementById('bar-agi').style.width = `${char.stats.agi}%`;
+      document.getElementById('bar-pow').style.width = `${char.stats.pow}%`;
+      document.getElementById('bar-int').style.width = `${char.stats.int}%`;
+      
+      document.getElementById('special-ability').textContent = char.ability;
+      document.getElementById('ability-desc').textContent = char.abilityDesc;
+      document.getElementById('combat-role').textContent = char.combatRole;
+      document.getElementById('faction-name').textContent = char.faction;
+      
+      const factionBadge = document.getElementById('faction-badge');
+      factionBadge.textContent = char.faction;
+      factionBadge.style.background = `${char.color}20`;
+      factionBadge.style.border = `1px solid ${char.color}`;
+      factionBadge.style.color = char.color;
+      
+
+      document.getElementById('faction-bg').style.color = char.color;
+    }
+
+    async function onConfigChange(config) {
+      document.getElementById('game-title').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('player-name').textContent = config.player_name || defaultConfig.player_name;
+      
+      if (config.selected_character !== undefined && config.selected_character !== selectedIndex) {
+        selectedIndex = config.selected_character;
+      }
+      
+      renderCharacters(config);
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              window.elementSdk.setConfig({ accent_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_color || defaultConfig.secondary_color,
+            set: (value) => {
+              config.secondary_color = value;
+              window.elementSdk.setConfig({ secondary_color: value });
+            }
+          },
+          {
+            get: () => config.muted_color || defaultConfig.muted_color,
+            set: (value) => {
+              config.muted_color = value;
+              window.elementSdk.setConfig({ muted_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['game_title', config.game_title || defaultConfig.game_title],
+        ['player_name', config.player_name || defaultConfig.player_name]
+      ]);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (isDetailMode) {
+          playSound('back');
+          isDetailMode = false;
+          renderCharacters(window.elementSdk?.config || defaultConfig);
+        }
+      } else if (e.key === 'Enter') {
+        if (!isDetailMode) {
+          playSound('enter');
+          isDetailMode = true;
+          renderCharacters(window.elementSdk?.config || defaultConfig);
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        if (!isDetailMode) {
+          playSound('switch');
+          selectedIndex = Math.max(0, selectedIndex - 1);
+          if (window.elementSdk) {
+            window.elementSdk.setConfig({ selected_character: selectedIndex });
+          }
+          renderCharacters(window.elementSdk?.config || defaultConfig);
+        }
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        if (!isDetailMode) {
+          playSound('switch');
+          selectedIndex = Math.min(characters.length - 1, selectedIndex + 1);
+          if (window.elementSdk) {
+            window.elementSdk.setConfig({ selected_character: selectedIndex });
+          }
+          renderCharacters(window.elementSdk?.config || defaultConfig);
+        }
+      }
+    });
+
+    // Initialize SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    } else {
+      onConfigChange(defaultConfig);
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bf5243f922e81e0',t:'MTc2ODY0NTQ1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>{
+        id: 'nikusa',
+        designation: 'Entity',
+        name: 'NIKUSA',
+        subtitle: 'Void Queen',
+        level: 11,
+        maxLevel: 20,
+        lore: 'The enigmatic Queen of the Void',
+        stats: { str: 78, agi: 88, pow: 82, int: 60 },
+        ability: 'Void control',
+        abilityDesc: 'Control the void, the time and space within her hand',
+        color: '#ff74ff',
+        faction: 'None',
+        combatRole: 'Controller • Debuff Enemy',
+        weapons: ['Morph', 'Mind control', 'Space control'],
+        unlocks: ['Invisibility Cooldown -1s : LVL 13 ', 'hallucinations : LVL 12', 'Infinity Space: LVL 15'],
+        image: 'nikusa.jpg'
+      },
+      
+{
+        id: 'solazar',
+        designation: 'Entity',
+        name: 'SOLAZAR',
+        subtitle: 'Ice flame',
+        level: 9,
+        maxLevel: 20,
+        lore: 'A material manipulator, sulfur fire entity with high mobility.',
+        stats: { str: 78, agi: 88, pow: 82, int: 60 },
+        ability: 'Flame Madness',
+        abilityDesc: 'Control sulfur fire, turn it into weapon and can manipulate other material',
+        color: '#99e4f0',
+        faction: 'None',
+        combatRole: 'FINISHER • Hit & Run',
+        weapons: ['Sulfur Basic', 'Material Madness', 'Finish it'],
+        unlocks: ['Material Madness Cooldown -1s : LVL 11 ', 'Infinity Atoms : LVL 12', 'Blue magma: LVL 15'],
+        image: 'solazar.jpg'
+      },
+      {
+        id: 'tharz',
+        designation: 'Gravolith',
+        name: 'THARZ',
+        subtitle: 'Gravity Controller',
+        level: 13,
+        maxLevel: 20,
+        lore: 'A powerhouse who manipulates gravity to control large crowds.',
+        stats: { str: 92, agi: 45, pow: 88, int: 70 },
+        ability: 'GRAVITY ZONE',
+        abilityDesc: 'Pulls enemies together and stabilizes the battlefield',
+        color: '#8b5cf6',
+        faction: 'Vanguard',
+        combatRole: 'CROWD CONTROL • Displacement',
+        weapons: ['Gravity Hammer', 'Mass Manipulator', 'Singularity Core'],
+        unlocks: ['Black Hole: LVL 15', 'Anti-Gravity: LVL 17', 'Void Master: LVL 19'],
+        image: 'tharz.jpg'
+      }
